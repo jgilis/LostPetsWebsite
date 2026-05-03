@@ -1,18 +1,31 @@
-"use client"; // This tells Next.js to treat the component as a client-side component.
+// First, define the type for the report data
+type Report = {
+  id: string;
+  type: string;
+  animal_type: string;
+  description: string;
+  edit_token: string;
+};
+
+type EditPageProps = {
+  reportData: Report | null; // reportData can be null if no data is found
+};
+
+"use client";
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "../../src/lib/supabase";
 
-export default function EditPage() {
+export default function EditPage({ reportData }: EditPageProps) {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
-  const [report, setReport] = useState<any>(null);
+  const [report, setReport] = useState<Report | null>(reportData);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || report) return; // Skip if report is already set
 
     const fetchReport = async () => {
       const { data, error } = await supabase
@@ -29,7 +42,7 @@ export default function EditPage() {
     };
 
     fetchReport();
-  }, [token]);
+  }, [token, report]);
 
   const handleDelete = async () => {
     const { error } = await supabase
@@ -62,4 +75,22 @@ export default function EditPage() {
       <p>{message}</p>
     </div>
   );
+}
+
+// Now ensure getServerSideProps is correctly typed as well
+export async function getServerSideProps({ params }: { params: { token: string } }) {
+  // Fetch the report data here if necessary. You can also skip the server-side fetching
+  // and rely solely on the client-side fetching in `useEffect`
+  const { token } = params;
+  const { data, error } = await supabase
+    .from("reports")
+    .select("*")
+    .eq("edit_token", token)
+    .single();
+
+  if (error) {
+    return { props: { reportData: null } };
+  }
+
+  return { props: { reportData: data } };
 }
