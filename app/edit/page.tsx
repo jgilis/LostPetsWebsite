@@ -1,5 +1,4 @@
-// Add this at the top of your file
-"use client"; 
+"use client";
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -13,19 +12,15 @@ type Report = {
   edit_token: string;
 };
 
-type EditPageProps = {
-  reportData: Report | null;
-};
-
-export default function EditPage({ reportData }: EditPageProps) {
+export default function EditPage() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
-  const [report, setReport] = useState<Report | null>(reportData);
+  const [report, setReport] = useState<Report | null>(null);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (!token || report) return;
+    if (!token) return;
 
     const fetchReport = async () => {
       const { data, error } = await supabase
@@ -42,7 +37,7 @@ export default function EditPage({ reportData }: EditPageProps) {
     };
 
     fetchReport();
-  }, [token, report]);
+  }, [token]);
 
   const handleDelete = async () => {
     const { error } = await supabase
@@ -75,19 +70,4 @@ export default function EditPage({ reportData }: EditPageProps) {
       <p>{message}</p>
     </div>
   );
-}
-
-export async function getServerSideProps({ params }: { params: { token: string } }) {
-  const { token } = params;
-  const { data, error } = await supabase
-    .from("reports")
-    .select("*")
-    .eq("edit_token", token)
-    .single();
-
-  if (error) {
-    return { props: { reportData: null } };
-  }
-
-  return { props: { reportData: data } };
 }
