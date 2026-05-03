@@ -1,4 +1,4 @@
-"use client";
+"use client"; // Add this line at the top to make this a Client Component
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
