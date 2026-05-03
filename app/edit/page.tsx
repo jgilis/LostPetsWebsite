@@ -1,4 +1,4 @@
-"use client";
+"use client"; // This tells Next.js to treat the component as a client-side component.
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -11,13 +11,8 @@ export default function EditPage() {
   const [report, setReport] = useState<any>(null);
   const [message, setMessage] = useState("");
 
-  // Only fetch data in the client (browser)
   useEffect(() => {
-    // Make sure the token exists before running the API call
-    if (!token) {
-      setMessage("Invalid link.");
-      return; // Early return if there's no token
-    }
+    if (!token) return;
 
     const fetchReport = async () => {
       const { data, error } = await supabase
@@ -49,7 +44,6 @@ export default function EditPage() {
     }
   };
 
-  // Early returns to handle UI when token is invalid or loading the report
   if (!token) return <p>Invalid link.</p>;
   if (!report) return <p>Loading...</p>;
 
