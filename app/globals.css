@@ -1,15 +1,10 @@
+/* Tailwind directives */
 @import "tailwindcss";
 
+/* Custom color variables */
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,8 +14,82 @@
   }
 }
 
+/* Font variables (for Geist fonts) */
+:root {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Global body styles */
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: #0a0a0a;
+  color: #ededed;
+  margin: 0;
+  padding: 0;
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Leaflet map default container height */
+.leaflet-container {
+  height: 400px;
+  width: 100%;
+}
+
+.marker-cluster {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Main circle */
+.marker-cluster div {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(120, 120, 120, 0.85) !important;
+  color: white !important;
+
+  font-weight: bold;
+  font-size: 12px;
+
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+/* Kill ALL Leaflet pseudo effects */
+.marker-cluster::before,
+.marker-cluster::after,
+.marker-cluster div::before,
+.marker-cluster div::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Hover */
+.marker-cluster:hover div {
+  background: rgba(90, 90, 90, 0.95) !important;
+}
+
+.leaflet-interactive {
+  outline: none !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
 }
