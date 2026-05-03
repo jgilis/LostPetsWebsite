@@ -1,4 +1,10 @@
-// First, define the type for the report data
+// Add this at the top of your file
+"use client"; 
+
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { supabase } from "../../src/lib/supabase";
+
 type Report = {
   id: string;
   type: string;
@@ -8,14 +14,8 @@ type Report = {
 };
 
 type EditPageProps = {
-  reportData: Report | null; // reportData can be null if no data is found
+  reportData: Report | null;
 };
-
-"use client";
-
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { supabase } from "../../src/lib/supabase";
 
 export default function EditPage({ reportData }: EditPageProps) {
   const searchParams = useSearchParams();
@@ -25,7 +25,7 @@ export default function EditPage({ reportData }: EditPageProps) {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (!token || report) return; // Skip if report is already set
+    if (!token || report) return;
 
     const fetchReport = async () => {
       const { data, error } = await supabase
@@ -77,10 +77,7 @@ export default function EditPage({ reportData }: EditPageProps) {
   );
 }
 
-// Now ensure getServerSideProps is correctly typed as well
 export async function getServerSideProps({ params }: { params: { token: string } }) {
-  // Fetch the report data here if necessary. You can also skip the server-side fetching
-  // and rely solely on the client-side fetching in `useEffect`
   const { token } = params;
   const { data, error } = await supabase
     .from("reports")
