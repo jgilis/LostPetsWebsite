@@ -1,5 +1,7 @@
 "use client"; // Add this line at the top to make this a Client Component
 
+export const dynamic = "force-dynamic";
+
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "../../src/lib/supabase";
