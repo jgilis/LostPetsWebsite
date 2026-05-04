@@ -34,6 +34,9 @@ export default function RootLayout({
 
         {/* FOOTER */}
         <footer className="text-center text-xs text-gray-500 py-6 space-x-4 border-t border-gray-800 mt-10">
+          <a href="/about" className="hover:text-gray-300">
+            About
+          </a>
           <a href="/privacy" className="hover:text-gray-300">
             Privacy Policy
           </a>

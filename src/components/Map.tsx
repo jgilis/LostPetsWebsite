@@ -105,8 +105,8 @@ export default function Map() {
     animalFilter
   );
 
-  const isClusterMode = zoom <= 13;
-  const isDetailMode = zoom >= 14;
+  const isClusterMode = zoom < 13.5;
+  const isDetailMode = zoom >= 13.5;
 
   const renderPopup = (r: Report) => (
     <div style={{ maxWidth: "200px" }}>
@@ -192,8 +192,10 @@ export default function Map() {
           display: "flex",
           flexDirection: "column",
           gap: "10px",
-          marginBottom: "10px",
-          alignItems: "center",
+          justifyContent: "center",
+          paddingTop: "6px",
+          maxWidth: "100%",
+          width: "100%",
         }}
       >
 
@@ -204,6 +206,7 @@ export default function Map() {
             gap: "8px",
             flexWrap: "wrap",
             justifyContent: "center",
+            width: "100%",
             paddingTop: "6px", // 🔥 IMPORTANT: prevents top-edge clipping illusion
           }}
         >
@@ -220,10 +223,11 @@ export default function Map() {
                 key={a}
                 onClick={() => setAnimalFilter(a as any)}
                 style={{
-                  padding: "6px 12px",
+                  padding: "5px 10px",
                   borderRadius: "20px",
                   cursor: "pointer",
                   fontWeight: 500,
+                  whiteSpace: "nowrap",
 
                   border: `4px solid ${color}`,
 
@@ -249,7 +253,9 @@ export default function Map() {
           style={{
             display: "flex",
             gap: "8px",
-            paddingTop: "4px",
+            justifyContent: "center",
+            width: "100%",
+            paddingBottom: "10px",
           }}
         >
           {["all", "lost", "found"].map((t) => {
@@ -261,11 +267,12 @@ export default function Map() {
                 key={t}
                 onClick={() => setTypeFilter(t as any)}
                 style={{
-                  padding: "8px 12px",
+                  padding: "6px 10px",
                   borderRadius: "20px",
                   cursor: "pointer",
                   fontWeight: 500,
                   boxSizing: "border-box",
+                  whiteSpace: "nowrap",
 
                   lineHeight: "normal",
                   display: "inline-flex",
