@@ -14,6 +14,21 @@ export interface Report {
   status: "active" | "resolved" | "expired";
 }
 
+// 👇 Raw type from DB (includes expires_at and loose typing)
+type ReportRow = {
+  id: string;
+  type: "lost" | "found";
+  animal_type: "dog" | "cat" | "bird" | "rodent" | "other";
+  animal_name?: string | null;
+  description?: string | null;
+  latitude: number | string;
+  longitude: number | string;
+  contact_info: string;
+  photo_url?: string | null;
+  status?: "active" | "resolved" | "expired" | null;
+  expires_at?: string | null;
+};
+
 export function useReports() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,10 +60,10 @@ export function useReports() {
 
     const now = new Date();
 
-    const cleaned: Report[] = (data ?? []).map((r) => {
+    const cleaned: Report[] = (data ?? []).map((r: ReportRow) => {
       const expiresAt = r.expires_at ? new Date(r.expires_at) : null;
 
-      let status = r.status ?? "active";
+      let status: Report["status"] = r.status ?? "active";
 
       // 🧠 auto-expire logic
       if (status === "active" && expiresAt && expiresAt < now) {
@@ -59,19 +74,18 @@ export function useReports() {
         id: r.id,
         type: r.type,
         animal_type: r.animal_type,
-        animal_name: r.animal_name,
-        description: r.description,
+        animal_name: r.animal_name ?? null,
+        description: r.description ?? "",
         latitude: Number(r.latitude),
         longitude: Number(r.longitude),
         contact_info: r.contact_info,
-        photo_url: r.photo_url,
+        photo_url: r.photo_url ?? null,
         status,
       };
     });
 
     // only active shown on map
     setReports(cleaned.filter((r) => r.status === "active"));
-
     setLoading(false);
   };
 
