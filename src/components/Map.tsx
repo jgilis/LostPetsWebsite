@@ -31,6 +31,8 @@ export default function Map() {
     "all" | "dog" | "cat" | "bird" | "rodent" | "other"
   >("all");
 
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+
   useEffect(() => setIsMounted(true), []);
 
   useEffect(() => {
@@ -204,14 +206,14 @@ export default function Map() {
           style={{
             display: "flex",
             gap: "8px",
-            flexWrap: "nowrap",
-            overflowX: "auto",
-            msOverflowStyle: "none",
-            scrollbarWidth: "none",
-            justifyContent: "center",
+            flexWrap: isMobile ? "nowrap" : "wrap",
+            overflowX: isMobile ? "auto" : "visible",
+            justifyContent: isMobile ? "flex-start" : "center",
             width: "100%",
+            paddingTop: "6px",
             paddingBottom: "4px",
-            paddingTop: "6px", // 🔥 IMPORTANT: prevents top-edge clipping illusion
+            paddingLeft: isMobile ? "8px" : "0",
+            paddingRight: isMobile ? "8px" : "0",
           }}
         >
           {(["all", "dog", "cat", "bird", "rodent", "other"] as const).map((a) => {
