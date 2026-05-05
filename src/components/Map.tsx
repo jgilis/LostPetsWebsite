@@ -204,9 +204,13 @@ export default function Map() {
           style={{
             display: "flex",
             gap: "8px",
-            flexWrap: "wrap",
+            flexWrap: "nowrap",
+            overflowX: "auto",
+            msOverflowStyle: "none",
+            scrollbarWidth: "none",
             justifyContent: "center",
             width: "100%",
+            paddingBottom: "4px",
             paddingTop: "6px", // 🔥 IMPORTANT: prevents top-edge clipping illusion
           }}
         >
