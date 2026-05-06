@@ -183,6 +183,13 @@ export default function ReportForm({
         return;
       }
 
+      // handle HTTP errors explicitly
+      if (!res.ok) {
+        setMessage(result?.error || "Request failed");
+        setMessageType("error");
+        return;
+      }
+
       if (!result.success) {
         setMessage(result.error || "Submission failed");
         setMessageType("error");
