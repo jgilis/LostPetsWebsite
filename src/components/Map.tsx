@@ -155,10 +155,12 @@ export default function Map() {
         {/* REPORT BUTTON */}
         <button
           onClick={async () => {
+            const reportId = r.id; // 🔒 freeze ID at click time
+
             const reason = prompt("Why are you reporting this post?");
             if (!reason) return;
 
-            const ok = await flagReport(r.id, reason);
+            const ok = await flagReport(reportId, reason);
 
             if (ok) {
               alert("Report submitted. Thank you.");
