@@ -19,10 +19,21 @@ export default function PrivacyPolicy() {
         <li>Optional description and photo uploads</li>
       </ul>
 
+      <p>
+        Additionally, we collect a <strong>hashed version of your IP address </strong> 
+        when you submit a report or flag content. This is used solely for security 
+        and abuse prevention (e.g., rate limiting and spam protection). The hash 
+        cannot be used to directly identify you.
+      </p>
+
       <h2 className="text-xl font-semibold">2. How We Use Data</h2>
       <p>
         Data is used exclusively to display reports on the map and to enable
         communication between users regarding lost or found animals.
+      </p>
+      <p>
+        Hashed IP data is used only for abuse prevention, such as limiting
+        excessive submissions or detecting suspicious activity.
       </p>
 
       <h2 className="text-xl font-semibold">3. Data Retention</h2>
@@ -30,6 +41,10 @@ export default function PrivacyPolicy() {
         Reports are stored until they are deleted by the user or removed by
         the system. We may periodically remove outdated reports to keep the
         platform relevant and clean.
+      </p>
+      <p>
+        Security-related data (such as hashed IPs) may be retained for a limited
+        time for abuse prevention and system integrity.
       </p>
 
       <h2 className="text-xl font-semibold">4. Data Sharing</h2>
@@ -51,7 +66,7 @@ export default function PrivacyPolicy() {
 
       <h2 className="text-xl font-semibold">7. Contact</h2>
       <p>
-        For any privacy-related questions, contact: your-email@example.com
+        For any privacy-related questions, contact: lostpetsbelgium@gmail.com
       </p>
     </main>
   );
