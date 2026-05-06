@@ -1,15 +1,19 @@
-import { supabase } from "../lib/supabase";
-
 export async function flagReport(reportId: string, reason: string) {
-  const { error } = await supabase.from("reports_flags").insert([
+  const res = await fetch(
+    "https://dmubikdkyusadzqngapy.supabase.co/functions/v1/flag-report",
     {
-      report_id: reportId,
-      reason,
-    },
-  ]);
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ reportId, reason }),
+    }
+  );
 
-  if (error) {
-    console.error("Flag error:", error.message);
+  const data = await res.json();
+
+  if (!data.success) {
+    console.error(data.error);
     return false;
   }
 

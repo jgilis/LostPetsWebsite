@@ -11,7 +11,7 @@ export interface Report {
   longitude: number;
   contact_info: string;
   photo_url?: string | null;
-  status: "active" | "resolved" | "expired";
+  status: "active" | "flagged" | "removed" | "resolved" | "expired";
 }
 
 // 👇 Raw type from DB (includes expires_at and loose typing)
@@ -25,7 +25,7 @@ type ReportRow = {
   longitude: number | string;
   contact_info: string;
   photo_url?: string | null;
-  status?: "active" | "resolved" | "expired" | null;
+  status?: "active" | "flagged" | "removed" | "resolved" | "expired" | null;
   expires_at?: string | null;
 };
 
