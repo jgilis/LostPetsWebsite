@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import type { Report } from "./useReports";
 import {
   MapContainer,
   TileLayer,
@@ -16,7 +15,10 @@ import "leaflet/dist/leaflet.css";
 import { useReports } from "./useReports";
 import { filterReports } from "./filters";
 import CirclesLayer from "./CirclesLayer";
-import { flagReport } from "../lib/flags";
+import ReportPopup from "./ReportPopup";
+import ReportMarker from "./ReportMarker";
+import MapStateWatcher from "./MapStateWatcher";
+import ReportsLayer from "./ReportsLayer";
 
 export default function Map() {
   const { reports, loading } = useReports();
@@ -24,7 +26,13 @@ export default function Map() {
   const [L, setL] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false);
 
-  const [zoom, setZoom] = useState(13);
+  const [mapState, setMapState] = useState<{
+    zoom: number;
+    bounds: [number, number, number, number] | null;
+  }>({
+    zoom: 13,
+    bounds: null,
+  });
 
   const [typeFilter, setTypeFilter] = useState<"all" | "lost" | "found">("all");
   const [animalFilter, setAnimalFilter] = useState<
@@ -48,23 +56,6 @@ export default function Map() {
       setL(leaflet);
     });
   }, []);
-
-  function ZoomWatcher() {
-    const map = useMap();
-
-    useEffect(() => {
-      const update = () => setZoom(map.getZoom());
-
-      update();
-      map.on("zoomend", update);
-
-      return () => {
-        map.off("zoomend", update);
-      };
-    }, [map]);
-
-    return null;
-  }
 
   type AnimalType = "dog" | "cat" | "bird" | "rodent" | "other";
 
@@ -107,81 +98,9 @@ export default function Map() {
     animalFilter
   );
 
-  const isClusterMode = zoom < 13.5;
-  const isDetailMode = zoom >= 13.5;
-
-  const renderPopup = (r: Report) => (
-    <div style={{ maxWidth: "200px" }}>
-      <strong>{r.type}</strong> {r.animal_type}
-      <br />
-
-      {r.animal_name && (
-        <>
-          Name: {r.animal_name}
-          <br />
-        </>
-      )}
-
-      {r.description && <em>{r.description}</em>}
-      <br />
-
-      {r.photo_url && (
-        <div style={{ marginTop: "8px" }}>
-          <img
-            src={r.photo_url}
-            alt={r.animal_type}
-            style={{
-              width: "100%",
-              borderRadius: "6px",
-              marginTop: "4px",
-            }}
-          />
-        </div>
-      )}
-
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          gap: "6px",
-        }}
-      >
-        {/* CONTACT */}
-        <div style={{ wordBreak: "break-word" }}>
-          Contact: {r.contact_info}
-        </div>
-
-        {/* REPORT BUTTON */}
-        <button
-          onClick={async () => {
-            const reportId = r.id; // 🔒 freeze ID at click time
-
-            const reason = prompt("Why are you reporting this post?");
-            if (!reason) return;
-
-            const ok = await flagReport(reportId, reason);
-
-            if (ok) {
-              alert("Report submitted. Thank you.");
-            } else {
-              alert("Failed to submit report.");
-            }
-          }}
-          style={{
-            padding: "6px 10px",
-            backgroundColor: "#dc2626",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
-        >
-          Report this post
-        </button>
-      </div>
-    </div>
-  );
+  const zoom = mapState.zoom;
+  const bounds = mapState.bounds;
+  const isDetailMode = mapState.zoom >= 13.5;
 
   if (!isMounted) return null;
   if (!L || !icons) return <p>Loading map...</p>;
@@ -318,7 +237,7 @@ export default function Map() {
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-        <ZoomWatcher />
+        <MapStateWatcher onChange={setMapState} />
 
         <CirclesLayer
           reports={filteredReports}
@@ -326,72 +245,11 @@ export default function Map() {
           getColor={(type: AnimalType) => animalColors[type]}
         />
 
-        {isClusterMode && (
-          <MarkerClusterGroup
-            showCoverageOnHover={false}
-            spiderfyOnHover={false}
-            zoomToBoundsOnClick={true}
-            polygonOptions={{
-              color: "#3b82f6",
-              weight: 0,
-              opacity: 0,
-              fillOpacity: 0,
-            }}
-          >
-            {filteredReports.map((r) =>
-              r.type === "found" ? (
-                <CircleMarker
-                  key={r.id}
-                  center={[r.latitude, r.longitude]}
-                  radius={6}
-                  pathOptions={{
-                    color: animalColors[r.animal_type],
-                    fillColor: animalColors[r.animal_type],
-                    fillOpacity: 0.9,
-                    weight: 2,
-                  }}
-                >
-                  <Popup>{renderPopup(r)}</Popup>
-                </CircleMarker>
-              ) : (
-                <Marker
-                  key={r.id}
-                  position={[r.latitude, r.longitude]}
-                  icon={getIcon(r.animal_type)}
-                >
-                  <Popup>{renderPopup(r)}</Popup>
-                </Marker>
-              )
-            )}
-          </MarkerClusterGroup>
-        )}
-
-        {isDetailMode &&
-        filteredReports.map((r) =>
-          r.type === "found" ? (
-            <CircleMarker
-              key={r.id}
-              center={[r.latitude, r.longitude]}
-              radius={6}
-              pathOptions={{
-                color: animalColors[r.animal_type],
-                fillColor: animalColors[r.animal_type],
-                fillOpacity: 0.9,
-                weight: 2,
-              }}
-            >
-              <Popup>{renderPopup(r)}</Popup>
-            </CircleMarker>
-          ) : (
-            <Marker
-              key={r.id}
-              position={[r.latitude, r.longitude]}
-              icon={getIcon(r.animal_type)}
-            >
-              <Popup>{renderPopup(r)}</Popup>
-            </Marker>
-          )
-        )}
+        <ReportsLayer
+          reports={filteredReports}
+          animalColors={animalColors}
+          getIcon={getIcon}
+        />
       </MapContainer>
     </div>
   );
