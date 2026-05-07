@@ -47,7 +47,7 @@ export function useSupercluster({
   // 2. Create index
   const index = useMemo(() => {
     const supercluster = new Supercluster({
-      radius: 20,
+      radius: 50,
       maxZoom: 20,
     });
 

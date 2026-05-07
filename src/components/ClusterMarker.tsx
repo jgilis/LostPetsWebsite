@@ -26,7 +26,7 @@ export default function ClusterMarker({ cluster, onClick }: Props) {
 // simple visual cluster icon (temporary)
 function createClusterIcon(count: number) {
   const size = Math.min(60, 28 + Math.log2(count + 1) * 12);
-  const intensity = Math.min(0.4 + count / 100, 1);
+  const intensity = Math.min(0.75 + count / 200, 1);
 
   return new (require("leaflet").DivIcon)({
     className: "cluster-icon", // important: removes default white box styling
@@ -35,7 +35,7 @@ function createClusterIcon(count: number) {
         width:${size}px;
         height:${size}px;
         border-radius:50%;
-        background: rgba(59,130,246,${intensity});
+        background: rgba(107,114,128,${intensity});;
         color:white;
         display:flex;
         align-items:center;
