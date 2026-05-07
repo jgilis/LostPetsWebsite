@@ -1,31 +1,58 @@
 "use client";
 
-import type { Report } from "./useReports";
 import ReportMarker from "./ReportMarker";
-
-type AnimalType = "dog" | "cat" | "bird" | "rodent" | "other";
+import ClusterMarker from "./ClusterMarker";
+import type { Report } from "./useReports";
 
 type Props = {
-  reports: Report[];
-  animalColors: Record<AnimalType, string>;
-  getIcon: (animal: AnimalType) => any;
+  items: any[];
+  animalColors: Record<string, string>;
+  getIcon: (animal: any) => any;
+  index: any;
+  map: any;
+  onClusterClick: (id: number, lat: number, lng: number) => void;
 };
 
 export default function ReportsLayer({
-  reports,
+  items,
   animalColors,
   getIcon,
+  index,
+  map,
+  onClusterClick,
 }: Props) {
-  return (
-    <>
-      {reports.map((r) => (
-        <ReportMarker
-          key={r.id}
-          report={r}
-          icon={getIcon(r.animal_type)}
-          color={animalColors[r.animal_type]}
+  return items.map((item) => {
+    if (!item?.geometry) return null;
+
+    const [lng, lat] = item.geometry.coordinates;
+
+    // 🔵 CLUSTER
+    if (item.properties?.cluster) {
+      return (
+        <ClusterMarker
+          key={`cluster-${item.id}`}
+          cluster={item}
+          onClick={() => {
+            onClusterClick(item.properties.cluster_id, lat, lng);
+          }}
         />
-      ))}
-    </>
-  );
+      );
+    }
+
+    // 🟢 SINGLE REPORT
+    const report: Report | undefined = item.properties?.report;
+
+    if (!report || report.latitude == null || report.longitude == null) {
+      return null;
+    }
+
+    return (
+      <ReportMarker
+        key={`report-${report.id}`}
+        report={report}
+        icon={getIcon(report.animal_type)}
+        color={animalColors[report.animal_type]}
+      />
+    );
+  });
 }

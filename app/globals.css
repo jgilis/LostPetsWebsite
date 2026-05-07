@@ -93,3 +93,8 @@ body {
 .animate-fade-in {
   animation: fadeIn 0.2s ease-out;
 }
+
+.cluster-icon {
+  background: transparent !important;
+  border: none !important;
+}

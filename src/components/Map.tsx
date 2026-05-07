@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -19,6 +19,10 @@ import ReportPopup from "./ReportPopup";
 import ReportMarker from "./ReportMarker";
 import MapStateWatcher from "./MapStateWatcher";
 import ReportsLayer from "./ReportsLayer";
+import { useSupercluster } from "./useSupercluster";
+import MapRefBridge from "./MapRefBridge";
+import type { Map as LeafletMap } from "leaflet";
+
 
 export default function Map() {
   const { reports, loading } = useReports();
@@ -26,6 +30,7 @@ export default function Map() {
   const [L, setL] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false);
 
+  const [map, setMap] = useState<LeafletMap | null>(null);
   const [mapState, setMapState] = useState<{
     zoom: number;
     bounds: [number, number, number, number] | null;
@@ -101,7 +106,11 @@ export default function Map() {
   const zoom = mapState.zoom;
   const bounds = mapState.bounds;
   const isDetailMode = mapState.zoom >= 13.5;
-
+  const { clusters, index } = useSupercluster({
+    reports: filteredReports,
+    zoom: mapState.zoom,
+    bounds: mapState.bounds, // ✅ already correct format
+  });
   if (!isMounted) return null;
   if (!L || !icons) return <p>Loading map...</p>;
   if (loading) return <p>Loading reports...</p>;
@@ -237,6 +246,9 @@ export default function Map() {
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
+        {/* 🧠 THIS IS THE MISSING PIECE */}
+        <MapRefBridge setMap={setMap} />
+
         <MapStateWatcher onChange={setMapState} />
 
         <CirclesLayer
@@ -246,9 +258,20 @@ export default function Map() {
         />
 
         <ReportsLayer
-          reports={filteredReports}
+          items={clusters}
           animalColors={animalColors}
           getIcon={getIcon}
+          index={index}
+          map={map}
+          onClusterClick={(id, lat, lng) => {
+            if (!map) return;
+
+            const expansionZoom = index.getClusterExpansionZoom(id);
+
+            map.setView([lat, lng], expansionZoom, {
+              animate: true,
+            });
+          }}
         />
       </MapContainer>
     </div>
