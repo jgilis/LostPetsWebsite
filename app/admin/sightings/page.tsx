@@ -1,12 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { useEffect, useState, useMemo } from "react";
+import { supabase } from "../../../src/lib/supabase";
 
 type ReportRef = {
   id: string;
@@ -93,7 +88,11 @@ export default function AdminSightingsPage() {
     }
 
     // 🧠 NEW: fetch sighting for event payload
-    const sighting = sightings.find((s) => s.id === id);
+    const { data: sighting } = await supabase
+      .from("sightings")
+      .select("*")
+      .eq("id", id)
+      .single();
 
     if (sighting) {
       await supabase.from("notification_events").insert({
@@ -160,7 +159,7 @@ export default function AdminSightingsPage() {
                   s.reports.longitude,
                   s.latitude,
                   s.longitude
-                ).toFixed(0)}m
+                ).toFixed(0)}
               </p>
             </>
           )}
