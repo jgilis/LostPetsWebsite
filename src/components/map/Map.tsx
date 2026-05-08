@@ -23,7 +23,7 @@ import { useSupercluster } from "./useSupercluster";
 import MapRefBridge from "./MapRefBridge";
 import type { Map as LeafletMap } from "leaflet";
 import useLeaflet from "../../hooks/useLeaflet";
-
+import { useSearchParams } from "next/navigation";
 
 export default function Map() {
   const { reports, loading } = useReports();
@@ -66,6 +66,14 @@ export default function Map() {
     other: "#111827",
   };
 
+  const searchParams = useSearchParams();
+
+  const focusSighting =
+    searchParams.get("focusSighting");
+
+  const focusReport =
+    searchParams.get("focusReport");
+
   const icons = useMemo<Record<AnimalType, any> | null>(() => {
     if (!L) return null;
 
@@ -91,26 +99,90 @@ export default function Map() {
     return icons[animal];
   };
 
+  const sightingIcon = useMemo(() => {
+    if (!L) return null;
+    return new L.Icon({
+      iconUrl: "/leaflet/marker-icon-red.png",
+      shadowUrl: "/leaflet/marker-shadow.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+    });
+  }, [L]);
+
   const filteredReports = filterReports(
     reports,
     typeFilter,
     animalFilter
   );
+  const focusedReport = reports.find(
+    (r) => r.id === focusReport
+  );
+
+  const relevantReports = useMemo(() => {
+    if (!focusReport) return reports;
+
+    return reports.filter((r) => {
+      // always include target report
+      if (r.id === focusReport) return true;
+
+      // include sightings linked to it
+      if (r.id === focusSighting) return true;
+
+      // optional: include nearby context (simple radius filter later)
+      return false;
+    });
+  }, [reports, focusReport, focusSighting]);
+
+  useEffect(() => {
+    if (!map || !focusReport) return;
+
+    const target = relevantReports.find(
+      (r) => r.id === focusReport
+    );
+
+    if (!target) return;
+
+    map.setView(
+      [target.latitude, target.longitude],
+      15,
+      { animate: true }
+    );
+
+    setSelectedReport(target.id);
+  }, [map, focusReport, relevantReports]);
 
   const zoom = mapState.zoom;
   const bounds = mapState.bounds;
   const isDetailMode = mapState.zoom >= 13.5;
+  
+  const activeReports =
+    focusReport ? relevantReports : filteredReports;
+
+  const isFocusMode = !!focusReport;
+
   const { clusters, index } = useSupercluster({
-    reports: filteredReports,
+    reports: activeReports,
     zoom: mapState.zoom,
-    bounds: mapState.bounds, // ✅ already correct format
+    bounds: mapState.bounds,
   });
+
   const selected = filteredReports.find(
     (r) => r.id === selectedReport
   );
+
   if (!isMounted) return null;
   if (!L || !icons) return <p>Loading map...</p>;
   if (loading) return <p>Loading reports...</p>;
+
+  // DELETE LATER, WHEN WE USE ACTUAL SIGHTING COORDINATES
+  const sightingMarkers =
+  focusSighting && focusReport
+    ? [{
+        id: focusSighting,
+        lat: 51.02, // placeholder until we fetch real sighting
+        lng: 4.48
+      }]
+    : [];
 
   return (
     <div>
@@ -125,6 +197,10 @@ export default function Map() {
           paddingTop: "6px",
           maxWidth: "100%",
           width: "100%",
+
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
         }}
       >
 
@@ -239,6 +315,8 @@ export default function Map() {
         ]}
         maxBoundsViscosity={1.0}
         worldCopyJump={false}
+        preferCanvas={true}
+        scrollWheelZoom={true}
         style={{ height: "60vh", width: "100%" }}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -246,9 +324,17 @@ export default function Map() {
         <MapStateWatcher onChange={setMapState} />
         <MapClickHandler onClick={() => setSelectedReport(null)} />
 
+        {sightingMarkers.map((s) => (
+          <Marker
+            key={s.id}
+            position={[s.lat, s.lng]}
+            icon={sightingIcon}
+          />
+        ))}
+
         <CirclesLayer
-          reports={filteredReports}
-          enabled={isDetailMode}
+          reports={isFocusMode ? relevantReports : filteredReports}
+          enabled={isDetailMode && !isFocusMode}
           getColor={(type: AnimalType) => animalColors[type]}
         />
 
