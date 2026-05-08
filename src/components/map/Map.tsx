@@ -201,6 +201,7 @@ export default function Map() {
           position: "sticky",
           top: 0,
           zIndex: 1000,
+          backgroundColor: "black",
         }}
       >
 
