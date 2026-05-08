@@ -1,5 +1,5 @@
 import { Circle } from "react-leaflet";
-import { Report } from "../useReports";
+import { Report } from "../report/useReports";
 
 type AnimalType = Report["animal_type"];
 
