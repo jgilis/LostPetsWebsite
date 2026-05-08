@@ -7,7 +7,7 @@ import {
   Marker,
   Popup,
   CircleMarker,
-  useMap,
+  useMapEvents,
 } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import "leaflet/dist/leaflet.css";
@@ -43,6 +43,7 @@ export default function Map() {
   const handleMapStateChange = useCallback((state: MapState) => {
     setMapState(state);
   }, []);
+  const [selectedReport, setSelectedReport] = useState<string | null>(null);
 
   const [typeFilter, setTypeFilter] = useState<"all" | "lost" | "found">("all");
   const [animalFilter, setAnimalFilter] = useState<
@@ -104,6 +105,9 @@ export default function Map() {
     zoom: mapState.zoom,
     bounds: mapState.bounds, // ✅ already correct format
   });
+  const selected = filteredReports.find(
+    (r) => r.id === selectedReport
+  );
   if (!isMounted) return null;
   if (!L || !icons) return <p>Loading map...</p>;
   if (loading) return <p>Loading reports...</p>;
@@ -238,11 +242,9 @@ export default function Map() {
         style={{ height: "60vh", width: "100%" }}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
-        {/* 🧠 THIS IS THE MISSING PIECE */}
         <MapRefBridge setMap={setMap} />
-
         <MapStateWatcher onChange={setMapState} />
+        <MapClickHandler onClick={() => setSelectedReport(null)} />
 
         <CirclesLayer
           reports={filteredReports}
@@ -265,8 +267,38 @@ export default function Map() {
               animate: true,
             });
           }}
+          setSelectedReport={setSelectedReport}
         />
+
+        {selected && (
+          <Popup
+            position={[selected.latitude, selected.longitude]}
+            autoPan={false}
+            closeOnClick={false}
+            autoClose={false}
+            closeOnEscapeKey={true}
+            eventHandlers={{
+              remove: () => setSelectedReport(null),
+            }}
+          >
+            <ReportPopup report={selected} />
+          </Popup>
+        )}
       </MapContainer>
     </div>
   );
+}
+
+function MapClickHandler({
+  onClick,
+}: {
+  onClick: () => void;
+}) {
+  useMapEvents({
+    click: () => {
+      onClick();
+    },
+  });
+
+  return null;
 }

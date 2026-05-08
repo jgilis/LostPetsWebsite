@@ -1,22 +1,30 @@
 "use client";
 
-import { Marker, CircleMarker, Popup } from "react-leaflet";
+import { Marker, CircleMarker } from "react-leaflet";
 import type { Report } from "../report/useReports";
-import ReportPopup from "./ReportPopup";
-
-type AnimalType = "dog" | "cat" | "bird" | "rodent" | "other";
 
 type Props = {
   report: Report;
   icon?: any;
   color: string;
+  setSelectedReport: (id: string) => void;
 };
 
 export default function ReportMarker({
   report,
   icon,
   color,
+  setSelectedReport,
 }: Props) {
+  const handleClick = () => {
+    if (!report?.id) return;
+    setSelectedReport(report.id);
+  };
+
+  const eventHandlers = {
+    click: handleClick,
+  };
+
   if (report.type === "found") {
     return (
       <CircleMarker
@@ -28,11 +36,8 @@ export default function ReportMarker({
           fillOpacity: 0.9,
           weight: 2,
         }}
-      >
-        <Popup>
-          <ReportPopup report={report} />
-        </Popup>
-      </CircleMarker>
+        eventHandlers={eventHandlers}
+      />
     );
   }
 
@@ -40,10 +45,7 @@ export default function ReportMarker({
     <Marker
       position={[report.latitude, report.longitude]}
       icon={icon}
-    >
-      <Popup>
-        <ReportPopup report={report} />
-      </Popup>
-    </Marker>
+      eventHandlers={eventHandlers}
+    />
   );
 }

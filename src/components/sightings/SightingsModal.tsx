@@ -19,6 +19,7 @@ export default function SightingModal({ lostReportId, onClose }: Props) {
   const [mode, setMode] = useState<"gps" | "manual" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const L = useLeaflet();
+  const isValid = !!lat && !!lng && !loading;
 
   // -----------------------
   // GPS location
@@ -209,14 +210,14 @@ export default function SightingModal({ lostReportId, onClose }: Props) {
 
           <button
             onClick={submit}
-            disabled={loading}
+            disabled={!isValid}
             style={{
               padding: "10px 14px",
               borderRadius: "8px",
               border: "none",
-              background: "#2563eb",
+              background: !isValid ? "#9ca3af" : "#2563eb",
               color: "white",
-              cursor: "pointer",
+              cursor: !isValid ? "not-allowed" : "pointer",
               flex: 1,
             }}
           >

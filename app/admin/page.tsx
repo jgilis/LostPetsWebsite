@@ -22,6 +22,7 @@ export default function AdminHome() {
       <ul>
         <li><a href="/admin/reports">All Reports</a></li>
         <li><a href="/admin/flags">Flagged Reports</a></li>
+        <li><a href="/admin/sightings">All Sightings</a></li>
       </ul>
 
       <button

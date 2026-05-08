@@ -11,6 +11,7 @@ type Props = {
   index: any;
   map: any;
   onClusterClick: (id: number, lat: number, lng: number) => void;
+  setSelectedReport: (id: string) => void;
 };
 
 export default function ReportsLayer({
@@ -20,6 +21,7 @@ export default function ReportsLayer({
   index,
   map,
   onClusterClick,
+  setSelectedReport
 }: Props) {
   return items.map((item) => {
     if (!item?.geometry) return null;
@@ -52,6 +54,7 @@ export default function ReportsLayer({
         report={report}
         icon={getIcon(report.animal_type)}
         color={animalColors[report.animal_type]}
+        setSelectedReport={setSelectedReport}
       />
     );
   });

@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Report } from "../report/useReports";
 import { flagReport } from "../../lib/flags";
 import SightingModal from "../sightings/SightingsModal";
+import {
+  getApprovedSightings,
+  Sighting,
+} from "../../lib/sightings";
 
 type Props = {
   report: Report;
@@ -11,7 +15,20 @@ type Props = {
 
 export default function ReportPopup({ report }: Props) {
   const [showSightingModal, setShowSightingModal] = useState(false);
+  const [sightings, setSightings] = useState<Sighting[]>([]);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    async function loadSightings() {
+      if (report.type !== "lost") return;
+
+      const data = await getApprovedSightings(report.id);
+
+      setSightings(data);
+    }
+
+    loadSightings();
+  }, [report.id, report.type]);
 
   return (
     <div style={{ maxWidth: "200px" }}>
@@ -107,7 +124,59 @@ export default function ReportPopup({ report }: Props) {
           onClose={() => setShowSightingModal(false)}
         />
       )}
+
+      {/* APPROVED SIGHTINGS */}
+      {sightings.length > 0 && (
+        <div
+          style={{
+            marginTop: "14px",
+            borderTop: "1px solid #ddd",
+            paddingTop: "10px",
+          }}
+        >
+          <strong>Recent sightings</strong>
+
+          {sightings.map((s) => (
+            <div
+              key={s.id}
+              style={{
+                marginTop: "10px",
+                padding: "8px",
+                background: "#f9fafb",
+                borderRadius: "6px",
+              }}
+            >
+              <div style={{ fontSize: "13px" }}>
+                📍 {s.latitude.toFixed(4)},{" "}
+                {s.longitude.toFixed(4)}
+              </div>
+
+              {s.description && (
+                <div
+                  style={{
+                    marginTop: "4px",
+                    fontSize: "13px",
+                  }}
+                >
+                  📝 {s.description}
+                </div>
+              )}
+
+              <div
+                style={{
+                  marginTop: "4px",
+                  fontSize: "11px",
+                  color: "#666",
+                }}
+              >
+                {new Date(
+                  s.created_at
+                ).toLocaleString()}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-
