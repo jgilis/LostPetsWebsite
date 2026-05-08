@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -22,22 +22,27 @@ import ReportsLayer from "./ReportsLayer";
 import { useSupercluster } from "./useSupercluster";
 import MapRefBridge from "./MapRefBridge";
 import type { Map as LeafletMap } from "leaflet";
+import useLeaflet from "../../hooks/useLeaflet";
 
 
 export default function Map() {
   const { reports, loading } = useReports();
 
-  const [L, setL] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false);
 
-  const [map, setMap] = useState<LeafletMap | null>(null);
-  const [mapState, setMapState] = useState<{
+  type MapState = {
     zoom: number;
     bounds: [number, number, number, number] | null;
-  }>({
+  };
+  const [map, setMap] = useState<LeafletMap | null>(null);
+  const [mapState, setMapState] = useState<MapState>({
     zoom: 13,
     bounds: null,
   });
+
+  const handleMapStateChange = useCallback((state: MapState) => {
+    setMapState(state);
+  }, []);
 
   const [typeFilter, setTypeFilter] = useState<"all" | "lost" | "found">("all");
   const [animalFilter, setAnimalFilter] = useState<
@@ -48,19 +53,7 @@ export default function Map() {
 
   useEffect(() => setIsMounted(true), []);
 
-  useEffect(() => {
-    import("leaflet").then((leaflet) => {
-      delete (leaflet.Icon.Default.prototype as any)._getIconUrl;
-
-      leaflet.Icon.Default.mergeOptions({
-        iconRetinaUrl: "/leaflet/marker-icon-2x.png",
-        iconUrl: "/leaflet/marker-icon.png",
-        shadowUrl: "/leaflet/marker-shadow.png",
-      });
-
-      setL(leaflet);
-    });
-  }, []);
+  const L = useLeaflet();
 
   type AnimalType = "dog" | "cat" | "bird" | "rodent" | "other";
 

@@ -1,13 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import type { Report } from "../report/useReports";
 import { flagReport } from "../../lib/flags";
+import SightingModal from "../sightings/SightingsModal";
 
 type Props = {
   report: Report;
 };
 
 export default function ReportPopup({ report }: Props) {
+  const [showSightingModal, setShowSightingModal] = useState(false);
+  const [open, setOpen] = useState(false);
+
   return (
     <div style={{ maxWidth: "200px" }}>
       <strong>{report.type}</strong> {report.animal_type}
@@ -43,12 +48,30 @@ export default function ReportPopup({ report }: Props) {
           flexDirection: "column",
           alignItems: "flex-start",
           gap: "6px",
+          marginTop: "8px",
         }}
       >
         {/* CONTACT */}
         <div style={{ wordBreak: "break-word" }}>
           Contact: {report.contact_info}
         </div>
+
+        {/* SIGHTING BUTTON (ONLY FOR LOST REPORTS) */}
+        {report.type === "lost" && (
+          <button
+            onClick={() => setShowSightingModal(true)}
+            style={{
+              padding: "6px 10px",
+              backgroundColor: "#2563eb",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+          >
+            I spotted this animal
+          </button>
+        )}
 
         {/* REPORT BUTTON */}
         <button
@@ -76,6 +99,15 @@ export default function ReportPopup({ report }: Props) {
           Report this post
         </button>
       </div>
+
+      {/* MODAL */}
+      {showSightingModal && (
+        <SightingModal
+          lostReportId={report.id}
+          onClose={() => setShowSightingModal(false)}
+        />
+      )}
     </div>
   );
 }
+
