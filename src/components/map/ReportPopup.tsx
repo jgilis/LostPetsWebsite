@@ -1,7 +1,7 @@
 "use client";
 
-import type { Report } from "./useReports";
-import { flagReport } from "../lib/flags";
+import type { Report } from "../report/useReports";
+import { flagReport } from "../../lib/flags";
 
 type Props = {
   report: Report;

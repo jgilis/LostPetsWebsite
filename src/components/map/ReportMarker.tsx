@@ -1,7 +1,7 @@
 "use client";
 
 import { Marker, CircleMarker, Popup } from "react-leaflet";
-import type { Report } from "./useReports";
+import type { Report } from "../report/useReports";
 import ReportPopup from "./ReportPopup";
 
 type AnimalType = "dog" | "cat" | "bird" | "rodent" | "other";

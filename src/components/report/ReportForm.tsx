@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase } from "../../lib/supabase";
 import LocationPicker from "./LocationPicker";
-import { applyLocationOffset } from "../lib/location";
+import { applyLocationOffset } from "../../lib/location";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 interface ReportFormProps {

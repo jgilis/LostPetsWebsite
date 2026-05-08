@@ -12,7 +12,7 @@ import {
 import MarkerClusterGroup from "react-leaflet-cluster";
 import "leaflet/dist/leaflet.css";
 
-import { useReports } from "./useReports";
+import { useReports } from "../report/useReports";
 import { filterReports } from "./filters";
 import CirclesLayer from "./CirclesLayer";
 import ReportPopup from "./ReportPopup";

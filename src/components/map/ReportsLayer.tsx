@@ -2,7 +2,7 @@
 
 import ReportMarker from "./ReportMarker";
 import ClusterMarker from "./ClusterMarker";
-import type { Report } from "./useReports";
+import type { Report } from "../report/useReports";
 
 type Props = {
   items: any[];

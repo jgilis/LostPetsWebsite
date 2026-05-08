@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import MapWrapper from "../src/components/MapWrapper";
-import ReportForm from "../src/components/ReportForm";
+import MapWrapper from "../src/components/map/MapWrapper";
+import ReportForm from "../src/components/report/ReportForm";
 
 export default function HomePage() {
   const [refreshKey, setRefreshKey] = useState(0);

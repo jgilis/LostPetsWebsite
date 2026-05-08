@@ -1,4 +1,4 @@
-import { Report } from "./useReports";
+import { Report } from "../report/useReports";
 
 export function filterReports(
   reports: Report[],

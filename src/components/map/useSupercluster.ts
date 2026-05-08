@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import Supercluster from "supercluster";
-import type { Report } from "./useReports";
+import type { Report } from "../report/useReports";
 
 type ClusterFeature = {
   type: "Feature";
