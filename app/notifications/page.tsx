@@ -129,6 +129,21 @@ export default function NotificationsPage() {
               event.created_at
             ).toLocaleString()}
           </p>
+
+          {event.payload.sighting_id && (
+            <a
+              href={`/sightings/${event.payload.sighting_id}`}
+              style={{
+                display: "inline-block",
+                marginTop: "10px",
+                color: "#2563eb",
+                fontWeight: 600,
+                textDecoration: "underline",
+              }}
+            >
+              View sighting →
+            </a>
+          )}
         </div>
       ))}
     </div>
