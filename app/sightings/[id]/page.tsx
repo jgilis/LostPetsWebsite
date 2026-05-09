@@ -1,9 +1,7 @@
+"use client";
+
 import { supabase } from "../../../src/lib/supabase";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-} from "react-leaflet";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
 
 export default async function SightingPage({
   params,
