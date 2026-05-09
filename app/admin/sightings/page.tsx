@@ -92,7 +92,12 @@ export default function AdminSightingsPage() {
     // 🧠 NEW: fetch sighting for event payload
     const { data: sighting } = await supabase
       .from("sightings")
-      .select("*")
+      .select(`
+          *,
+          reports:lost_report_id (
+            owner_user_id
+          )
+        `)
       .eq("id", id)
       .single();
 
