@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase";
 import LocationPicker from "./LocationPicker";
 import { applyLocationOffset } from "../../lib/location";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
+import { getOwnerToken } from "../../lib/owner";
 
 interface ReportFormProps {
   onReportCreated?: () => void;
@@ -39,6 +40,7 @@ export default function ReportForm({
 
   const lastSubmitKey = "last_submit_time";
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const ownerToken = getOwnerToken();
 
   const copyToClipboard = async () => {
     if (!editLink) return;
@@ -158,6 +160,7 @@ export default function ReportForm({
           longitude: safeLng,
           contact_info: contact ?? "",
           photo_url,
+          owner_user_id: ownerToken,
         },
       };
 

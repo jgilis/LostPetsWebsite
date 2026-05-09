@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { getOwnerToken } from "../../src/lib/owner";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,6 +26,7 @@ type NotificationEvent = {
 export default function NotificationsPage() {
   const [events, setEvents] = useState<NotificationEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const ownerToken = getOwnerToken();
 
   useEffect(() => {
     async function load() {
@@ -32,6 +34,7 @@ export default function NotificationsPage() {
         .from("notification_events")
         .select("*")
         .eq("type", "sighting_approved")
+        .eq("target_user_id", ownerToken)
         .order("created_at", { ascending: false });
 
       if (error) {

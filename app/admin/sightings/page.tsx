@@ -9,6 +9,7 @@ type ReportRef = {
   longitude: number;
   animal_type: string;
   animal_name: string | null;
+  owner_user_id: string | null;
 };
 
 type Sighting = {
@@ -64,7 +65,8 @@ export default function AdminSightingsPage() {
             latitude,
             longitude,
             animal_type,
-            animal_name
+            animal_name,
+            owner_user_id
           )
         `)
         .order("created_at", { ascending: false });
@@ -103,7 +105,7 @@ export default function AdminSightingsPage() {
             ? "sighting_rejected"
             : "sighting_updated",
 
-        target_user_id: null, // we don’t use it yet
+        target_user_id: sighting.reports?.owner_user_id || null,
 
         payload: {
           sighting_id: id,
