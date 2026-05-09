@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "../../src/lib/supabase";
 import { getOwnerToken } from "../../src/lib/owner";
 
-const supabase = createClient(
+/* const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+); */
 
 type NotificationEvent = {
   id: string;
