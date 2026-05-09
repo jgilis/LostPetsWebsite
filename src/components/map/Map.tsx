@@ -25,6 +25,16 @@ import type { Map as LeafletMap } from "leaflet";
 import useLeaflet from "../../hooks/useLeaflet";
 import { useSearchParams } from "next/navigation";
 
+function MapClickCloser() {
+  useMapEvents({
+    click(map) {
+      map.target.closePopup();
+    },
+  });
+
+  return null;
+}
+
 export default function Map() {
   const { reports, loading } = useReports();
 
@@ -323,7 +333,7 @@ export default function Map() {
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <MapRefBridge setMap={setMap} />
         <MapStateWatcher onChange={setMapState} />
-        <MapClickHandler onClick={() => setSelectedReport(null)} />
+        <MapClickCloser />
 
         {sightingMarkers.map((s) => (
           <Marker
@@ -354,23 +364,7 @@ export default function Map() {
               animate: true,
             });
           }}
-          setSelectedReport={setSelectedReport}
         />
-
-        {selected && (
-          <Popup
-            position={[selected.latitude, selected.longitude]}
-            autoPan={false}
-            closeOnClick={false}
-            autoClose={false}
-            closeOnEscapeKey={true}
-            eventHandlers={{
-              remove: () => setSelectedReport(null),
-            }}
-          >
-            <ReportPopup report={selected} />
-          </Popup>
-        )}
       </MapContainer>
     </div>
   );
