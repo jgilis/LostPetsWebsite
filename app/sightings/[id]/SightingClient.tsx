@@ -6,9 +6,7 @@ import dynamic from "next/dynamic";
 
 const SightingMap = dynamic(
   () => import("./SightingMap"),
-  {
-    ssr: false,
-  }
+  { ssr: false }
 );
 
 type Sighting = {
@@ -32,18 +30,13 @@ type Props = {
   id: string;
 };
 
-export default function SightingClient({
-  id,
-}: Props) {
-
-  const [sighting, setSighting] =
-    useState<Sighting | null>(null);
-
+export default function SightingClient({ id }: Props) {
+  const [sighting, setSighting] = useState<Sighting | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("sightings")
         .select(`
           *,
@@ -59,23 +52,42 @@ export default function SightingClient({
         .eq("id", id)
         .single();
 
+      if (error) {
+        console.error("Sighting load error:", error);
+        setSighting(null);
+        setLoading(false);
+        return;
+      }
+
       setSighting(data as Sighting);
       setLoading(false);
     }
 
-    if (id) {
-      load();
-    }
+    if (id) load();
   }, [id]);
 
+  // ----------------------------
+  // LOADING STATE
+  // ----------------------------
   if (loading) {
     return <p style={{ padding: 20 }}>Loading...</p>;
   }
 
+  // ----------------------------
+  // NOT FOUND STATE
+  // ----------------------------
   if (!sighting) {
     return <p style={{ padding: 20 }}>Sighting not found</p>;
   }
 
+  // ----------------------------
+  // SAFE VARIABLE (TYPE NARROWING)
+  // ----------------------------
+  const safeSighting = sighting;
+
+  // ----------------------------
+  // AUTH LOGIC
+  // ----------------------------
   const isAdmin = true; // temporary
 
   const ownerToken =
@@ -84,13 +96,10 @@ export default function SightingClient({
       : null;
 
   const isOwner =
-    ownerToken &&
-    ownerToken === sighting.reports?.owner_user_id;
+    !!ownerToken &&
+    ownerToken === safeSighting.reports?.owner_user_id;
 
-  if (
-    sighting.status !== "approved" &&
-    !isAdmin
-  ) {
+  if (safeSighting.status !== "approved" && !isAdmin) {
     return <p style={{ padding: 20 }}>Not available yet</p>;
   }
 
@@ -98,26 +107,28 @@ export default function SightingClient({
     return <p style={{ padding: 20 }}>Unauthorized</p>;
   }
 
+  // ----------------------------
+  // UI
+  // ----------------------------
   return (
     <div style={{ padding: 20 }}>
       <h1>🐾 Sighting Detail</h1>
 
       {/* MAP */}
-      <SightingMap sighting={sighting} />
+      <SightingMap sighting={safeSighting} />
 
       {/* DETAILS */}
       <div>
         <h2>
-          {sighting.reports.animal_type}{" "}
-          {sighting.reports.animal_name || ""}
+          {safeSighting.reports.animal_type}{" "}
+          {safeSighting.reports.animal_name || ""}
         </h2>
 
         <p>
-          {sighting.description ||
-            "No description"}
+          {safeSighting.description || "No description"}
         </p>
 
-        <p>Status: {sighting.status}</p>
+        <p>Status: {safeSighting.status}</p>
       </div>
     </div>
   );
