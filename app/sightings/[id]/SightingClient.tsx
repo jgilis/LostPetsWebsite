@@ -36,7 +36,9 @@ export default function SightingClient({ id }: Props) {
 
   useEffect(() => {
     async function load() {
-      const { data, error } = await supabase
+      console.log("LOADING sighting id:", id);
+
+      const res = await supabase
         .from("sightings")
         .select(`
           *,
@@ -52,14 +54,13 @@ export default function SightingClient({ id }: Props) {
         .eq("id", id)
         .single();
 
-      if (error) {
-        console.error("Sighting load error:", error);
-        setSighting(null);
-        setLoading(false);
-        return;
+      console.log("SUPABASE RESPONSE:", res);
+
+      if (res.error) {
+        console.error("SUPABASE ERROR:", res.error);
       }
 
-      setSighting(data as Sighting);
+      setSighting(res.data as Sighting);
       setLoading(false);
     }
 
