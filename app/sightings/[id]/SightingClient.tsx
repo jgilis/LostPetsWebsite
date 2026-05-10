@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../../src/lib/supabase";
+import dynamic from "next/dynamic";
 
-import {
-  MapContainer,
-  TileLayer,
-  CircleMarker,
-} from "react-leaflet";
+const SightingMap = dynamic(
+  () => import("./SightingMap"),
+  {
+    ssr: false,
+  }
+);
 
 type Sighting = {
   id: string;
@@ -101,56 +103,7 @@ export default function SightingClient({
       <h1>🐾 Sighting Detail</h1>
 
       {/* MAP */}
-      <div
-        style={{
-          height: 300,
-          marginBottom: 20,
-        }}
-      >
-        <MapContainer
-          center={[
-            sighting.latitude,
-            sighting.longitude,
-          ]}
-          zoom={14}
-          style={{
-            height: "100%",
-            width: "100%",
-          }}
-        >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
-          {/* LOST LOCATION */}
-          <CircleMarker
-            center={[
-              sighting.reports.latitude,
-              sighting.reports.longitude,
-            ]}
-            radius={10}
-            pathOptions={{
-              color: "#2563eb",
-              fillColor: "#2563eb",
-              fillOpacity: 0.9,
-              weight: 2,
-            }}
-          />
-
-          {/* SIGHTING */}
-          <CircleMarker
-            center={[
-              sighting.latitude,
-              sighting.longitude,
-            ]}
-            radius={10}
-            pathOptions={{
-              color: "#ef4444",
-              fillColor: "#ef4444",
-              fillOpacity: 0.9,
-              weight: 2,
-            }}
-          />
-        </MapContainer>
-      </div>
+      <SightingMap sighting={sighting} />
 
       {/* DETAILS */}
       <div>
