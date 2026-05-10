@@ -7,7 +7,7 @@ import { supabase } from "../../../src/lib/supabase";
 import {
   MapContainer,
   TileLayer,
-  Marker,
+  CircleMarker,
 } from "react-leaflet";
 
 type Sighting = {
@@ -118,20 +118,35 @@ export default function SightingPage() {
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
           {/* LOST LOCATION */}
-          <Marker
-            position={[
+          <CircleMarker
+            center={[
               sighting.reports.latitude,
               sighting.reports.longitude,
             ]}
+            radius={10}
+            pathOptions={{
+              color: "#2563eb",
+              fillColor: "#2563eb",
+              fillOpacity: 0.9,
+              weight: 2,
+            }}
           />
 
           {/* SIGHTING */}
-          <Marker
-            position={[
+          <CircleMarker
+            center={[
               sighting.latitude,
               sighting.longitude,
             ]}
+            radius={10}
+            pathOptions={{
+              color: "#ef4444",
+              fillColor: "#ef4444",
+              fillOpacity: 0.9,
+              weight: 2,
+            }}
           />
+
         </MapContainer>
       </div>
 
