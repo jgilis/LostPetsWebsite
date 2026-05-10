@@ -74,3 +74,28 @@ export async function getApprovedSightings(
 
   return data || [];
 }
+
+export async function getSightingById(id: string) {
+  const { data, error } = await supabase
+    .from("sightings")
+    .select(`
+      *,
+      reports:lost_report_id (
+        id,
+        animal_type,
+        animal_name,
+        latitude,
+        longitude,
+        owner_user_id
+      )
+    `)
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error(error);
+    return null;
+  }
+
+  return data;
+}
