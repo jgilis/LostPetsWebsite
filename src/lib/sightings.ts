@@ -99,7 +99,7 @@ export async function getPublicSightingById(id: string) {
     console.error(error);
     return null;
   }
-
+  console.log("RAW SIGHTING:", data);
   return data;
 }
 
@@ -124,6 +124,6 @@ export async function getAdminSightingById(id: string) {
     console.error(error);
     return null;
   }
-
+  console.log("ADMIN SIGHTING:", data);
   return data;
 }
