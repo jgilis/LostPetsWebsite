@@ -32,6 +32,7 @@ type Props = {
 
 export default function SightingClient({ id }: Props) {
   console.log("SightingClient rendered with id:", id);
+  
   const [sighting, setSighting] = useState<Sighting | null>(null);
   const [loading, setLoading] = useState(true);
 
