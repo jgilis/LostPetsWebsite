@@ -1,13 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../../src/lib/supabase";
+import { getOwnerSightingsNotifications } from "../../src/lib/notifications";
 import { getOwnerToken } from "../../src/lib/owner";
-
-/* const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-); */
 
 type NotificationEvent = {
   id: string;
@@ -30,18 +25,9 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     async function load() {
-      const { data, error } = await supabase
-        .from("notification_events")
-        .select("*")
-        .eq("type", "sighting_approved")
-        .eq("target_user_id", ownerToken)
-        .order("created_at", { ascending: false });
+      const data = await getOwnerSightingsNotifications();
 
-      if (error) {
-        console.error(error);
-      }
-
-      setEvents((data as NotificationEvent[]) || []);
+      setEvents(data as NotificationEvent[]);
       setLoading(false);
     }
 

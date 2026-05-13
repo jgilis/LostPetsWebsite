@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { supabase } from "../../../src/lib/supabase";
+import { useEffect, useState } from "react";
+import { getAdminSightings } from "../../../src/lib/sightings";
+import { updateSightingStatus } from "../../../src/lib/sightings";
 
 type ReportRef = {
   id: string;
@@ -23,7 +24,7 @@ type Sighting = {
   created_at: string;
 
   // optional joined data
-  reports?: ReportRef;
+  reports?: ReportRef | null;
 };
 
 // 🧠 distance helper (unchanged logic, admin-only use)
@@ -56,70 +57,21 @@ export default function AdminSightingsPage() {
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase
-        .from("sightings")
-        .select(`
-          *,
-          reports:lost_report_id (
-            id,
-            latitude,
-            longitude,
-            animal_type,
-            animal_name,
-            owner_user_id
-          )
-        `)
-        .order("created_at", { ascending: false });
-
-      setSightings((data as Sighting[]) || []);
+      const data = await getAdminSightings();
+      setSightings(data as Sighting[]);
       setLoading(false);
     }
 
     load();
   }, []);
 
-  async function updateStatus(id: string, status: string) {
-    const { error } = await supabase
-      .from("sightings")
-      .update({ status })
-      .eq("id", id);
+    // 🧠 NEW: fetch sighting for event payload
+    async function updateStatus(id: string, status: string) {
+    const result = await updateSightingStatus(id, status);
 
-    if (error) {
+    if (!result) {
       alert("Failed to update status");
       return;
-    }
-
-    // 🧠 NEW: fetch sighting for event payload
-    const { data: sighting } = await supabase
-      .from("sightings")
-      .select(`
-          *,
-          reports:lost_report_id (
-            owner_user_id
-          )
-        `)
-      .eq("id", id)
-      .single();
-
-    if (sighting) {
-      await supabase.from("notification_events").insert({
-        type:
-          status === "approved"
-            ? "sighting_approved"
-            : status === "rejected"
-            ? "sighting_rejected"
-            : "sighting_updated",
-
-        target_user_id: sighting.reports?.owner_user_id || null,
-
-        payload: {
-          sighting_id: id,
-          lost_report_id: sighting.lost_report_id,
-          latitude: sighting.latitude,
-          longitude: sighting.longitude,
-          status,
-        },
-      });
     }
 
     setSightings((prev) =>

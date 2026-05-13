@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../../../src/lib/supabase";
 import { useAdmin } from "../../../src/hooks/useAdmin";
+import {
+  getFlaggedReportsWithFlags,
+  updateReportStatus,
+} from "../../../src/lib/reports";
 
 type Report = {
   id: string;
   status: "active" | "flagged" | "removed" | "resolved" | "expired";
   type: "lost" | "found";
-  animal_type: "dog" | "cat" | "bird" | "rodent" | "other";
+  animal_type: string;
   animal_name?: string | null;
   description?: string | null;
 };
@@ -29,56 +32,32 @@ type EnrichedFlag = Report & {
 
 export default function AdminFlagsPage() {
   const { loading: adminLoading, isAdmin } = useAdmin();
+
   const [flags, setFlags] = useState<EnrichedFlag[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchFlags = async () => {
-  setLoading(true);
+    setLoading(true);
 
-  // 1. get flagged reports (source of truth)
-  const { data: reports, error: reportError } = await supabase
-    .from("reports")
-    .select("*")
-    .eq("status", "flagged");
+    const { reports, flags } =
+      await getFlaggedReportsWithFlags();
 
-  console.log("📌 REPORTS (flagged):", reports); // 👈 ADD THIS
+    const flagMap = new Map<string, FlagRow[]>();
 
-  if (reportError) {
-    console.error(reportError.message);
-    setLoading(false);
-    return;
-  }
-
-  // 2. get all flags
-  const { data: flagsData, error: flagError } = await supabase
-    .from("reports_flags")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  console.log("📌 FLAGS RAW:", flagsData); // 👈 ADD THIS
-
-  if (flagError) {
-    console.error(flagError.message);
-    setLoading(false);
-    return;
-  }
-
-  const flagMap = new Map<string, FlagRow[]>();
-
-    (flagsData || []).forEach((f) => {
+    (flags || []).forEach((f) => {
       if (!flagMap.has(f.report_id)) {
         flagMap.set(f.report_id, []);
       }
       flagMap.get(f.report_id)!.push(f);
     });
 
-    console.log("📌 FLAG MAP KEYS:", Array.from(flagMap.keys())); // 👈 ADD THIS
-
     const enriched: EnrichedFlag[] = (reports || []).map((r) => {
       const related = flagMap.get(r.id) || [];
 
       const reasons = related
-        .map((f) => (typeof f.reason === "string" ? f.reason.trim() : null))
+        .map((f) =>
+          typeof f.reason === "string" ? f.reason.trim() : null
+        )
         .filter((r): r is string => r !== null && r.length > 0);
 
       return {
@@ -98,24 +77,16 @@ export default function AdminFlagsPage() {
     fetchFlags();
   }, []);
 
-  if (adminLoading) {
-    return <p>Checking access...</p>;
-  }
+  if (adminLoading) return <p>Checking access...</p>;
+  if (!isAdmin) return null;
 
-  if (!isAdmin) {
-    return null;
-  }
+  const setStatus = async (
+    reportId: string,
+    status: EnrichedFlag["status"]
+  ) => {
+    const ok = await updateReportStatus(reportId, status);
 
-  const setStatus = async (reportId: string, status: EnrichedFlag["status"]) => {
-    const { error } = await supabase
-      .from("reports")
-      .update({ status })
-      .eq("id", reportId);
-
-    if (error) {
-      console.error(error.message);
-      return;
-    }
+    if (!ok) return;
 
     fetchFlags();
   };
@@ -138,21 +109,19 @@ export default function AdminFlagsPage() {
               borderRadius: "8px",
             }}
           >
-            {/* BASIC INFO */}
             <p><strong>ID:</strong> {r.id}</p>
             <p><strong>Status:</strong> {r.status}</p>
             <p><strong>Type:</strong> {r.type}</p>
             <p><strong>Animal:</strong> {r.animal_type}</p>
             <p><strong>Description:</strong> {r.description || "N/A"}</p>
 
-            {/* FLAGS */}
-            <p>
-              <strong>⚠️ Flag count:</strong> {r.count}
-            </p>
+            <p><strong>⚠️ Flag count:</strong> {r.count}</p>
 
             <p><strong>🧾 Last 5 reasons:</strong></p>
             <ul>
-              {r.latestReasons.length === 0 && <li>No reasons provided</li>}
+              {r.latestReasons.length === 0 && (
+                <li>No reasons provided</li>
+              )}
               {r.latestReasons.map((reason, i) => (
                 <li key={i}>{reason}</li>
               ))}
@@ -165,8 +134,7 @@ export default function AdminFlagsPage() {
                 : "N/A"}
             </p>
 
-            {/* ACTIONS */}
-            <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
               <button onClick={() => setStatus(r.id, "active")}>
                 ✅ Restore
               </button>

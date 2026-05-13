@@ -1,13 +1,44 @@
 import SightingClient from "./SightingClient";
 
-type Props = {
-  params: Promise<{
-    id: string;
-  }>;
-};
+import { getAdminSightingById } from "../../../src/lib/sightings";
+import {
+  isOwner,
+  canViewSighting,
+} from "../../../src/lib/permissions";
 
-export default async function Page({ params }: Props) {
-  const { id } = await params;
+export default async function Page({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const sighting = await getAdminSightingById(params.id);
 
-  return <SightingClient id={id} />;
+  if (!sighting) {
+    return <p>Sighting not found</p>;
+  }
+
+  const report = Array.isArray(sighting.reports)
+    ? sighting.reports[0]
+    : sighting.reports;
+
+  // TEMP (you will replace later with real auth)
+  const ownerToken = null;
+  const isAdmin = true;
+
+  const owner = isOwner(
+    ownerToken,
+    report?.owner_user_id ?? null
+  );
+
+  const allowed = canViewSighting({
+    sightingStatus: sighting.status,
+    isAdmin,
+    isOwner: owner,
+  });
+
+  if (!allowed) {
+    return <p>Unauthorized</p>;
+  }
+
+  return <SightingClient sighting={sighting} />;
 }
