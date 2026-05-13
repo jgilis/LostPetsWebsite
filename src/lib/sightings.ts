@@ -108,6 +108,9 @@ export async function getPublicSightingById(id: string) {
     return null;
   }
 
+  console.log("SIGHTING QUERY:", sighting);
+  console.log("SIGHTING ERROR:", sightingError);
+
   // 2. Get related report (lost animal)
   const { data: report, error: reportError } = await supabase
     .from("reports")
@@ -125,6 +128,9 @@ export async function getPublicSightingById(id: string) {
   if (reportError) {
     console.error("Report error:", reportError);
   }
+
+  console.log("REPORT QUERY:", report);
+  console.log("REPORT ERROR:", reportError);
 
   // 3. Return normalized object
   return {
