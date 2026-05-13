@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../../src/lib/supabase";
 import dynamic from "next/dynamic";
+import { getPublicSightingById } from "../../../src/lib/sightings";
 
 const SightingMap = dynamic(
   () => import("./SightingMap"),
@@ -41,42 +42,14 @@ export default function SightingClient({ id }: Props) {
 
     async function load() {
       try {
-        console.log("LOADING sighting id:", id);
+        const data = await getPublicSightingById(id);
 
-        const res = await supabase
-          .from("sightings")
-          .select(`
-            *,
-            reports:lost_report_id (
-              id,
-              animal_type,
-              animal_name,
-              latitude,
-              longitude,
-              owner_user_id
-            )
-          `)
-          .eq("id", id)
-          .single();
-
-        console.log("SUPABASE RESPONSE:", res);
-
-        if (res.error) {
-          console.error("SUPABASE ERROR:", res.error);
-
-          if (!cancelled) {
-            setSighting(null);
-          }
-
-          return;
-        }
+        console.log("PUBLIC SIGHTING:", data);
 
         if (!cancelled) {
-          setSighting(res.data as Sighting);
-        }
+          setSighting(data as any);
+        } 
       } catch (err) {
-        console.error("LOAD ERROR:", err);
-
         if (!cancelled) {
           setSighting(null);
         }
@@ -142,7 +115,15 @@ export default function SightingClient({ id }: Props) {
   // ----------------------------
   return (
     <div style={{ padding: 20 }}>
-      <h1>🐾 Sighting Detail</h1>
+      <h1
+        style={{
+          fontSize: "2rem",
+          fontWeight: "700",
+          marginBottom: "24px",
+        }}
+      >
+        🐾 Sighting Detail
+      </h1>
 
       {/* MAP */}
       <SightingMap sighting={safeSighting} />

@@ -75,7 +75,35 @@ export async function getApprovedSightings(
   return data || [];
 }
 
-export async function getSightingById(id: string) {
+export async function getPublicSightingById(id: string) {
+  const { data, error } = await supabase
+    .from("sightings")
+    .select(`
+      id,
+      lost_report_id,
+      created_at,
+      latitude,
+      longitude,
+      location_accuracy_meters,
+      description,
+      photo_url,
+      status,
+      moderated_at,
+      expires_at
+    `)
+    .eq("id", id)
+    .eq("status", "approved")
+    .single();
+
+  if (error) {
+    console.error(error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function getAdminSightingById(id: string) {
   const { data, error } = await supabase
     .from("sightings")
     .select(`
