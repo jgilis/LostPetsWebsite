@@ -1,4 +1,3 @@
-throw new Error("NEW VERSION LOADED");
 import { supabase } from "./supabase";
 import { normalizeRelation } from "./supabase-normalize";
 
@@ -152,7 +151,7 @@ export async function getAdminSightings() {
 }
 
 export async function getAdminSightingById(id: string) {
-  console.log("🔥 NEW FUNCTION EXECUTING");
+  console.log("🔥🔥🔥 REPORT FUNCTION ACTIVE 🔥🔥🔥");
 
   const { data: sighting, error } = await supabase
     .from("sightings")
