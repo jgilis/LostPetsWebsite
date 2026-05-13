@@ -7,7 +7,9 @@ const SightingMap = dynamic(() => import("../../../src/components/sightings/Sigh
 });
 
 export default function SightingClient({ sighting }: any) {
-  const report = sighting.reports;
+  const report = Array.isArray(sighting.reports)
+    ? sighting.reports[0]
+    : sighting.reports;
 
   return (
     <div style={{ padding: 20 }}>
