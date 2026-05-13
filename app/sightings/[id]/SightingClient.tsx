@@ -11,8 +11,7 @@ export default function SightingClient({ sighting }: any) {
     ? sighting.reports[0]
     : sighting.reports;
 
-  console.log("SIGHTING FULL:", sighting);
-  console.log("REPORT RAW:", sighting.reports);
+  console.log("REPORT SHAPE:", sighting.reports);
 
   return (
     <div style={{ padding: 20 }}>
