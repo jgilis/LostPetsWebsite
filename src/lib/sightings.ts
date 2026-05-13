@@ -52,6 +52,18 @@ export interface AdminSighting extends Sighting {
   reviewed_by?: string | null;
 }
 
+function getReport(
+  report:
+    | { owner_user_id: string | null }
+    | { owner_user_id: string | null }[]
+    | null
+    | undefined
+) {
+  if (!report) return null;
+
+  return Array.isArray(report) ? report[0] : report;
+}
+
 export async function getApprovedSightings(
   lostReportId: string
 ): Promise<Sighting[]> {
@@ -221,7 +233,7 @@ export async function updateSightingStatus(
 
   if (!sighting) return true;
 
-  const report = normalizeRelation(sighting.reports);
+  const report = getReport(sighting.reports);
 
   await supabase.from("notification_events").insert({
     type:
