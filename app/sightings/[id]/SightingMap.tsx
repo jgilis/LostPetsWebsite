@@ -28,7 +28,7 @@ export default function SightingMap({ sighting, report }: Props) {
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-        {/* LOST LOCATION */}
+        {/* 🔵 LOST LOCATION (BLUE) */}
         {report && (
           <CircleMarker
             center={[report.latitude, report.longitude]}
@@ -42,7 +42,7 @@ export default function SightingMap({ sighting, report }: Props) {
           />
         )}
 
-        {/* SIGHTING LOCATION */}
+        {/* 🔴 SIGHTING LOCATION (RED) */}
         <CircleMarker
           center={[sighting.latitude, sighting.longitude]}
           radius={10}

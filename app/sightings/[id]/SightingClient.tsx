@@ -14,7 +14,8 @@ type Sighting = {
   longitude: number;
   description: string | null;
   status: string;
-  reports?: {
+
+  report: {
     id: string;
     animal_type: string;
     animal_name: string | null;
@@ -71,7 +72,7 @@ export default function SightingClient({ id }: Props) {
     return <p style={{ padding: 20 }}>Sighting not found</p>;
   }
 
-  const report = sighting.reports ?? null;
+  const report = sighting.report;
 
   const isAdmin = true;
 
@@ -104,7 +105,7 @@ export default function SightingClient({ id }: Props) {
       </h1>
 
       <SightingMap sighting={sighting} report={report} />
-
+      
       <div>
         <h2>
           {report?.animal_type ?? "Unknown"}{" "}
