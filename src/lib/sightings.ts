@@ -184,6 +184,9 @@ export async function getAdminSightingById(id: string) {
     .eq("id", sighting.lost_report_id)
     .single();
 
+  console.log("SIGHTING OBJECT:", sighting);
+  console.log("LOST REPORT ID:", sighting.lost_report_id);
+
   return {
     ...sighting,
     reports: report ?? null,
