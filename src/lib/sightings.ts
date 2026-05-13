@@ -56,7 +56,7 @@ export async function getApprovedSightings(
   lostReportId: string
 ): Promise<Sighting[]> {
   const { data, error } = await supabase
-    .from("sightings")
+    .from("public_sightings_public")
     .select(`
       id,
       lost_report_id,
@@ -71,7 +71,6 @@ export async function getApprovedSightings(
       expires_at
     `)
     .eq("lost_report_id", lostReportId)
-    .eq("status", "approved")
     .order("created_at", {
       ascending: false,
     });
