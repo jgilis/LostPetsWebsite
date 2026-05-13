@@ -88,18 +88,14 @@ export async function getPublicSightingById(id: string) {
   const { data: sighting, error: sightingError } = await supabase
     .from("public_sightings_public")
     .select(`
-      id,
-      lost_report_id,
-      created_at,
-      latitude,
-      longitude,
-      location_accuracy_meters,
-      description,
-      photo_url,
-      status,
-      moderated_at,
-      expires_at
-    `)
+  id,
+  lost_report_id,
+  created_at,
+  latitude,
+  longitude,
+  description,
+  photo_url
+`)
     .eq("id", id)
     .single();
 

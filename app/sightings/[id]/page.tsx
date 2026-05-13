@@ -13,12 +13,6 @@ export default async function Page({
 }) {
   const sighting = await getAdminSightingById(params.id);
 
-    return (
-    <pre>
-      {JSON.stringify(sighting, null, 2)}
-    </pre>
-  );
-
   if (!sighting) {
     return <p>Sighting not found</p>;
   }
