@@ -84,7 +84,6 @@ export async function getApprovedSightings(
 }
 
 export async function getPublicSightingById(id: string) {
-  // 1. Get sighting (source of truth)
   const { data: sighting, error: sightingError } = await supabase
     .from("sightings")
     .select(`
@@ -94,10 +93,10 @@ export async function getPublicSightingById(id: string) {
       latitude,
       longitude,
       description,
-      photo_url
+      photo_url,
+      status
     `)
     .eq("id", id)
-    .eq("status", "approved")
     .single();
 
   if (sightingError || !sighting) {
@@ -105,7 +104,7 @@ export async function getPublicSightingById(id: string) {
     return null;
   }
 
-  // 2. Get related report (lost animal)
+  // get report
   const { data: report, error: reportError } = await supabase
     .from("reports")
     .select(`
@@ -123,7 +122,6 @@ export async function getPublicSightingById(id: string) {
     console.error("Report error:", reportError);
   }
 
-  // 3. Return normalized object
   return {
     ...sighting,
     report: report ?? null,
