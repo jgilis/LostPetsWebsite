@@ -6,6 +6,7 @@ export default async function Page({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  console.log("PAGE EXECUTING"); // 👈 ADD HERE
   const { id } = await params;
 
   const sighting = await getPublicSightingById(id);
