@@ -152,6 +152,7 @@ export async function getAdminSightings() {
 
 export async function getAdminSightingById(id: string) {
   console.log("🔥 NEW FUNCTION EXECUTING");
+
   const { data: sighting, error } = await supabase
     .from("sightings")
     .select(`
@@ -172,7 +173,10 @@ export async function getAdminSightingById(id: string) {
     return null;
   }
 
-  const { data: report } = await supabase
+  // ✅ FIX: normalize UUID BEFORE using it
+  const reportId = String(sighting.lost_report_id).trim();
+
+  const { data: report, error: reportError } = await supabase
     .from("reports")
     .select(`
       id,
@@ -182,13 +186,16 @@ export async function getAdminSightingById(id: string) {
       animal_name,
       owner_user_id
     `)
-    .eq("id", sighting.lost_report_id)
-    .single();
+    .eq("id", reportId)
+    .maybeSingle();
 
+  // 🔍 logs (keep for now)
   console.log("SIGHTING OBJECT:", sighting);
   console.log("LOST REPORT ID:", sighting.lost_report_id);
-  console.log("LOOKUP ID:", JSON.stringify(sighting.lost_report_id));
-  
+  console.log("CLEAN REPORT ID:", reportId);
+  console.log("REPORT ERROR:", reportError);
+  console.log("REPORT RESULT:", report);
+
   return {
     ...sighting,
     reports: report ?? null,
