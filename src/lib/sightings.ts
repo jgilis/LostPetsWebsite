@@ -101,7 +101,6 @@ export async function getPublicSightingById(id: string) {
       expires_at
     `)
     .eq("id", id)
-    .eq("status", "approved")
     .single();
 
   if (sightingError || !sighting) {
