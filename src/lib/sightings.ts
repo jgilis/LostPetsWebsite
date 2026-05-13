@@ -1,3 +1,4 @@
+throw new Error("NEW VERSION LOADED");
 import { supabase } from "./supabase";
 import { normalizeRelation } from "./supabase-normalize";
 
