@@ -151,6 +151,7 @@ export async function getAdminSightings() {
 }
 
 export async function getAdminSightingById(id: string) {
+  console.log("🔥 NEW FUNCTION EXECUTING");
   const { data: sighting, error } = await supabase
     .from("sightings")
     .select(`
