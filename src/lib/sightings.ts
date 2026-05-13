@@ -151,7 +151,7 @@ export async function getAdminSightings() {
 }
 
 export async function getAdminSightingById(id: string) {
-  const { data, error } = await supabase
+  const { data: sighting, error } = await supabase
     .from("sightings")
     .select(`
       id,
@@ -161,25 +161,33 @@ export async function getAdminSightingById(id: string) {
       description,
       photo_url,
       status,
-      created_at,
-      reports (
-        id,
-        latitude,
-        longitude,
-        animal_type,
-        animal_name,
-        owner_user_id
-      )
+      created_at
     `)
     .eq("id", id)
     .single();
 
-  if (error) {
+  if (error || !sighting) {
     console.error(error);
     return null;
   }
-  console.log("ADMIN SIGHTING:", data);
-  return data;
+
+  const { data: report } = await supabase
+    .from("reports")
+    .select(`
+      id,
+      latitude,
+      longitude,
+      animal_type,
+      animal_name,
+      owner_user_id
+    `)
+    .eq("id", sighting.lost_report_id)
+    .single();
+
+  return {
+    ...sighting,
+    reports: report ?? null,
+  };
 }
 
 export async function updateSightingStatus(
