@@ -1,18 +1,19 @@
 "use client";
 
-import {
-  MapContainer,
-  TileLayer,
-  CircleMarker,
-} from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker } from "react-leaflet";
 
 type Props = {
-  sighting: any;
+  sighting: {
+    latitude: number;
+    longitude: number;
+  };
+  report: {
+    latitude: number;
+    longitude: number;
+  } | null;
 };
 
-export default function SightingMap({
-  sighting,
-}: Props) {
+export default function SightingMap({ sighting, report }: Props) {
   return (
     <div
       style={{
@@ -21,39 +22,29 @@ export default function SightingMap({
       }}
     >
       <MapContainer
-        center={[
-          sighting.latitude,
-          sighting.longitude,
-        ]}
+        center={[sighting.latitude, sighting.longitude]}
         zoom={14}
-        style={{
-          height: "100%",
-          width: "100%",
-        }}
+        style={{ height: "100%", width: "100%" }}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
         {/* LOST LOCATION */}
-        <CircleMarker
-          center={[
-            sighting.reports.latitude,
-            sighting.reports.longitude,
-          ]}
-          radius={10}
-          pathOptions={{
-            color: "#2563eb",
-            fillColor: "#2563eb",
-            fillOpacity: 0.9,
-            weight: 2,
-          }}
-        />
+        {report && (
+          <CircleMarker
+            center={[report.latitude, report.longitude]}
+            radius={10}
+            pathOptions={{
+              color: "#2563eb",
+              fillColor: "#2563eb",
+              fillOpacity: 0.9,
+              weight: 2,
+            }}
+          />
+        )}
 
-        {/* SIGHTING */}
+        {/* SIGHTING LOCATION */}
         <CircleMarker
-          center={[
-            sighting.latitude,
-            sighting.longitude,
-          ]}
+          center={[sighting.latitude, sighting.longitude]}
           radius={10}
           pathOptions={{
             color: "#ef4444",

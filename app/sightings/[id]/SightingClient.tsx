@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../../../src/lib/supabase";
 import dynamic from "next/dynamic";
 import { getPublicSightingById } from "../../../src/lib/sightings";
 
-const SightingMap = dynamic(
-  () => import("./SightingMap"),
-  { ssr: false }
-);
+const SightingMap = dynamic(() => import("./SightingMap"), {
+  ssr: false,
+});
 
 type Sighting = {
   id: string;
@@ -16,15 +14,14 @@ type Sighting = {
   longitude: number;
   description: string | null;
   status: string;
-
-  reports: {
+  reports?: {
     id: string;
     animal_type: string;
     animal_name: string | null;
     latitude: number;
     longitude: number;
     owner_user_id: string | null;
-  };
+  } | null;
 };
 
 type Props = {
@@ -32,8 +29,6 @@ type Props = {
 };
 
 export default function SightingClient({ id }: Props) {
-  console.log("SightingClient rendered with id:", id);
-  
   const [sighting, setSighting] = useState<Sighting | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -47,9 +42,10 @@ export default function SightingClient({ id }: Props) {
         console.log("PUBLIC SIGHTING:", data);
 
         if (!cancelled) {
-          setSighting(data as any);
-        } 
+          setSighting(data as Sighting);
+        }
       } catch (err) {
+        console.error(err);
         if (!cancelled) {
           setSighting(null);
         }
@@ -60,38 +56,24 @@ export default function SightingClient({ id }: Props) {
       }
     }
 
-    if (id) {
-      load();
-    }
+    if (id) load();
 
     return () => {
       cancelled = true;
     };
   }, [id]);
 
-  // ----------------------------
-  // LOADING STATE
-  // ----------------------------
   if (loading) {
     return <p style={{ padding: 20 }}>Loading...</p>;
   }
 
-  // ----------------------------
-  // NOT FOUND STATE
-  // ----------------------------
   if (!sighting) {
     return <p style={{ padding: 20 }}>Sighting not found</p>;
   }
 
-  // ----------------------------
-  // SAFE VARIABLE (TYPE NARROWING)
-  // ----------------------------
-  const safeSighting = sighting;
+  const report = sighting.reports ?? null;
 
-  // ----------------------------
-  // AUTH LOGIC
-  // ----------------------------
-  const isAdmin = true; // temporary
+  const isAdmin = true;
 
   const ownerToken =
     typeof window !== "undefined"
@@ -99,10 +81,9 @@ export default function SightingClient({ id }: Props) {
       : null;
 
   const isOwner =
-    !!ownerToken &&
-    ownerToken === safeSighting.reports?.owner_user_id;
+    !!ownerToken && report?.owner_user_id === ownerToken;
 
-  if (safeSighting.status !== "approved" && !isAdmin) {
+  if (sighting.status !== "approved" && !isAdmin) {
     return <p style={{ padding: 20 }}>Not available yet</p>;
   }
 
@@ -110,9 +91,6 @@ export default function SightingClient({ id }: Props) {
     return <p style={{ padding: 20 }}>Unauthorized</p>;
   }
 
-  // ----------------------------
-  // UI
-  // ----------------------------
   return (
     <div style={{ padding: 20 }}>
       <h1
@@ -125,21 +103,17 @@ export default function SightingClient({ id }: Props) {
         🐾 Sighting Detail
       </h1>
 
-      {/* MAP */}
-      <SightingMap sighting={safeSighting} />
+      <SightingMap sighting={sighting} report={report} />
 
-      {/* DETAILS */}
       <div>
         <h2>
-          {safeSighting.reports.animal_type}{" "}
-          {safeSighting.reports.animal_name || ""}
+          {report?.animal_type ?? "Unknown"}{" "}
+          {report?.animal_name ?? ""}
         </h2>
 
-        <p>
-          {safeSighting.description || "No description"}
-        </p>
+        <p>{sighting.description || "No description"}</p>
 
-        <p>Status: {safeSighting.status}</p>
+        <p>Status: {sighting.status}</p>
       </div>
     </div>
   );
