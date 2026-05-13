@@ -154,13 +154,20 @@ export async function getAdminSightingById(id: string) {
   const { data, error } = await supabase
     .from("sightings")
     .select(`
-      *,
-      reports:lost_report_id (
+      id,
+      lost_report_id,
+      latitude,
+      longitude,
+      description,
+      photo_url,
+      status,
+      created_at,
+      reports (
         id,
-        animal_type,
-        animal_name,
         latitude,
         longitude,
+        animal_type,
+        animal_name,
         owner_user_id
       )
     `)
