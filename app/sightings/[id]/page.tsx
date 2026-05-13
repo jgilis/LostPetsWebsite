@@ -1,5 +1,4 @@
 import SightingClient from "./SightingClient";
-
 import { getPublicSightingById } from "../../../src/lib/sightings";
 
 export default async function Page({
