@@ -5,6 +5,7 @@ import {
   isOwner,
   canViewSighting,
 } from "../../../src/lib/permissions";
+import { cookies } from "next/headers";
 
 export default async function Page({
   params,
@@ -22,9 +23,13 @@ export default async function Page({
     : sighting.reports;
 
   // TEMP (you will replace later with real auth)
-  const ownerToken = null;
-  const isAdmin = true;
-
+  // owner token from browser cookie
+  const cookieStore = await cookies();
+  const ownerToken =
+    cookieStore.get("ownerToken")?.value ?? null;
+  const isAdmin = false;
+  //
+  
   const owner = isOwner(
     ownerToken,
     report?.owner_user_id ?? null
