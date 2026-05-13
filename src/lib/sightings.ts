@@ -87,7 +87,7 @@ export async function getApprovedSightings(
 export async function getPublicSightingById(id: string) {
   // 1. Get sighting (public-safe)
   const { data: sighting, error: sightingError } = await supabase
-    .from("sightings")
+    .from("public_sightings_public")
     .select(`
       id,
       lost_report_id,

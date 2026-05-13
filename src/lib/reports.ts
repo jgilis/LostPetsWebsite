@@ -3,7 +3,18 @@ import { supabase } from "./supabase";
 export async function getAllReports() {
   const { data, error } = await supabase
     .from("reports")
-    .select("*")
+    .select(`
+      id,
+      type,
+      animal_type,
+      animal_name,
+      description,
+      latitude,
+      longitude,
+      photo_url,
+      status,
+      expires_at
+    `)
     .order("date_reported", { ascending: false });
 
   if (error) {
