@@ -37,36 +37,63 @@ export default function SightingClient({ id }: Props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function load() {
-      console.log("LOADING sighting id:", id);
+      try {
+        console.log("LOADING sighting id:", id);
 
-      const res = await supabase
-        .from("sightings")
-        .select(`
-          *,
-          reports:lost_report_id (
-            id,
-            animal_type,
-            animal_name,
-            latitude,
-            longitude,
-            owner_user_id
-          )
-        `)
-        .eq("id", id)
-        .single();
+        const res = await supabase
+          .from("sightings")
+          .select(`
+            *,
+            reports:lost_report_id (
+              id,
+              animal_type,
+              animal_name,
+              latitude,
+              longitude,
+              owner_user_id
+            )
+          `)
+          .eq("id", id)
+          .single();
 
-      console.log("SUPABASE RESPONSE:", res);
+        console.log("SUPABASE RESPONSE:", res);
 
-      if (res.error) {
-        console.error("SUPABASE ERROR:", res.error);
+        if (res.error) {
+          console.error("SUPABASE ERROR:", res.error);
+
+          if (!cancelled) {
+            setSighting(null);
+          }
+
+          return;
+        }
+
+        if (!cancelled) {
+          setSighting(res.data as Sighting);
+        }
+      } catch (err) {
+        console.error("LOAD ERROR:", err);
+
+        if (!cancelled) {
+          setSighting(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-
-      setSighting(res.data as Sighting);
-      setLoading(false);
     }
 
-    if (id) load();
+    if (id) {
+      load();
+    }
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   // ----------------------------

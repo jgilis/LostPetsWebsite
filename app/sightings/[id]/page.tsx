@@ -1,9 +1,13 @@
 import SightingClient from "./SightingClient";
 
-export default function Page({
-  params,
-}: {
-  params: { id: string };
-}) {
-  return <SightingClient id={params.id} />;
+type Props = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+export default async function Page({ params }: Props) {
+  const { id } = await params;
+
+  return <SightingClient id={id} />;
 }
