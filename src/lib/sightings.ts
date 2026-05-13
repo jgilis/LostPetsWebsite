@@ -56,7 +56,7 @@ export async function getApprovedSightings(
   lostReportId: string
 ): Promise<Sighting[]> {
   const { data, error } = await supabase
-    .from("public_sightings_public")
+    .from("sightings")
     .select(`
       id,
       lost_report_id,
@@ -86,7 +86,7 @@ export async function getApprovedSightings(
 export async function getPublicSightingById(id: string) {
   // 1. Get sighting (public-safe)
   const { data: sighting, error: sightingError } = await supabase
-    .from("public_sightings_public")
+    .from("sightings")
     .select(`
   id,
   lost_report_id,
