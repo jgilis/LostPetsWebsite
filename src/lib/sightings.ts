@@ -118,10 +118,16 @@ export async function getPublicSightingById(id: string) {
 
   const { data: report } = await supabase
     .from("reports")
-    .select("count");
-
-  console.log("REPORT ERROR:", error);
-  console.log("REPORT RAW:", report);
+    .select(`
+      id,
+      latitude,
+      longitude,
+      animal_type,
+      animal_name,
+      owner_user_id
+    `)
+    .eq("id", sighting.lost_report_id)
+    .maybeSingle();
 
   return {
     ...sighting,
