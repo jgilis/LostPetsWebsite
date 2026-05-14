@@ -20,9 +20,10 @@ type Props = {
 export default function SightingMap({ sighting, report }: Props) {
   const sightingLat = sighting?.latitude ?? 0;
   const sightingLng = sighting?.longitude ?? 0;
+  console.log("SIGHTING COORDS:", sighting.latitude, sighting.longitude);
 
-  const reportLat = report?.latitude ?? sightingLat;
-  const reportLng = report?.longitude ?? sightingLng;
+  const reportLat = report?.latitude;
+  const reportLng = report?.longitude;
 
   return (
     <div
@@ -42,16 +43,24 @@ export default function SightingMap({ sighting, report }: Props) {
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
         {/* LOST LOCATION (BLUE) */}
-        <CircleMarker
-          center={[reportLat, reportLng]}
-          radius={10}
-          pathOptions={{
-            color: "#2563eb",
-            fillColor: "#2563eb",
-            fillOpacity: 0.9,
-            weight: 2,
-          }}
-        />
+        {reportLat != null && reportLng != null && (
+          <CircleMarker
+            center={[reportLat, reportLng]}
+            radius={10}
+            pathOptions={{
+              color: "#2563eb",
+              fillColor: "#2563eb",
+              fillOpacity: 0.9,
+              weight: 2,
+            }}
+          />
+        )}
+
+        {!reportLat && (
+          <div style={{ fontSize: 12, color: "#888" }}>
+            No original lost location available
+          </div>
+        )}
 
         {/* SIGHTING LOCATION (RED) */}
         <CircleMarker

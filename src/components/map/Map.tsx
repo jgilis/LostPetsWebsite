@@ -19,6 +19,8 @@ import MapRefBridge from "./MapRefBridge";
 import type { Map as LeafletMap } from "leaflet";
 import useLeaflet from "../../hooks/useLeaflet";
 import { useSearchParams } from "next/navigation";
+import { getPublicSightingById } from "../../lib/sightings";
+
 
 function MapClickCloser() {
   useMapEvents({
@@ -75,6 +77,18 @@ export default function Map() {
 
   const focusSighting =
     searchParams.get("focusSighting");
+  const [focusedSighting, setFocusedSighting] = useState<any>(null);
+    useEffect(() => {
+    async function load() {
+      if (!focusSighting) return;
+
+      const data = await getPublicSightingById(focusSighting);
+
+      setFocusedSighting(data);
+    }
+
+    load();
+  }, [focusSighting]);
 
   const focusReport =
     searchParams.get("focusReport");
@@ -130,9 +144,6 @@ export default function Map() {
       // always include target report
       if (r.id === focusReport) return true;
 
-      // include sightings linked to it
-      if (r.id === focusSighting) return true;
-
       // optional: include nearby context (simple radius filter later)
       return false;
     });
@@ -179,13 +190,11 @@ export default function Map() {
   if (!L || !icons) return <p>Loading map...</p>;
   if (loading) return <p>Loading reports...</p>;
 
-  // DELETE LATER, WHEN WE USE ACTUAL SIGHTING COORDINATES
-  const sightingMarkers =
-  focusSighting && focusReport
+  const sightingMarkers = focusedSighting
     ? [{
-        id: focusSighting,
-        lat: 51.02, // placeholder until we fetch real sighting
-        lng: 4.48
+        id: focusedSighting.id,
+        lat: Number(focusedSighting.latitude),
+        lng: Number(focusedSighting.longitude),
       }]
     : [];
 
