@@ -12,6 +12,7 @@ export interface Report {
   contact_info: string;
   photo_url?: string | null;
   status: "active" | "flagged" | "removed" | "resolved" | "expired";
+  owner_user_id?: string | null;
 }
 
 // 👇 Raw type from DB (includes expires_at and loose typing)
@@ -27,6 +28,7 @@ type ReportRow = {
   photo_url?: string | null;
   status?: "active" | "flagged" | "removed" | "resolved" | "expired" | null;
   expires_at?: string | null;
+  owner_user_id?: string | null; // ✅ ADD THIS
 };
 
 export function useReports() {
@@ -49,7 +51,8 @@ export function useReports() {
         contact_info,
         photo_url,
         status,
-        expires_at
+        expires_at,
+        owner_user_id
       `);
 
     if (error) {
@@ -81,6 +84,7 @@ export function useReports() {
         contact_info: r.contact_info,
         photo_url: r.photo_url ?? null,
         status,
+        owner_user_id: r.owner_user_id ?? null,
       };
     });
 

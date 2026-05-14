@@ -173,7 +173,6 @@ export async function getAdminSightings() {
 }
 
 export async function getAdminSightingById(id: string) {
-  console.log("🔥🔥🔥 REPORT FUNCTION ACTIVE 🔥🔥🔥");
 
   const { data: sighting, error } = await supabase
     .from("sightings")
@@ -210,13 +209,6 @@ export async function getAdminSightingById(id: string) {
     `)
     .eq("id", reportId)
     .maybeSingle();
-
-  // 🔍 logs (keep for now)
-  console.log("SIGHTING OBJECT:", sighting);
-  console.log("LOST REPORT ID:", sighting.lost_report_id);
-  console.log("CLEAN REPORT ID:", reportId);
-  console.log("REPORT ERROR:", reportError);
-  console.log("REPORT RESULT:", report);
 
   return {
     ...sighting,

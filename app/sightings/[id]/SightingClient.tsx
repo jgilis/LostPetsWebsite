@@ -11,8 +11,6 @@ export default function SightingClient({ sighting }: any) {
     ? sighting.report[0]
     : sighting.report;
 
-  console.log("REPORT SHAPE:", sighting.report);
-
   return (
     <div style={{ padding: 20 }}>
       <h1 style={{ fontSize: "2rem", fontWeight: "700", marginBottom: 24 }}>

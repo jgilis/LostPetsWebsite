@@ -1,22 +1,17 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   MapContainer,
   TileLayer,
   Marker,
-  Popup,
-  CircleMarker,
   useMapEvents,
 } from "react-leaflet";
-import MarkerClusterGroup from "react-leaflet-cluster";
 import "leaflet/dist/leaflet.css";
 
 import { useReports } from "../report/useReports";
 import { filterReports } from "./filters";
 import CirclesLayer from "./CirclesLayer";
-import ReportPopup from "./ReportPopup";
-import ReportMarker from "./ReportMarker";
 import MapStateWatcher from "./MapStateWatcher";
 import ReportsLayer from "./ReportsLayer";
 import { useSupercluster } from "./useSupercluster";

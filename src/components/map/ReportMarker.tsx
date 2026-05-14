@@ -8,17 +8,22 @@ import {
 
 import type { Report } from "../report/useReports";
 import ReportPopup from "./ReportPopup";
+import { memo } from "react";
 
 type Props = {
   report: Report;
   icon?: any;
   color: string;
+  currentUserId?: string | null;
+  isAdmin?: boolean;
 };
 
-export default function ReportMarker({
+export default memo(function ReportMarker({
   report,
   icon,
   color,
+  currentUserId,
+  isAdmin,
 }: Props) {
   const popupProps = {
     autoPan: false,
@@ -27,6 +32,9 @@ export default function ReportMarker({
     autoClose: false,
     closeOnEscapeKey: true,
   };
+  
+  const isOwner = currentUserId === report.owner_user_id;
+  const canSeeExactSightings = isAdmin || isOwner;
 
   if (report.type === "found") {
     return (
@@ -41,7 +49,10 @@ export default function ReportMarker({
         }}
       >
         <Popup {...popupProps}>
-          <ReportPopup report={report} />
+          <ReportPopup
+            report={report}
+            canSeeExactSightings={canSeeExactSightings}
+          />
         </Popup>
       </CircleMarker>
     );
@@ -53,8 +64,11 @@ export default function ReportMarker({
       icon={icon}
     >
       <Popup {...popupProps}>
-        <ReportPopup report={report} />
+        <ReportPopup
+          report={report}
+          canSeeExactSightings={canSeeExactSightings}
+        />
       </Popup>
     </Marker>
   );
-}
+})

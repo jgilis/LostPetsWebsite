@@ -11,12 +11,22 @@ import {
 
 type Props = {
   report: Report;
+
+  // TEMP
+  // later replace with real auth/permissions
+  canSeeExactSightings?: boolean;
 };
 
-export default function ReportPopup({ report }: Props) {
-  const [showSightingModal, setShowSightingModal] = useState(false);
-  const [sightings, setSightings] = useState<Sighting[]>([]);
-  const [open, setOpen] = useState(false);
+export default function ReportPopup({
+  report,
+  canSeeExactSightings = false,
+}: Props) {
+  const [showSightingModal, setShowSightingModal] =
+    useState(false);
+
+  const [sightings, setSightings] = useState<Sighting[]>(
+    []
+  );
 
   useEffect(() => {
     async function loadSightings() {
@@ -42,7 +52,10 @@ export default function ReportPopup({ report }: Props) {
         </>
       )}
 
-      {report.description && <em>{report.description}</em>}
+      {report.description && (
+        <em>{report.description}</em>
+      )}
+
       <br />
 
       {report.photo_url && (
@@ -73,10 +86,12 @@ export default function ReportPopup({ report }: Props) {
           Contact: {report.contact_info}
         </div>
 
-        {/* SIGHTING BUTTON (ONLY FOR LOST REPORTS) */}
+        {/* SIGHTING BUTTON */}
         {report.type === "lost" && (
           <button
-            onClick={() => setShowSightingModal(true)}
+            onClick={() =>
+              setShowSightingModal(true)
+            }
             style={{
               padding: "6px 10px",
               backgroundColor: "#2563eb",
@@ -93,15 +108,25 @@ export default function ReportPopup({ report }: Props) {
         {/* REPORT BUTTON */}
         <button
           onClick={async () => {
-            const reason = prompt("Why are you reporting this post?");
+            const reason = prompt(
+              "Why are you reporting this post?"
+            );
+
             if (!reason) return;
 
-            const ok = await flagReport(report.id, reason);
+            const ok = await flagReport(
+              report.id,
+              reason
+            );
 
             if (ok) {
-              alert("Report submitted. Thank you.");
+              alert(
+                "Report submitted. Thank you."
+              );
             } else {
-              alert("Failed to submit report.");
+              alert(
+                "Failed to submit report."
+              );
             }
           }}
           style={{
@@ -121,11 +146,13 @@ export default function ReportPopup({ report }: Props) {
       {showSightingModal && (
         <SightingModal
           lostReportId={report.id}
-          onClose={() => setShowSightingModal(false)}
+          onClose={() =>
+            setShowSightingModal(false)
+          }
         />
       )}
 
-      {/* APPROVED SIGHTINGS */}
+      {/* SIGHTINGS */}
       {sightings.length > 0 && (
         <div
           style={{
@@ -134,47 +161,69 @@ export default function ReportPopup({ report }: Props) {
             paddingTop: "10px",
           }}
         >
-          <strong>Recent sightings</strong>
+          {canSeeExactSightings ? (
+            <>
+              <strong>Recent sightings</strong>
 
-          {sightings.map((s) => (
-            <div
-              key={s.id}
-              style={{
-                marginTop: "10px",
-                padding: "8px",
-                background: "#f9fafb",
-                borderRadius: "6px",
-              }}
-            >
-              <div style={{ fontSize: "13px" }}>
-                📍 {s.latitude.toFixed(4)},{" "}
-                {s.longitude.toFixed(4)}
-              </div>
-
-              {s.description && (
+              {sightings.map((s) => (
                 <div
+                  key={s.id}
                   style={{
-                    marginTop: "4px",
-                    fontSize: "13px",
+                    marginTop: "10px",
+                    padding: "8px",
+                    background: "#f9fafb",
+                    borderRadius: "6px",
                   }}
                 >
-                  📝 {s.description}
-                </div>
-              )}
+                  <div
+                    style={{
+                      fontSize: "13px",
+                    }}
+                  >
+                    📍{" "}
+                    {s.latitude.toFixed(4)},{" "}
+                    {s.longitude.toFixed(4)}
+                  </div>
 
-              <div
-                style={{
-                  marginTop: "4px",
-                  fontSize: "11px",
-                  color: "#666",
-                }}
-              >
-                {new Date(
-                  s.created_at
-                ).toLocaleString()}
-              </div>
+                  {s.description && (
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        fontSize: "13px",
+                      }}
+                    >
+                      📝 {s.description}
+                    </div>
+                  )}
+
+                  <div
+                    style={{
+                      marginTop: "4px",
+                      fontSize: "11px",
+                      color: "#666",
+                    }}
+                  >
+                    {new Date(
+                      s.created_at
+                    ).toLocaleString()}
+                  </div>
+                </div>
+              ))}
+            </>
+          ) : (
+            <div
+              style={{
+                marginTop: "8px",
+                padding: "10px",
+                background: "#fef3c7",
+                borderRadius: "6px",
+                fontSize: "13px",
+              }}
+            >
+              👀 This animal has recently been
+              sighted nearby.
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>
