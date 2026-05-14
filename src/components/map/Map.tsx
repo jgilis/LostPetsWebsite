@@ -19,8 +19,8 @@ import MapRefBridge from "./MapRefBridge";
 import type { Map as LeafletMap } from "leaflet";
 import useLeaflet from "../../hooks/useLeaflet";
 import { useSearchParams } from "next/navigation";
-import { getPublicSightingById } from "../../lib/sightings";
-
+import { useMapIcons } from "./useMapIcons";
+import { useMapFocus } from "./useMapFocus";
 
 function MapClickCloser() {
   useMapEvents({
@@ -47,9 +47,6 @@ export default function Map() {
     bounds: null,
   });
 
-  const handleMapStateChange = useCallback((state: MapState) => {
-    setMapState(state);
-  }, []);
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
 
   const [typeFilter, setTypeFilter] = useState<"all" | "lost" | "found">("all");
@@ -77,56 +74,12 @@ export default function Map() {
 
   const focusSighting =
     searchParams.get("focusSighting");
-  const [focusedSighting, setFocusedSighting] = useState<any>(null);
-    useEffect(() => {
-    async function load() {
-      if (!focusSighting) return;
 
-      const data = await getPublicSightingById(focusSighting);
-
-      setFocusedSighting(data);
-    }
-
-    load();
-  }, [focusSighting]);
+  const { icons, getIcon, sightingIcon } = useMapIcons(L);
+  const { sightingMarkers } = useMapFocus(focusSighting);
 
   const focusReport =
     searchParams.get("focusReport");
-
-  const icons = useMemo<Record<AnimalType, any> | null>(() => {
-    if (!L) return null;
-
-    const createIcon = (url: string) =>
-      new L.Icon({
-        iconUrl: url,
-        shadowUrl: "/leaflet/marker-shadow.png",
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-      });
-
-    return {
-      dog: createIcon("/leaflet/marker-icon-blue.png"),
-      cat: createIcon("/leaflet/marker-icon-gold.png"),
-      bird: createIcon("/leaflet/marker-icon-violet.png"),
-      rodent: createIcon("/leaflet/marker-icon-red.png"),
-      other: createIcon("/leaflet/marker-icon-black.png"),
-    };
-  }, [L]);
-
-  const getIcon = (animal: AnimalType) => {
-    if (!icons) return undefined;
-    return icons[animal];
-  };
-
-  const sightingIcon = useMemo(() => {
-    if (!L) return null;
-    return new L.Icon({
-      iconUrl: "/leaflet/marker-icon-red.png",
-      shadowUrl: "/leaflet/marker-shadow.png",
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-    });
-  }, [L]);
 
   const filteredReports = filterReports(
     reports,
@@ -137,43 +90,20 @@ export default function Map() {
     (r) => r.id === focusReport
   );
 
-  const relevantReports = useMemo(() => {
-    if (!focusReport) return reports;
-
-    return reports.filter((r) => {
-      // always include target report
-      if (r.id === focusReport) return true;
-
-      // optional: include nearby context (simple radius filter later)
-      return false;
-    });
-  }, [reports, focusReport, focusSighting]);
-
   useEffect(() => {
-    if (!map || !focusReport) return;
-
-    const target = relevantReports.find(
-      (r) => r.id === focusReport
-    );
-
-    if (!target) return;
-
+    if (!map || !focusedReport) return;
     map.setView(
-      [target.latitude, target.longitude],
+      [focusedReport.latitude, focusedReport.longitude],
       15,
       { animate: true }
     );
-
-    setSelectedReport(target.id);
-  }, [map, focusReport, relevantReports]);
+    setSelectedReport(focusedReport.id);
+  }, [map, focusedReport]);
 
   const zoom = mapState.zoom;
   const bounds = mapState.bounds;
   const isDetailMode = mapState.zoom >= 13.5;
-  
-  const activeReports =
-    focusReport ? relevantReports : filteredReports;
-
+  const activeReports = filteredReports;
   const isFocusMode = !!focusReport;
 
   const { clusters, index } = useSupercluster({
@@ -189,14 +119,6 @@ export default function Map() {
   if (!isMounted) return null;
   if (!L || !icons) return <p>Loading map...</p>;
   if (loading) return <p>Loading reports...</p>;
-
-  const sightingMarkers = focusedSighting
-    ? [{
-        id: focusedSighting.id,
-        lat: Number(focusedSighting.latitude),
-        lng: Number(focusedSighting.longitude),
-      }]
-    : [];
 
   return (
     <div>
@@ -348,7 +270,7 @@ export default function Map() {
         ))}
 
         <CirclesLayer
-          reports={isFocusMode ? relevantReports : filteredReports}
+          reports={filteredReports}
           enabled={isDetailMode && !isFocusMode}
           getColor={(type: AnimalType) => animalColors[type]}
         />
