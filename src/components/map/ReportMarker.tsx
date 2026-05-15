@@ -28,7 +28,10 @@ export default memo(function ReportMarker({
   const popupProps = {
     className: "report-popup",
     maxWidth: 280,
-    autoPan: false,
+    autoPan: true,
+    keepInView: true,
+    autoPanPaddingTopLeft: [20, 100] as [number, number],
+    autoPanPaddingBottomRight: [20, 24] as [number, number],
     closeButton: true,
     closeOnClick: false,
     autoClose: false,

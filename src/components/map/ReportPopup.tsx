@@ -8,6 +8,7 @@ import {
   getApprovedSightings,
   Sighting,
 } from "../../lib/sightings";
+import PopupPhoto from "./PopupPhoto";
 
 type Props = {
   report: Report;
@@ -63,10 +64,9 @@ export default function ReportPopup({
 
       {report.photo_url && (
         <div style={{ marginTop: "8px" }}>
-          <img
+          <PopupPhoto
             src={report.photo_url}
             alt={report.animal_type}
-            style={{ marginTop: "4px" }}
           />
         </div>
       )}

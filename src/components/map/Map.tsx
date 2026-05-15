@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -27,8 +27,20 @@ import type { MapProps } from "./mapTypes";
 import AdminMapLegend from "./AdminMapLegend";
 
 function MapClickCloser() {
+  const wasDraggedRef = useRef(false);
+
   useMapEvents({
+    dragstart() {
+      wasDraggedRef.current = true;
+    },
+    dragend() {
+      window.setTimeout(() => {
+        wasDraggedRef.current = false;
+      }, 100);
+    },
     click(map) {
+      if (wasDraggedRef.current) return;
+
       map.target.closePopup();
     },
   });
