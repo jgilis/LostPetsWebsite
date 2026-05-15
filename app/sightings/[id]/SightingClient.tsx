@@ -70,9 +70,19 @@ export default function SightingClient({
     : sighting.report;
 
   const reportDetails = report as {
+    latitude?: number;
+    longitude?: number;
     animal_type?: string;
     animal_name?: string | null;
   } | null;
+
+  const mapReport =
+    reportDetails?.latitude != null && reportDetails?.longitude != null
+      ? {
+          latitude: reportDetails.latitude,
+          longitude: reportDetails.longitude,
+        }
+      : null;
 
   return (
     <div style={{ padding: 20 }}>
@@ -81,7 +91,7 @@ export default function SightingClient({
       </h1>
       <SightingMap
         sighting={sighting}
-        report={reportDetails}
+        report={mapReport}
       />
       <div>
         <h2>
