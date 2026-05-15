@@ -194,7 +194,6 @@ export async function getAdminSightingById(id: string) {
     return null;
   }
 
-  // ✅ FIX: normalize UUID BEFORE using it
   const reportId = String(sighting.lost_report_id).trim();
 
   const { data: report, error: reportError } = await supabase
@@ -218,8 +217,9 @@ export async function getAdminSightingById(id: string) {
 
 export async function updateSightingStatus(
   id: string,
-  status: "approved" | "rejected" | "removed" | "pending" | string
+  status: "approved" | "rejected" | "removed" | "pending"
 ) {
+  // 1. update sighting
   const { error: updateError } = await supabase
     .from("sightings")
     .update({ status })
@@ -230,7 +230,8 @@ export async function updateSightingStatus(
     return false;
   }
 
-  const { data: sighting } = await supabase
+  // 2. fetch fresh sighting data
+  const { data: sighting, error: sightingError } = await supabase
     .from("sightings")
     .select(`
       id,
@@ -245,28 +246,54 @@ export async function updateSightingStatus(
     .eq("id", id)
     .single();
 
-  if (!sighting) return true;
+  if (sightingError || !sighting) {
+    console.error(sightingError);
+    return false;
+  }
 
   const report = getReport(sighting.reports);
 
-  await supabase.from("notification_events").insert({
-    type:
-      status === "approved"
-        ? "sighting_approved"
-        : status === "rejected"
-        ? "sighting_rejected"
-        : "sighting_updated",
+  // 3. map status → event type
+  let eventType:
+    | "sighting_approved"
+    | "sighting_rejected"
+    | "sighting_updated";
 
-    target_user_id: report?.owner_user_id || null,
+  switch (status) {
+    case "approved":
+      eventType = "sighting_approved";
+      break;
 
-    payload: {
-      sighting_id: id,
-      lost_report_id: sighting.lost_report_id,
-      latitude: sighting.latitude,
-      longitude: sighting.longitude,
-      status,
-    },
-  });
+    case "rejected":
+      eventType = "sighting_rejected";
+      break;
+
+    default:
+      eventType = "sighting_updated";
+      break;
+  }
+
+  // 4. emit event
+  const { error: eventError } = await supabase
+    .from("notification_events")
+    .insert({
+      type: eventType,
+
+      target_user_id: report?.owner_user_id ?? null,
+
+      payload: {
+        sighting_id: sighting.id,
+        lost_report_id: sighting.lost_report_id,
+        latitude: sighting.latitude,
+        longitude: sighting.longitude,
+        status: sighting.status,
+      },
+    });
+
+  if (eventError) {
+    console.error(eventError);
+    return false;
+  }
 
   return true;
 }
