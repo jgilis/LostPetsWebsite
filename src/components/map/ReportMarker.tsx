@@ -9,12 +9,13 @@ import {
 import type { Report } from "../report/useReports";
 import ReportPopup from "./ReportPopup";
 import { memo } from "react";
+import { getOwnerToken } from "../../lib/owner";
+import { isOwner } from "../../lib/permissions";
 
 type Props = {
   report: Report;
   icon?: any;
   color: string;
-  currentUserId?: string | null;
   isAdmin?: boolean;
 };
 
@@ -22,7 +23,6 @@ export default memo(function ReportMarker({
   report,
   icon,
   color,
-  currentUserId,
   isAdmin,
 }: Props) {
   const popupProps = {
@@ -33,8 +33,9 @@ export default memo(function ReportMarker({
     closeOnEscapeKey: true,
   };
   
-  const isOwner = currentUserId === report.owner_user_id;
-  const canSeeExactSightings = isAdmin || isOwner;
+  const canSeeExactSightings =
+    isAdmin ||
+    isOwner(getOwnerToken(), report.owner_user_id ?? null);
 
   if (report.type === "found") {
     return (

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import useLeaflet from "../../hooks/useLeaflet";
 import LocationPicker from "../report/LocationPicker";

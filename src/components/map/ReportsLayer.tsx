@@ -22,7 +22,7 @@ export default function ReportsLayer({
   map,
   onClusterClick,
 }: Props) {
-  const { userId, isAdmin } = useCurrentUser();
+  const { isAdmin } = useCurrentUser();
 
   return items.map((item) => {
     if (!item?.geometry) return null;
@@ -65,7 +65,6 @@ export default function ReportsLayer({
         report={report}
         icon={icon}
         color={color}
-        currentUserId={userId}
         isAdmin={isAdmin}
       />
     );
