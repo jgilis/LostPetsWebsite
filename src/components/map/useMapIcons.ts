@@ -31,20 +31,37 @@ export function useMapIcons(L: any) {
     return icons[animal];
   };
 
-  const sightingIcon = useMemo(() => {
-    if (!L) return null;
-
-    return new L.Icon({
-      iconUrl: "/leaflet/marker-icon-red.png",
+  const createPinIcon = (url: string) =>
+    new L.Icon({
+      iconUrl: url,
       shadowUrl: "/leaflet/marker-shadow.png",
       iconSize: [25, 41],
       iconAnchor: [12, 41],
     });
+
+  const sightingIcon = useMemo(() => {
+    if (!L) return null;
+
+    return createPinIcon("/leaflet/marker-icon-red.png");
+  }, [L]);
+
+  const reportOriginIcon = useMemo(() => {
+    if (!L) return null;
+
+    return createPinIcon("/leaflet/marker-icon-blue.png");
+  }, [L]);
+
+  const currentSightingIcon = useMemo(() => {
+    if (!L) return null;
+
+    return createPinIcon("/leaflet/marker-icon-red.png");
   }, [L]);
 
   return {
     icons,
     getIcon,
     sightingIcon,
+    reportOriginIcon,
+    currentSightingIcon,
   };
 }

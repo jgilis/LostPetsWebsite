@@ -5,6 +5,7 @@ import {
   MapContainer,
   TileLayer,
   Marker,
+  CircleMarker,
   useMapEvents,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -23,6 +24,7 @@ import { useMapIcons } from "./useMapIcons";
 import { useMapFocus } from "./useMapFocus";
 import { useReportSightings } from "./useReportSightings";
 import type { MapProps } from "./mapTypes";
+import AdminMapLegend from "./AdminMapLegend";
 
 function MapClickCloser() {
   useMapEvents({
@@ -93,7 +95,13 @@ export default function Map({
 
   const focusSighting = searchParams.get("focusSighting");
 
-  const { icons, getIcon, sightingIcon } = useMapIcons(L);
+  const {
+    icons,
+    getIcon,
+    sightingIcon,
+    reportOriginIcon,
+    currentSightingIcon,
+  } = useMapIcons(L);
   const { sightingMarkers: focusSightingMarkers } = useMapFocus(
     isAdminScoped ? null : focusSighting
   );
@@ -144,7 +152,13 @@ export default function Map({
   );
 
   if (!isMounted) return null;
-  if (!L || !icons) return <p>Loading map...</p>;
+  if (!L || !icons || !sightingIcon) return <p>Loading map...</p>;
+  if (
+    isAdminScoped &&
+    (!reportOriginIcon || !currentSightingIcon)
+  ) {
+    return <p>Loading map...</p>;
+  }
   const loading = reportsLoading || (isAdminScoped && sightingsLoading);
 
   if (loading) return <p>Loading reports...</p>;
@@ -270,6 +284,7 @@ export default function Map({
       </div>
 
       {/* MAP */}
+      <div style={{ position: "relative" }}>
       <MapContainer
         center={[51.025, 4.477]} // Mechelen
         zoom={13}
@@ -290,13 +305,40 @@ export default function Map({
         <MapStateWatcher onChange={setMapState} />
         <MapClickCloser />
 
-        {sightingMarkers.map((s) => (
-          <Marker
-            key={s.id}
-            position={[s.lat, s.lng]}
-            icon={sightingIcon}
-          />
-        ))}
+        {sightingMarkers.map((s) => {
+          const isCurrentSighting =
+            isAdminScoped && s.id === focusSighting;
+          const isPastSighting =
+            isAdminScoped && s.id !== focusSighting;
+
+          if (isPastSighting) {
+            return (
+              <CircleMarker
+                key={s.id}
+                center={[s.lat, s.lng]}
+                radius={7}
+                pathOptions={{
+                  color: "#dc2626",
+                  fillColor: "#dc2626",
+                  fillOpacity: 0.9,
+                  weight: 2,
+                }}
+              />
+            );
+          }
+
+          return (
+            <Marker
+              key={s.id}
+              position={[s.lat, s.lng]}
+              icon={
+                isCurrentSighting
+                  ? currentSightingIcon
+                  : sightingIcon
+              }
+            />
+          );
+        })}
 
         <CirclesLayer
           reports={filteredReports}
@@ -308,6 +350,9 @@ export default function Map({
           items={clusters}
           animalColors={animalColors}
           getIcon={getIcon}
+          reportIconOverride={
+            isAdminScoped ? reportOriginIcon : undefined
+          }
           index={index}
           map={map}
           onClusterClick={(id, lat, lng) => {
@@ -321,6 +366,9 @@ export default function Map({
           }}
         />
       </MapContainer>
+
+      {isAdminScoped && <AdminMapLegend />}
+      </div>
     </div>
   );
 }
