@@ -5,7 +5,6 @@ import { supabase } from "../../lib/supabase";
 import LocationPicker from "./LocationPicker";
 import { applyLocationOffset } from "../../lib/location";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
-import { getOwnerToken } from "../../lib/owner";
 
 interface ReportFormProps {
   onReportCreated?: () => void;
@@ -33,6 +32,7 @@ export default function ReportForm({
 
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | "info" | null>(null);
+  const [showLoginCta, setShowLoginCta] = useState(false);
   const [editLink, setEditLink] = useState<string | null>(null);
 
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
@@ -40,8 +40,6 @@ export default function ReportForm({
 
   const lastSubmitKey = "last_submit_time";
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const ownerToken = getOwnerToken();
-
   const copyToClipboard = async () => {
     if (!editLink) return;
     await navigator.clipboard.writeText(editLink);
@@ -62,6 +60,8 @@ export default function ReportForm({
     e.preventDefault();
 
     if (isSubmitting) return;
+
+    setShowLoginCta(false);
 
     if (!captchaToken) {
       setMessage("Please complete the captcha.");
@@ -149,6 +149,23 @@ export default function ReportForm({
         return;
       }
 
+      const { data: userData, error: authError } = await supabase.auth.getUser();
+      if (authError || !userData.user) {
+        setMessage("You must be logged in to submit a report.");
+        setMessageType("error");
+        setShowLoginCta(true);
+        return;
+      }
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        setMessage("You must be logged in to submit a report.");
+        setMessageType("error");
+        setShowLoginCta(true);
+        return;
+      }
+
       const payload = {
         token: captchaToken,
         report: {
@@ -160,7 +177,6 @@ export default function ReportForm({
           longitude: safeLng,
           contact_info: contact ?? "",
           photo_url,
-          owner_user_id: ownerToken,
         },
       };
 
@@ -170,6 +186,7 @@ export default function ReportForm({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify(payload),
         }
@@ -188,8 +205,17 @@ export default function ReportForm({
 
       // handle HTTP errors explicitly
       if (!res.ok) {
-        setMessage(result?.error || "Request failed");
+        const errorMsg = result?.error || "Request failed";
+        setMessage(errorMsg);
         setMessageType("error");
+        if (
+          res.status === 401 ||
+          /authentication required|not authorized|access not authorized/i.test(
+            errorMsg,
+          )
+        ) {
+          setShowLoginCta(true);
+        }
         return;
       }
 
@@ -387,7 +413,15 @@ export default function ReportForm({
                   : "bg-gray-800 border-gray-700 text-gray-300"
               }`}
             >
-              {message}
+              <p>{message}</p>
+              {showLoginCta && (
+                <a
+                  href="/login"
+                  className="mt-3 inline-flex items-center justify-center rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+                >
+                  Login
+                </a>
+              )}
             </div>
           )}
 

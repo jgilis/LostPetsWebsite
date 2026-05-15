@@ -29,6 +29,11 @@ serve(async (req: Request) => {
       return json({ success: false, error: "Missing report data" }, 400);
     }
 
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return json({ success: false, error: "Authentication required" }, 401);
+    }
+
     const secret = Deno.env.get("HCAPTCHA_SECRET_KEY");
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -56,6 +61,16 @@ serve(async (req: Request) => {
     // 🗄️ 2. Supabase client (server-side)
     const supabase = createClient(supabaseUrl, serviceKey);
 
+    const jwt = authHeader.slice("Bearer ".length);
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser(jwt);
+
+    if (userError || !user) {
+      return json({ success: false, error: "Authentication required" }, 401);
+    }
+
     const editToken = crypto.randomUUID();
 
     // 🧾 3. Insert report
@@ -75,6 +90,7 @@ serve(async (req: Request) => {
           edit_token: editToken,
           date_reported: new Date().toISOString(),
           expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30 * 4).toISOString(),
+          owner_user_id: user.id,
         },
       ])
       .select()
