@@ -23,8 +23,11 @@ export default function NotificationsClient() {
 
   useEffect(() => {
     async function load() {
-      const data = await getOwnerSightingsNotifications();
-
+      const browserUserId = localStorage.getItem("browserUserId");
+      if (!browserUserId) {
+        return;
+      }
+      const data = await getOwnerSightingsNotifications(browserUserId);
       setEvents(data as NotificationEvent[]);
       setLoading(false);
     }
