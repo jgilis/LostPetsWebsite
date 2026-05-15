@@ -19,11 +19,13 @@ export function useReportSightings(reportId: string | null) {
       return;
     }
 
+    const scopedReportId = reportId;
+
     let active = true;
     setLoading(true);
 
     async function load() {
-      const data = await getApprovedSightings(reportId);
+      const data = await getApprovedSightings(scopedReportId);
 
       if (!active) return;
 
