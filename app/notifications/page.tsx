@@ -1,3 +1,4 @@
+"use client";
 import NotificationsClient from "./NotificationsClient";
 import { supabase } from "../../src/lib/supabase";
 import { useEffect } from "react";
