@@ -66,7 +66,7 @@ export default function AdminSightingsPage() {
   }, []);
 
     // 🧠 NEW: fetch sighting for event payload
-    async function updateStatus(id: string, status: string) {
+    async function updateStatus(id: string, status: "approved" | "rejected" | "removed" | "pending") {
     const result = await updateSightingStatus(id, status);
 
     if (!result) {
