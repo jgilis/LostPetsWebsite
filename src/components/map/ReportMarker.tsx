@@ -9,8 +9,7 @@ import {
 import type { Report } from "../report/useReports";
 import ReportPopup from "./ReportPopup";
 import { memo } from "react";
-import { getOwnerToken } from "../../lib/owner";
-import { isOwner } from "../../lib/permissions";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
 
 type Props = {
   report: Report;
@@ -25,6 +24,8 @@ export default memo(function ReportMarker({
   color,
   isAdmin,
 }: Props) {
+  const { userId } = useCurrentUser();
+
   const popupProps = {
     className: "report-popup",
     maxWidth: 280,
@@ -41,7 +42,9 @@ export default memo(function ReportMarker({
   
   const canSeeExactSightings =
     isAdmin ||
-    isOwner(getOwnerToken(), report.owner_user_id ?? null);
+    (!!userId &&
+      !!report.owner_user_id &&
+      userId === report.owner_user_id);
 
   if (report.type === "found") {
     return (
