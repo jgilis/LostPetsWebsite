@@ -25,6 +25,7 @@ import { useMapFocus } from "./useMapFocus";
 import { useReportSightings } from "./useReportSightings";
 import type { MapProps } from "./mapTypes";
 import AdminMapLegend from "./AdminMapLegend";
+import PopupViewGuard from "./PopupViewGuard";
 
 function MapClickCloser() {
   const wasDraggedRef = useRef(false);
@@ -191,7 +192,7 @@ export default function Map({
 
           position: "sticky",
           top: 0,
-          zIndex: 1000,
+          zIndex: 400,
           backgroundColor: "black",
         }}
       >
@@ -316,6 +317,7 @@ export default function Map({
         <MapRefBridge setMap={setMap} />
         <MapStateWatcher onChange={setMapState} />
         <MapClickCloser />
+        <PopupViewGuard />
 
         {sightingMarkers.map((s) => {
           const isCurrentSighting =

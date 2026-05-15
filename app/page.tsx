@@ -51,7 +51,7 @@ export default function HomePage() {
         {/* CONTENT */}
         {tab === "map" && (
           <div className="w-full h-[65vh] rounded-lg border border-gray-700">
-            <div className="w-full h-full overflow-hidden rounded-lg">
+            <div className="w-full h-full rounded-lg">
               <MapWrapper refreshKey={refreshKey} />
             </div>
           </div>
