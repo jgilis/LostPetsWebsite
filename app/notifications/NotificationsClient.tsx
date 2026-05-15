@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getOwnerSightingsNotifications } from "../../src/lib/notifications";
+import {
+  getOwnerSightingsNotifications,
+  markNotificationsAsRead,
+} from "../../src/lib/notifications";
 
 type NotificationEvent = {
   id: string;
@@ -23,6 +26,8 @@ export default function NotificationsClient() {
 
   useEffect(() => {
     async function load() {
+      await markNotificationsAsRead();
+
       const data = await getOwnerSightingsNotifications();
       setEvents(data as NotificationEvent[]);
       setLoading(false);
