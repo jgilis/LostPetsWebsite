@@ -6,12 +6,12 @@ import { useEffect } from "react";
 export default function NotificationsPage() {
 
   useEffect(() => {
-    async function checkUser() {
-      const { data } = await supabase.auth.getUser();
-      console.log("USER:", data.user);
+    async function check() {
+      const { data: session } = await supabase.auth.getSession();
+      console.log("SESSION:", session);
     }
   
-    checkUser();
+    check();
   }, []);
 
   return <NotificationsClient />;
