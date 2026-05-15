@@ -48,8 +48,8 @@ export default function AdminMapLegend() {
     <div
       style={{
         position: "absolute",
-        bottom: 12,
-        left: 12,
+        top: 12,
+        right: 12,
         zIndex: 1000,
         backgroundColor: "rgba(255, 255, 255, 0.95)",
         color: "#111827",
