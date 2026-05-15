@@ -21,6 +21,8 @@ import useLeaflet from "../../hooks/useLeaflet";
 import { useSearchParams } from "next/navigation";
 import { useMapIcons } from "./useMapIcons";
 import { useMapFocus } from "./useMapFocus";
+import { useReportSightings } from "./useReportSightings";
+import type { MapProps } from "./mapTypes";
 
 function MapClickCloser() {
   useMapEvents({
@@ -32,8 +34,27 @@ function MapClickCloser() {
   return null;
 }
 
-export default function Map() {
-  const { reports, loading } = useReports();
+export default function Map({
+  mode: modeProp,
+  reportId: reportIdProp,
+}: MapProps) {
+  const searchParams = useSearchParams();
+
+  const mode =
+    modeProp ??
+    (searchParams.get("mapMode") === "admin-scoped"
+      ? "admin-scoped"
+      : "default");
+
+  const scopedReportId =
+    reportIdProp ?? searchParams.get("focusReport");
+
+  const isAdminScoped =
+    mode === "admin-scoped" && !!scopedReportId;
+
+  const { reports, loading: reportsLoading } = useReports(
+    isAdminScoped ? { reportId: scopedReportId } : undefined
+  );
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -70,16 +91,22 @@ export default function Map() {
     other: "#111827",
   };
 
-  const searchParams = useSearchParams();
-
-  const focusSighting =
-    searchParams.get("focusSighting");
+  const focusSighting = searchParams.get("focusSighting");
 
   const { icons, getIcon, sightingIcon } = useMapIcons(L);
-  const { sightingMarkers } = useMapFocus(focusSighting);
+  const { sightingMarkers: focusSightingMarkers } = useMapFocus(
+    isAdminScoped ? null : focusSighting
+  );
+  const {
+    sightingMarkers: scopedSightingMarkers,
+    loading: sightingsLoading,
+  } = useReportSightings(isAdminScoped ? scopedReportId : null);
 
-  const focusReport =
-    searchParams.get("focusReport");
+  const sightingMarkers = isAdminScoped
+    ? scopedSightingMarkers
+    : focusSightingMarkers;
+
+  const focusReport = scopedReportId;
 
   const filteredReports = filterReports(
     reports,
@@ -118,6 +145,8 @@ export default function Map() {
 
   if (!isMounted) return null;
   if (!L || !icons) return <p>Loading map...</p>;
+  const loading = reportsLoading || (isAdminScoped && sightingsLoading);
+
   if (loading) return <p>Loading reports...</p>;
 
   return (

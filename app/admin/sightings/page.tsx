@@ -153,7 +153,7 @@ export default function AdminSightingsPage() {
           >
             {/* PRIMARY */}
             <a
-              href={`/?focusSighting=${s.id}&focusReport=${s.lost_report_id}`}
+              href={`/?mapMode=admin-scoped&focusReport=${s.lost_report_id}&focusSighting=${s.id}`}
               style={{
                 color: "#2563eb",
                 fontWeight: 600,

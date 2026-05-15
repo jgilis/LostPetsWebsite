@@ -31,14 +31,17 @@ type ReportRow = {
   owner_user_id?: string | null; // ✅ ADD THIS
 };
 
-export function useReports() {
+export function useReports(options?: { reportId?: string | null }) {
+  const reportId = options?.reportId ?? null;
+  const isScoped = !!reportId;
+
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchReports = async () => {
     setLoading(true);
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("reports")
       .select(`
         id,
@@ -54,6 +57,12 @@ export function useReports() {
         expires_at,
         owner_user_id
       `);
+
+    if (reportId) {
+      query = query.eq("id", reportId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error(error.message);
@@ -88,16 +97,21 @@ export function useReports() {
       };
     });
 
-    // only active shown on map
-    setReports(cleaned.filter((r) => r.status === "active"));
+    setReports(
+      isScoped
+        ? cleaned
+        : cleaned.filter((r) => r.status === "active")
+    );
     setLoading(false);
   };
 
   useEffect(() => {
     fetchReports();
-  }, []);
+  }, [reportId]);
 
   useEffect(() => {
+    if (isScoped) return;
+
     const channel = supabase
       .channel("reports-channel")
       .on(
@@ -110,7 +124,7 @@ export function useReports() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [isScoped]);
 
   return { reports, loading };
 }
