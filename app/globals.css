@@ -124,10 +124,25 @@ body {
 
 .report-popup .report-popup-body img {
   display: block;
-  width: 100%;
-  max-width: 100%;
+  width: auto;
+  max-width: min(100%, clamp(9rem, 72vw, 13rem));
   height: auto;
-  max-height: 220px;
+  max-height: clamp(4.5rem, 14vmin, 7.5rem);
+  margin-inline: auto;
   object-fit: contain;
   border-radius: 6px;
+}
+
+@media (min-width: 480px) {
+  .report-popup .report-popup-body img {
+    max-width: min(100%, clamp(10rem, 55vw, 14rem));
+    max-height: clamp(5rem, 16vmin, 8.5rem);
+  }
+}
+
+@media (min-width: 768px) {
+  .report-popup .report-popup-body img {
+    max-width: min(100%, 15rem);
+    max-height: clamp(5.5rem, 12vh, 9rem);
+  }
 }
