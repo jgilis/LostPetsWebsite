@@ -41,7 +41,10 @@ export default function ReportPopup({
   }, [report.id, report.type]);
 
   return (
-    <div style={{ maxWidth: "200px" }}>
+    <div
+      className="report-popup-body"
+      onWheel={(e) => e.stopPropagation()}
+    >
       <strong>{report.type}</strong> {report.animal_type}
       <br />
 
@@ -63,11 +66,7 @@ export default function ReportPopup({
           <img
             src={report.photo_url}
             alt={report.animal_type}
-            style={{
-              width: "100%",
-              borderRadius: "6px",
-              marginTop: "4px",
-            }}
+            style={{ marginTop: "4px" }}
           />
         </div>
       )}

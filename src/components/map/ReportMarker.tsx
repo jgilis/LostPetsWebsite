@@ -26,6 +26,8 @@ export default memo(function ReportMarker({
   isAdmin,
 }: Props) {
   const popupProps = {
+    className: "report-popup",
+    maxWidth: 280,
     autoPan: false,
     closeButton: true,
     closeOnClick: false,

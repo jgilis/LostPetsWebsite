@@ -98,3 +98,36 @@ body {
   background: transparent !important;
   border: none !important;
 }
+
+/* Report map popups — viewport-safe, scrollable content */
+.report-popup .leaflet-popup-content-wrapper {
+  max-height: min(70vh, calc(100dvh - 7rem));
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.report-popup .leaflet-popup-content {
+  margin: 12px 14px;
+  width: min(280px, calc(100vw - 3rem)) !important;
+  max-width: min(280px, calc(100vw - 3rem));
+  line-height: 1.4;
+}
+
+.report-popup .report-popup-body {
+  max-height: min(62vh, calc(100dvh - 9rem));
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  word-break: break-word;
+}
+
+.report-popup .report-popup-body img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: 220px;
+  object-fit: contain;
+  border-radius: 6px;
+}
