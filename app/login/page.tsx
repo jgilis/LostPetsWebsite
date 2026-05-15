@@ -1,48 +1,66 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "../../src/lib/supabase";
-import { useRouter } from "next/navigation";
+import { AuthDebug } from "@/src/components/auth/AuthDebug";
+import { signInWithEmail } from "@/src/lib/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const login = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setSuccess(false);
+    setError(null);
 
-    if (error) {
-      alert(error.message);
+    const { error: signInError } = await signInWithEmail(email);
+
+    setLoading(false);
+
+    if (signInError) {
+      setError(signInError.message);
       return;
     }
 
-    router.push("/admin");
+    setSuccess(true);
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
+    <div style={{ padding: "2rem", maxWidth: "400px", margin: "0 auto" }}>
       <h1>Login</h1>
 
-      <input
-        placeholder="email"
-        onChange={(e) => setEmail(e.target.value)}
-      />
+      <form onSubmit={handleSubmit} style={{ marginTop: "1rem" }}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          disabled={loading}
+          style={{ display: "block", width: "100%", marginBottom: "0.75rem" }}
+        />
 
-      <br />
+        <button type="submit" disabled={loading}>
+          {loading ? "Sending…" : "Send login link"}
+        </button>
+      </form>
 
-      <input
-        type="password"
-        placeholder="password"
-        onChange={(e) => setPassword(e.target.value)}
-      />
+      {success && (
+        <p style={{ marginTop: "1rem", color: "green" }}>
+          Check your email for the login link.
+        </p>
+      )}
 
-      <br />
+      {error && (
+        <p style={{ marginTop: "1rem", color: "red" }} role="alert">
+          {error}
+        </p>
+      )}
 
-      <button onClick={login}>Login</button>
+      <AuthDebug />
     </div>
   );
 }
