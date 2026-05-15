@@ -151,7 +151,9 @@ export default function ReportForm({
 
       const { data: userData, error: authError } = await supabase.auth.getUser();
       if (authError || !userData.user) {
-        setMessage("You must be logged in to submit a report.");
+        setMessage(
+          "You must be logged in to submit a report. Logging in is free.",
+        );
         setMessageType("error");
         setShowLoginCta(true);
         return;
@@ -160,7 +162,9 @@ export default function ReportForm({
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData.session?.access_token;
       if (!accessToken) {
-        setMessage("You must be logged in to submit a report.");
+        setMessage(
+          "You must be logged in to submit a report. Logging in is free.",
+        );
         setMessageType("error");
         setShowLoginCta(true);
         return;

@@ -1,40 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  getOwnerSightingsNotifications,
-  markNotificationsAsRead,
-} from "../../src/lib/notifications";
-
-type NotificationEvent = {
-  id: string;
-  type: string;
-  payload: {
-    sighting_id?: string;
-    lost_report_id?: string;
-    latitude?: number;
-    longitude?: number;
-    status?: string;
-  };
-  created_at: string;
-  read_at: string | null;
-};
+import { useEffect } from "react";
+import { useNotifications } from "../../src/components/notifications/NotificationsProvider";
 
 export default function NotificationsClient() {
-  const [events, setEvents] = useState<NotificationEvent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { events, loading, loadNotifications } = useNotifications();
 
   useEffect(() => {
-    async function load() {
-      await markNotificationsAsRead();
-
-      const data = await getOwnerSightingsNotifications();
-      setEvents(data as NotificationEvent[]);
-      setLoading(false);
-    }
-
-    load();
-  }, []);
+    void loadNotifications({ markRead: true });
+  }, [loadNotifications]);
 
   if (loading) {
     return <p style={{ padding: "20px" }}>Loading notifications...</p>;

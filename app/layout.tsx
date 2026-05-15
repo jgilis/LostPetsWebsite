@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SiteFooter from "../src/components/layout/SiteFooter";
+import { NotificationsProvider } from "../src/components/notifications/NotificationsProvider";
 
 // ✅ Import Leaflet CSS globally
 import 'leaflet/dist/leaflet.css';
@@ -30,10 +31,12 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-gray-950 text-white">
 
-        {/* PAGE CONTENT */}
-        {children}
+        <NotificationsProvider>
+          {/* PAGE CONTENT */}
+          {children}
 
-        <SiteFooter />
+          <SiteFooter />
+        </NotificationsProvider>
 
       </body>
     </html>

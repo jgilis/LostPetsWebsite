@@ -2,29 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { getUnreadNotificationCount } from "../../lib/notifications";
+import { useEffect } from "react";
+import { useNotifications } from "./NotificationsProvider";
 
 export default function NotificationNavLink() {
-  const [count, setCount] = useState(0);
   const pathname = usePathname();
+  const { unreadCount, loadNotifications } = useNotifications();
 
   useEffect(() => {
-    let active = true;
-
-    const refresh = async () => {
-      const unread = await getUnreadNotificationCount();
-      if (active) setCount(unread);
+    void loadNotifications();
+    const onFocus = () => {
+      void loadNotifications();
     };
-
-    refresh();
-    window.addEventListener("focus", refresh);
-
+    window.addEventListener("focus", onFocus);
     return () => {
-      active = false;
-      window.removeEventListener("focus", refresh);
+      window.removeEventListener("focus", onFocus);
     };
-  }, [pathname]);
+  }, [pathname, loadNotifications]);
 
   return (
     <Link
@@ -32,12 +26,12 @@ export default function NotificationNavLink() {
       className="hover:text-gray-300 inline-flex items-center gap-1.5"
     >
       Notifications
-      {count > 0 && (
+      {unreadCount > 0 && (
         <span
           className="inline-flex min-w-[1.1rem] h-[1.1rem] items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold leading-none text-white"
-          aria-label={`${count} unread notification${count === 1 ? "" : "s"}`}
+          aria-label={`${unreadCount} unread notification${unreadCount === 1 ? "" : "s"}`}
         >
-          {count > 99 ? "99+" : count}
+          {unreadCount > 99 ? "99+" : unreadCount}
         </span>
       )}
     </Link>

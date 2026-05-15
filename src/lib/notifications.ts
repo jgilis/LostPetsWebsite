@@ -1,15 +1,19 @@
 import { supabase } from "./supabase";
-import { getOwnerToken } from "./owner";
+
+async function getAuthUserId(): Promise<string | null> {
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) return null;
+  return data.user.id;
+}
 
 export async function getUnreadNotificationCount() {
-  const ownerToken = getOwnerToken();
-
-  if (!ownerToken) return 0;
+  const userId = await getAuthUserId();
+  if (!userId) return 0;
 
   const { count, error } = await supabase
     .from("notification_events")
     .select("*", { count: "exact", head: true })
-    .eq("target_user_id", ownerToken)
+    .eq("target_user_id", userId)
     .is("read_at", null);
 
   if (error) {
@@ -21,14 +25,13 @@ export async function getUnreadNotificationCount() {
 }
 
 export async function markNotificationsAsRead() {
-  const ownerToken = getOwnerToken();
-
-  if (!ownerToken) return false;
+  const userId = await getAuthUserId();
+  if (!userId) return false;
 
   const { error } = await supabase
     .from("notification_events")
     .update({ read_at: new Date().toISOString() })
-    .eq("target_user_id", ownerToken)
+    .eq("target_user_id", userId)
     .is("read_at", null);
 
   if (error) {
@@ -40,14 +43,13 @@ export async function markNotificationsAsRead() {
 }
 
 export async function getOwnerSightingsNotifications() {
-  const ownerToken = getOwnerToken();
-
-  if (!ownerToken) return [];
+  const userId = await getAuthUserId();
+  if (!userId) return [];
 
   const { data, error } = await supabase
     .from("notification_events")
     .select("*")
-    .eq("target_user_id", ownerToken) // keep this
+    .eq("target_user_id", userId)
     .order("created_at", { ascending: false });
 
   if (error) {
