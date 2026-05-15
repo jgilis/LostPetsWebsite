@@ -4,6 +4,9 @@ export default function SiteFooter() {
   return (
     <footer className="text-center text-xs text-gray-500 py-6 space-x-4 border-t border-gray-800 mt-10">
       <NotificationNavLink />
+      <a href="/login" className="hover:text-gray-300">
+        Login
+      </a>
       <a href="/about" className="hover:text-gray-300">
         About
       </a>
