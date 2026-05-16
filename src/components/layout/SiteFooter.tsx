@@ -4,6 +4,7 @@ import SessionControls from "../auth/SessionControls";
 import NotificationNavLink from "../notifications/NotificationNavLink";
 import { useNotifications } from "../notifications/NotificationsProvider";
 import { RealtimeDebug } from "../realtime/RealtimeDebug";
+import PwaInstallButton from "../pwa/PwaInstallButton";
 
 export default function SiteFooter() {
   const { loadNotifications } = useNotifications();
@@ -20,6 +21,7 @@ export default function SiteFooter() {
         >
           Report
         </a>
+        <PwaInstallButton />
         <SessionControls />
         <NotificationNavLink />
       </div>
