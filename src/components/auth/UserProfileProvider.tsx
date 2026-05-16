@@ -38,12 +38,16 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const applyUser = useCallback(async (nextUser: User | null) => {
+  const applySignedOut = useCallback(() => {
+    clearProfileAdminCache();
+    setUser(null);
+    setIsAdmin(false);
+    setLoading(false);
+  }, []);
+
+  const applySessionWithProfile = useCallback(async (nextUser: User | null) => {
     if (!nextUser) {
-      clearProfileAdminCache();
-      setUser(null);
-      setIsAdmin(false);
-      setLoading(false);
+      applySignedOut();
       return;
     }
 
@@ -51,18 +55,10 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
     const admin = await fetchIsAdminForUser(nextUser.id);
     setIsAdmin(admin);
     setLoading(false);
-  }, []);
+  }, [applySignedOut]);
 
   useEffect(() => {
     let active = true;
-
-    const init = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (!active) return;
-      await applyUser(data.user);
-    };
-
-    void init();
 
     const {
       data: { subscription },
@@ -70,12 +66,18 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
       if (!active) return;
 
       if (event === "SIGNED_OUT") {
-        void applyUser(null);
+        applySignedOut();
         return;
       }
 
-      if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
-        void applyUser(session?.user ?? null);
+      // Cold start / refresh: wait for INITIAL_SESSION before any profile fetch.
+      if (event === "INITIAL_SESSION") {
+        void applySessionWithProfile(session?.user ?? null);
+        return;
+      }
+
+      if (event === "SIGNED_IN") {
+        void applySessionWithProfile(session?.user ?? null);
         return;
       }
 
@@ -88,7 +90,7 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
       active = false;
       subscription.unsubscribe();
     };
-  }, [applyUser]);
+  }, [applySignedOut, applySessionWithProfile]);
 
   const value = useMemo(
     () => ({
