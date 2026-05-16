@@ -1,5 +1,12 @@
 import { supabase } from "./supabase";
 
+export type ReportStatus =
+  | "active"
+  | "flagged"
+  | "removed"
+  | "resolved"
+  | "expired";
+
 export async function getAllReports() {
   const { data, error } = await supabase
     .from("reports")
@@ -13,6 +20,7 @@ export async function getAllReports() {
       longitude,
       photo_url,
       status,
+      date_reported,
       expires_at
     `)
     .order("date_reported", { ascending: false });
@@ -43,7 +51,7 @@ export async function getFlaggedReportsWithFlags() {
 
 export async function updateReportStatus(
   reportId: string,
-  status: "active" | "flagged" | "removed" | "resolved" | "expired"
+  status: ReportStatus,
 ) {
   const { error } = await supabase
     .from("reports")

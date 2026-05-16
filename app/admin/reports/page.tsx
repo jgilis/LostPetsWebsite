@@ -1,34 +1,47 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAdmin } from "../../../src/hooks/useAdmin";
+import { useAdminReportsSync } from "../../../src/hooks/useAdminReportsSync";
 import AdminHeader from "../../../src/components/admin/AdminHeader";
-import { getAllReports } from "../../../src/lib/reports";
-
-type Report = {
-  id: string;
-  status: string;
-  animal_type: string;
-  description?: string | null;
-};
+import AdminReportRow from "../../../src/components/admin/AdminReportRow";
+import type { AdminReport } from "../../../src/lib/adminReports";
+import { getAllReports, updateReportStatus } from "../../../src/lib/reports";
+import type { ReportStatus } from "../../../src/lib/reports";
 
 export default function AdminAllReportsPage() {
   const { loading: adminLoading, isAdmin } = useAdmin();
-  const [reports, setReports] = useState<Report[]>([]);
+  const [reports, setReports] = useState<AdminReport[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await getAllReports();
-        setReports(data);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    void load();
+  const loadReports = useCallback(async () => {
+    const data = await getAllReports();
+    setReports(data as AdminReport[]);
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    void loadReports();
+  }, [loadReports]);
+
+  useAdminReportsSync(() => {
+    void loadReports();
+  });
+
+  const handleStatusChange = useCallback(
+    async (reportId: string, status: ReportStatus) => {
+      const ok = await updateReportStatus(reportId, status);
+      if (!ok) return false;
+
+      setReports((prev) =>
+        prev.map((report) =>
+          report.id === reportId ? { ...report, status } : report,
+        ),
+      );
+      return true;
+    },
+    [],
+  );
 
   if (adminLoading) {
     return <p className="p-8 text-gray-400">Checking access...</p>;
@@ -49,19 +62,12 @@ export default function AdminAllReportsPage() {
       )}
 
       <div className="flex flex-col gap-4">
-        {reports.map((r) => (
-          <div
-            key={r.id}
-            className="rounded-lg border border-gray-700 bg-gray-900 p-4 text-gray-200"
-          >
-            <p>
-              <span className="font-semibold">{r.animal_type}</span>
-              <span className="text-gray-400"> — {r.status}</span>
-            </p>
-            <p className="mt-1 text-sm text-gray-400">
-              {r.description || "No description"}
-            </p>
-          </div>
+        {reports.map((report) => (
+          <AdminReportRow
+            key={report.id}
+            report={report}
+            onStatusChange={handleStatusChange}
+          />
         ))}
       </div>
     </div>
