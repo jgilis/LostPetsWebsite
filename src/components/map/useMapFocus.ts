@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getPublicSightingById } from "../../lib/sightings";
 import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
+import { useRealtimeResyncRegister } from "../sync/RealtimeResyncProvider";
 
 export function useMapFocus(focusSighting: string | null) {
   const [focusedSighting, setFocusedSighting] = useState<any>(null);
@@ -20,6 +21,10 @@ export function useMapFocus(focusSighting: string | null) {
   }, [loadFocusSighting]);
 
   useVisibilitySyncRegister(() => {
+    void loadFocusSighting();
+  }, [loadFocusSighting]);
+
+  useRealtimeResyncRegister(() => {
     void loadFocusSighting();
   }, [loadFocusSighting]);
 

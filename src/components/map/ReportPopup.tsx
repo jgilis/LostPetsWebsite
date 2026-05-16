@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
+import { useRealtimeResyncRegister } from "../sync/RealtimeResyncProvider";
 import type { Report } from "../report/useReports";
 import { flagReport } from "../../lib/flags";
 import SightingModal from "../sightings/SightingsModal";
@@ -44,6 +45,10 @@ export default function ReportPopup({
   }, [loadSightings]);
 
   useVisibilitySyncRegister(() => {
+    void loadSightings();
+  }, [loadSightings]);
+
+  useRealtimeResyncRegister(() => {
     void loadSightings();
   }, [loadSightings]);
 

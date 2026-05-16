@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/src/lib/supabase";
+import { useCallback, useRef, useState } from "react";
+import type { RealtimeChannel } from "@supabase/supabase-js";
+import { useResilientRealtimeChannel } from "@/src/hooks/useResilientRealtimeChannel";
+import { useScheduleResyncAfterReconnect } from "@/src/components/sync/RealtimeResyncProvider";
 
 type ConnectionStatus = "connecting" | "connected" | "error";
 
@@ -13,14 +15,14 @@ type RealtimeDebugProps = {
 export function RealtimeDebug({ onInsert, hideUi = false }: RealtimeDebugProps) {
   const onInsertRef = useRef(onInsert);
   onInsertRef.current = onInsert;
+  const scheduleResync = useScheduleResyncAfterReconnect();
   const [status, setStatus] = useState<ConnectionStatus>("connecting");
   const [lastEventAt, setLastEventAt] = useState<string | null>(null);
   const [lastEventId, setLastEventId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const channel = supabase
-      .channel("realtime-debug-notification-events")
-      .on(
+  const configureChannel = useCallback(
+    (channel: RealtimeChannel) =>
+      channel.on(
         "postgres_changes",
         {
           event: "INSERT",
@@ -28,7 +30,6 @@ export function RealtimeDebug({ onInsert, hideUi = false }: RealtimeDebugProps) 
           table: "notification_events",
         },
         (payload) => {
-          console.log("[RealtimeDebug] notification_events INSERT:", payload);
           setLastEventAt(new Date().toISOString());
           setLastEventId(
             typeof payload.new === "object" &&
@@ -39,27 +40,31 @@ export function RealtimeDebug({ onInsert, hideUi = false }: RealtimeDebugProps) 
           );
           onInsertRef.current?.();
         },
-      )
-      .subscribe((subscriptionStatus, err) => {
-        console.log("[RealtimeDebug] subscription status:", subscriptionStatus);
-        if (err) {
-          console.log("[RealtimeDebug] subscription error:", err);
-        }
+      ),
+    [],
+  );
 
-        if (subscriptionStatus === "SUBSCRIBED") {
-          setStatus("connected");
-        } else if (
-          subscriptionStatus === "CHANNEL_ERROR" ||
-          subscriptionStatus === "TIMED_OUT"
-        ) {
-          setStatus("error");
-        }
-      });
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+  const handleStatusChange = useCallback((subscriptionStatus: string) => {
+    if (subscriptionStatus === "SUBSCRIBED") {
+      setStatus("connected");
+      return;
+    }
+    if (
+      subscriptionStatus === "CHANNEL_ERROR" ||
+      subscriptionStatus === "TIMED_OUT" ||
+      subscriptionStatus === "CLOSED"
+    ) {
+      setStatus("error");
+    }
   }, []);
+
+  useResilientRealtimeChannel({
+    channelName: "realtime-debug-notification-events",
+    enabled: true,
+    configure: configureChannel,
+    onStatusChange: handleStatusChange,
+    onReconnect: scheduleResync,
+  });
 
   if (hideUi) {
     return null;

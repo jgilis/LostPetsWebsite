@@ -13,6 +13,7 @@ import {
   markNotificationsAsRead,
 } from "../../lib/notifications";
 import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
+import { useRealtimeResyncRegister } from "../sync/RealtimeResyncProvider";
 
 export type NotificationEvent = {
   id: string;
@@ -65,6 +66,10 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   );
 
   useVisibilitySyncRegister(() => {
+    void loadNotifications();
+  }, [loadNotifications]);
+
+  useRealtimeResyncRegister(() => {
     void loadNotifications();
   }, [loadNotifications]);
 

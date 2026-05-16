@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
+import {
+  useRealtimeResyncRegister,
+  useScheduleResyncAfterReconnect,
+} from "../sync/RealtimeResyncProvider";
+import { useResilientRealtimeChannel } from "../../hooks/useResilientRealtimeChannel";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 export interface Report {
   id: string;
@@ -114,22 +120,30 @@ export function useReports(options?: { reportId?: string | null }) {
     void fetchReports();
   }, [fetchReports]);
 
-  useEffect(() => {
-    if (isScoped) return;
+  useRealtimeResyncRegister(() => {
+    void fetchReports();
+  }, [fetchReports]);
 
-    const channel = supabase
-      .channel("reports-channel")
-      .on(
+  const scheduleResync = useScheduleResyncAfterReconnect();
+
+  const configureReportsChannel = useCallback(
+    (channel: RealtimeChannel) =>
+      channel.on(
         "postgres_changes",
         { event: "*", schema: "public", table: "reports" },
-        fetchReports
-      )
-      .subscribe();
+        () => {
+          void fetchReports();
+        },
+      ),
+    [fetchReports],
+  );
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [fetchReports, isScoped]);
+  useResilientRealtimeChannel({
+    channelName: "reports-channel",
+    enabled: !isScoped,
+    configure: configureReportsChannel,
+    onReconnect: scheduleResync,
+  });
 
   return { reports, loading };
 }

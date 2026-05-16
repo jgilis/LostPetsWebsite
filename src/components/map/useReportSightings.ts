@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getApprovedSightings } from "../../lib/sightings";
 import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
+import { useRealtimeResyncRegister } from "../sync/RealtimeResyncProvider";
 
 export type SightingMarker = {
   id: string;
@@ -38,6 +39,10 @@ export function useReportSightings(reportId: string | null) {
   }, [loadSightings]);
 
   useVisibilitySyncRegister(() => {
+    void loadSightings();
+  }, [loadSightings]);
+
+  useRealtimeResyncRegister(() => {
     void loadSightings();
   }, [loadSightings]);
 

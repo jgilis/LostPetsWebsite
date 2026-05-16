@@ -6,6 +6,7 @@ import { NotificationsProvider } from "../src/components/notifications/Notificat
 import ServiceWorkerRegistration from "../src/components/pwa/ServiceWorkerRegistration";
 import AuthHashCleanup from "../src/components/auth/AuthHashCleanup";
 import { VisibilitySyncProvider } from "../src/components/sync/VisibilitySyncProvider";
+import { RealtimeResyncProvider } from "../src/components/sync/RealtimeResyncProvider";
 
 // ✅ Import Leaflet CSS globally
 import 'leaflet/dist/leaflet.css';
@@ -46,12 +47,14 @@ export default function RootLayout({
       <body className="bg-gray-950 text-white">
 
         <VisibilitySyncProvider>
+          <RealtimeResyncProvider>
           <NotificationsProvider>
             {/* PAGE CONTENT */}
             {children}
 
             <SiteFooter />
           </NotificationsProvider>
+          </RealtimeResyncProvider>
         </VisibilitySyncProvider>
 
         <ServiceWorkerRegistration />
