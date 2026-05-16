@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { AuthDebug } from "@/src/components/auth/AuthDebug";
 import { signInWithEmail } from "@/src/lib/auth";
 
 export default function LoginPage() {
@@ -88,7 +87,6 @@ export default function LoginPage() {
           )}
         </div>
 
-        <AuthDebug />
       </div>
     </div>
   );

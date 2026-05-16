@@ -1,13 +1,11 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import SessionControls from "../auth/SessionControls";
 import NotificationNavLink from "../notifications/NotificationNavLink";
 import { useNotifications } from "../notifications/NotificationsProvider";
 import { RealtimeDebug } from "../realtime/RealtimeDebug";
 
 export default function SiteFooter() {
-  const pathname = usePathname();
   const { loadNotifications } = useNotifications();
 
   return (
@@ -37,7 +35,7 @@ export default function SiteFooter() {
       </a>
 
       <RealtimeDebug
-        hideUi={pathname !== "/notifications"}
+        hideUi
         onInsert={() => {
           void loadNotifications();
         }}

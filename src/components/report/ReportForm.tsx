@@ -424,13 +424,13 @@ export default function ReportForm({
                   href="/login"
                   className="mt-3 inline-flex items-center justify-center rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
                 >
-                  Login
+                  Log in
                 </a>
               )}
             </div>
           )}
 
-          {/* EDIT LINK */}
+          {/* POST-SUBMIT SUCCESS */}
           {submittedReportId && (
             <div className="mt-6 p-4 rounded-lg border bg-green-900/20 border-green-600 text-green-200 space-y-3">
               

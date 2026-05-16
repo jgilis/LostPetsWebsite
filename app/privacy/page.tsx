@@ -5,24 +5,21 @@ export default function PrivacyPolicy() {
 
       <p>
         This page explains what information the Lost Pets Map collects, why we
-        store it, and how the app works. We aim to be straightforward — no
-        account system, no hidden tracking beyond what is needed to run the
-        service safely.
+        store it, and how the app works. We aim to be straightforward — sign-in
+        uses a magic link (no passwords), and we do not sell your data.
       </p>
 
-      <h2 className="text-xl font-semibold">1. No traditional accounts</h2>
+      <h2 className="text-xl font-semibold">1. Sign-in and ownership</h2>
       <p>
-        You do not need to create an account, choose a password, or sign in to
-        use the map. When you first use the app in your browser, we generate a
-        random <strong>owner token</strong> and save it in your browser&apos;s{" "}
-        <strong>localStorage</strong>. That token stays on your device unless
-        you clear your browser data.
+        You can browse the map without signing in. To <strong>submit a report</strong>,
+        you must log in with your email. We send a one-time magic link — there is
+        no password. Reports you create are linked to your account so you can
+        edit or delete them while logged in and receive notifications about
+        approved sightings on your reports.
       </p>
       <p>
-        If you submit a lost-pet report, we link that report to your owner
-        token so you can edit it later and receive notifications about
-        sightings. The token is not a password — anyone with access to your
-        browser could act as you on this device.
+        Use the same email address whenever you sign in to return to your reports
+        and notifications.
       </p>
 
       <h2 className="text-xl font-semibold">2. What we store</h2>
@@ -49,8 +46,8 @@ export default function PrivacyPolicy() {
           sighting
         </li>
         <li>
-          <strong>Notification events</strong> — linked to your owner token when
-          a sighting on your lost report is approved, so we can show you alerts
+          <strong>Notification events</strong> — linked to your account when a
+          sighting on your lost report is approved, so we can show you alerts
           in the app
         </li>
         <li>
@@ -60,8 +57,8 @@ export default function PrivacyPolicy() {
           address in the public app.
         </li>
         <li>
-          <strong>Your owner token (on your device)</strong> — stored in
-          localStorage in your browser, not on our servers as a login session
+          <strong>Your sign-in session</strong> — managed by our auth provider
+          when you use the magic link; we do not store passwords
         </li>
       </ul>
 
@@ -112,7 +109,7 @@ export default function PrivacyPolicy() {
       <h2 className="text-xl font-semibold">6. Data retention</h2>
       <p>
         Reports and sightings stay available until they expire, are resolved,
-        removed by moderation, or deleted using your edit link. We may remove
+        removed by moderation, or deleted by you while logged in. We may remove
         outdated or inactive content to keep the map useful. Security-related
         data such as hashed IPs may be kept for a limited time for abuse
         prevention.
@@ -128,18 +125,17 @@ export default function PrivacyPolicy() {
       <h2 className="text-xl font-semibold">8. Your choices</h2>
       <ul className="list-disc pl-6 space-y-1">
         <li>
-          Use the <strong>edit link</strong> you receive when creating a report
-          to update or remove it
+          While logged in, open <strong>Manage this report</strong> (or visit
+          the edit page for your report) to update or remove it
         </li>
         <li>
-          Clear your browser&apos;s site data to remove the owner token from
-          localStorage — note that you may lose the ability to edit reports or
-          see owner-only notifications on that device unless you still have your
-          edit link
+          Sign out or clear site data on a device if you do not want that browser
+          to stay signed in — sign in again with the same email to access your
+          reports and notifications
         </li>
         <li>
-          Open the <strong>Notifications</strong> page to view and clear unread
-          alerts linked to your owner token
+          Open the <strong>Notifications</strong> page while logged in to view
+          and clear unread alerts for your account
         </li>
       </ul>
 
