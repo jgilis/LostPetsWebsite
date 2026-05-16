@@ -101,7 +101,7 @@ export default function ReportPopup({
         )}
 
         {/* SIGHTING BUTTON */}
-        {report.type === "lost" && (
+        {report.type === "lost" && !isReportOwner && (
           <button
             onClick={() =>
               setShowSightingModal(true)
@@ -120,6 +120,7 @@ export default function ReportPopup({
         )}
 
         {/* REPORT BUTTON */}
+        {!isReportOwner && (
         <button
           onClick={async () => {
             const reason = prompt(
@@ -154,6 +155,7 @@ export default function ReportPopup({
         >
           Report this post
         </button>
+        )}
       </div>
 
       {/* MODAL */}
