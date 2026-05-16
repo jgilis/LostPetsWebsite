@@ -13,6 +13,15 @@ export default function SiteFooter() {
   return (
     <footer className="text-center text-xs text-gray-500 py-6 border-t border-gray-800 mt-10">
       <div className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+        <a href="/" className="font-medium text-gray-300 hover:text-white">
+          Home / Map
+        </a>
+        <a
+          href="/?tab=report"
+          className="font-medium text-gray-300 hover:text-white"
+        >
+          Report
+        </a>
         <SessionControls />
         <NotificationNavLink />
       </div>

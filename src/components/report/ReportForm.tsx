@@ -245,16 +245,16 @@ export default function ReportForm({
       <div className="mb-6 rounded-lg border border-gray-700 bg-gray-900/50 px-4 py-3 text-sm">
         <p className="leading-relaxed text-gray-200">
           <span className="font-medium text-white">Before you submit:</span>{" "}
-          we recommend logging in first. It is free — and it will stay that way.
-          Sign-in uses a magic link sent to your email (no passwords). You can
-          always log back in later with the same address. Ownership and
-          notifications work best when you are signed in.
+          you must log in to submit a report 🔐 You can fill out this form now,
+          but it will not go through until you are signed in. Login is free and
+          fast — we send a magic link to your email (no passwords) ✉️ Use the
+          same address anytime to get back to your reports and notifications.
         </p>
         <a
           href="/login"
           className="mt-3 inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
         >
-          Log in
+          Log in before submitting
         </a>
       </div>
 

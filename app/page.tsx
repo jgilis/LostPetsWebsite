@@ -1,12 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MapWrapper from "../src/components/map/MapWrapper";
 import ReportForm from "../src/components/report/ReportForm";
 
 export default function HomePage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [tab, setTab] = useState<"map" | "report">("map");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("tab") === "report") {
+      setTab("report");
+    }
+  }, []);
 
   const handleReportCreated = () => {
     setRefreshKey((k) => k + 1);
