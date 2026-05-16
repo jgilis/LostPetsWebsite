@@ -8,6 +8,7 @@ import {
   type AdminReport,
 } from "@/src/lib/adminReports";
 import type { ReportStatus } from "@/src/lib/reports";
+import { isReportOutOfMechelen } from "@/src/lib/mechelenBounds";
 import AdminReportThumbnail from "./AdminReportThumbnail";
 
 type AdminReportRowProps = {
@@ -34,6 +35,7 @@ export default function AdminReportRow({
   const location = formatReportLocation(report.latitude, report.longitude);
   const reportedAt = formatReportTimestamp(report);
   const statusLabel = formatAdminReportStatus(report.status);
+  const outOfArea = isReportOutOfMechelen(report.latitude, report.longitude);
 
   const handleRemove = async () => {
     if (
@@ -48,13 +50,27 @@ export default function AdminReportRow({
   };
 
   return (
-    <article className="rounded-lg border border-gray-700 bg-gray-900 p-4 text-gray-200">
+    <article
+      className={`rounded-lg border p-4 text-gray-200 ${
+        outOfArea
+          ? "border-red-700/80 bg-red-950/35"
+          : "border-gray-700 bg-gray-900"
+      }`}
+    >
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <p className="font-semibold capitalize">
             {report.animal_type}
             {report.type ? (
               <span className="font-normal text-gray-400"> · {report.type}</span>
+            ) : null}
+            {outOfArea ? (
+              <span
+                className="ml-2 text-sm font-normal text-amber-300"
+                title="Coordinates outside the usual Mechelen area"
+              >
+                ⚠ Out of area
+              </span>
             ) : null}
           </p>
           <p className="mt-0.5 text-sm">
@@ -78,7 +94,10 @@ export default function AdminReportRow({
         {location && (
           <div className="flex flex-wrap gap-x-2">
             <dt className="text-gray-500">Location</dt>
-            <dd>{location}</dd>
+            <dd className={outOfArea ? "text-amber-200" : undefined}>
+              {location}
+              {outOfArea ? " ⚠" : null}
+            </dd>
           </div>
         )}
         {reportedAt && (

@@ -4,6 +4,7 @@ import { useState } from "react";
 import "leaflet/dist/leaflet.css";
 import useLeaflet from "../../hooks/useLeaflet";
 import LocationPicker from "../report/LocationPicker";
+import { isOutOfMechelen } from "../../lib/mechelenBounds";
 
 type Props = {
   lostReportId: string;
@@ -19,6 +20,8 @@ export default function SightingModal({ lostReportId, onClose }: Props) {
   const [error, setError] = useState<string | null>(null);
   const L = useLeaflet();
   const isValid = !!lat && !!lng && !loading;
+  const outOfArea =
+    lat != null && lng != null && isOutOfMechelen(lat, lng);
 
   // -----------------------
   // GPS location
@@ -168,6 +171,20 @@ export default function SightingModal({ lostReportId, onClose }: Props) {
         {lat && lng && (
           <p>
             📍 {lat.toFixed(5)}, {lng.toFixed(5)}
+          </p>
+        )}
+
+        {outOfArea && (
+          <p
+            style={{
+              color: "#b45309",
+              fontSize: "14px",
+              marginTop: "8px",
+              marginBottom: 0,
+            }}
+          >
+            ⚠ Coordinates are outside the usual Mechelen area. Admins will
+            review.
           </p>
         )}
 

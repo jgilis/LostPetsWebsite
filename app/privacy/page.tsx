@@ -67,6 +67,16 @@ export default function PrivacyPolicy() {
           when you use the magic link; we do not store passwords
         </li>
       </ul>
+      <p>
+        <strong>Geolocation (how it works):</strong> We only store map coordinates
+        that you actively choose and submit with a report or sighting — not a
+        continuous record of where your device is. If you tap{" "}
+        <strong>Use my location</strong> for a sighting, your browser reads your
+        position once at that moment to fill in the form; we do not track your
+        GPS in the background or tie live location to your sign-in session. After
+        you submit, those coordinates are kept only as part of that one report or
+        sighting record.
+      </p>
 
       <h2 className="text-xl font-semibold">3. Why we store it</h2>
       <p>We use this information to:</p>
