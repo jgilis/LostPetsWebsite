@@ -11,13 +11,6 @@ export default function NotificationNavLink() {
 
   useEffect(() => {
     void loadNotifications();
-    const onFocus = () => {
-      void loadNotifications();
-    };
-    window.addEventListener("focus", onFocus);
-    return () => {
-      window.removeEventListener("focus", onFocus);
-    };
   }, [pathname, loadNotifications]);
 
   return (

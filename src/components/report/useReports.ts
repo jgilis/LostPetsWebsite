@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
+import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
 
 export interface Report {
   id: string;
@@ -38,7 +39,7 @@ export function useReports(options?: { reportId?: string | null }) {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchReports = async () => {
+  const fetchReports = useCallback(async () => {
     setLoading(true);
 
     let query = supabase
@@ -103,11 +104,15 @@ export function useReports(options?: { reportId?: string | null }) {
         : cleaned.filter((r) => r.status === "active")
     );
     setLoading(false);
-  };
+  }, [reportId, isScoped]);
 
   useEffect(() => {
-    fetchReports();
-  }, [reportId]);
+    void fetchReports();
+  }, [fetchReports]);
+
+  useVisibilitySyncRegister(() => {
+    void fetchReports();
+  }, [fetchReports]);
 
   useEffect(() => {
     if (isScoped) return;
@@ -124,7 +129,7 @@ export function useReports(options?: { reportId?: string | null }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [isScoped]);
+  }, [fetchReports, isScoped]);
 
   return { reports, loading };
 }

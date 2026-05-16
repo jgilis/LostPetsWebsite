@@ -1,27 +1,27 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getPublicSightingById } from "../../lib/sightings";
+import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
 
 export function useMapFocus(focusSighting: string | null) {
   const [focusedSighting, setFocusedSighting] = useState<any>(null);
 
-  useEffect(() => {
-    let active = true;
-
-    async function load() {
-      if (!focusSighting) return;
-
-      const data = await getPublicSightingById(focusSighting);
-
-      if (!active) return;
-      setFocusedSighting(data);
+  const loadFocusSighting = useCallback(async () => {
+    if (!focusSighting) {
+      setFocusedSighting(null);
+      return;
     }
 
-    load();
-
-    return () => {
-      active = false;
-    };
+    const data = await getPublicSightingById(focusSighting);
+    setFocusedSighting(data);
   }, [focusSighting]);
+
+  useEffect(() => {
+    void loadFocusSighting();
+  }, [loadFocusSighting]);
+
+  useVisibilitySyncRegister(() => {
+    void loadFocusSighting();
+  }, [loadFocusSighting]);
 
   const sightingMarkers = focusedSighting
     ? [

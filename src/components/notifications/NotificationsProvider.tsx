@@ -12,6 +12,7 @@ import {
   getOwnerSightingsNotifications,
   markNotificationsAsRead,
 } from "../../lib/notifications";
+import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
 
 export type NotificationEvent = {
   id: string;
@@ -62,6 +63,10 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     },
     [],
   );
+
+  useVisibilitySyncRegister(() => {
+    void loadNotifications();
+  }, [loadNotifications]);
 
   const unreadCount = useMemo(
     () => events.filter((event) => event.read_at === null).length,

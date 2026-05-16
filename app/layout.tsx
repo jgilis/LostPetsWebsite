@@ -5,6 +5,7 @@ import SiteFooter from "../src/components/layout/SiteFooter";
 import { NotificationsProvider } from "../src/components/notifications/NotificationsProvider";
 import ServiceWorkerRegistration from "../src/components/pwa/ServiceWorkerRegistration";
 import AuthHashCleanup from "../src/components/auth/AuthHashCleanup";
+import { VisibilitySyncProvider } from "../src/components/sync/VisibilitySyncProvider";
 
 // ✅ Import Leaflet CSS globally
 import 'leaflet/dist/leaflet.css';
@@ -44,12 +45,14 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-gray-950 text-white">
 
-        <NotificationsProvider>
-          {/* PAGE CONTENT */}
-          {children}
+        <VisibilitySyncProvider>
+          <NotificationsProvider>
+            {/* PAGE CONTENT */}
+            {children}
 
-          <SiteFooter />
-        </NotificationsProvider>
+            <SiteFooter />
+          </NotificationsProvider>
+        </VisibilitySyncProvider>
 
         <ServiceWorkerRegistration />
         <AuthHashCleanup />

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
 import type { Report } from "../report/useReports";
 import { flagReport } from "../../lib/flags";
 import SightingModal from "../sightings/SightingsModal";
@@ -28,17 +29,23 @@ export default function ReportPopup({
     []
   );
 
-  useEffect(() => {
-    async function loadSightings() {
-      if (report.type !== "lost") return;
-
-      const data = await getApprovedSightings(report.id);
-
-      setSightings(data);
+  const loadSightings = useCallback(async () => {
+    if (report.type !== "lost") {
+      setSightings([]);
+      return;
     }
 
-    loadSightings();
+    const data = await getApprovedSightings(report.id);
+    setSightings(data);
   }, [report.id, report.type]);
+
+  useEffect(() => {
+    void loadSightings();
+  }, [loadSightings]);
+
+  useVisibilitySyncRegister(() => {
+    void loadSightings();
+  }, [loadSightings]);
 
   return (
     <div

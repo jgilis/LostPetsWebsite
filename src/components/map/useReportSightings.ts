@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getApprovedSightings } from "../../lib/sightings";
+import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
 
 export type SightingMarker = {
   id: string;
@@ -13,38 +14,32 @@ export function useReportSightings(reportId: string | null) {
   );
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+  const loadSightings = useCallback(async () => {
     if (!reportId) {
       setSightingMarkers([]);
+      setLoading(false);
       return;
     }
 
-    const scopedReportId = reportId;
-
-    let active = true;
     setLoading(true);
-
-    async function load() {
-      const data = await getApprovedSightings(scopedReportId);
-
-      if (!active) return;
-
-      setSightingMarkers(
-        data.map((s) => ({
-          id: s.id,
-          lat: Number(s.latitude),
-          lng: Number(s.longitude),
-        }))
-      );
-      setLoading(false);
-    }
-
-    load();
-
-    return () => {
-      active = false;
-    };
+    const data = await getApprovedSightings(reportId);
+    setSightingMarkers(
+      data.map((s) => ({
+        id: s.id,
+        lat: Number(s.latitude),
+        lng: Number(s.longitude),
+      })),
+    );
+    setLoading(false);
   }, [reportId]);
+
+  useEffect(() => {
+    void loadSightings();
+  }, [loadSightings]);
+
+  useVisibilitySyncRegister(() => {
+    void loadSightings();
+  }, [loadSightings]);
 
   return { sightingMarkers, loading };
 }
