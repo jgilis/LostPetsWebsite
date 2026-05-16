@@ -8,6 +8,7 @@ import {
   type AdminReport,
 } from "@/src/lib/adminReports";
 import type { ReportStatus } from "@/src/lib/reports";
+import AdminReportThumbnail from "./AdminReportThumbnail";
 
 type AdminReportRowProps = {
   report: AdminReport;
@@ -48,8 +49,8 @@ export default function AdminReportRow({
 
   return (
     <article className="rounded-lg border border-gray-700 bg-gray-900 p-4 text-gray-200">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
+      <div className="flex items-start gap-3">
+        <div className="min-w-0 flex-1">
           <p className="font-semibold capitalize">
             {report.animal_type}
             {report.type ? (
@@ -62,9 +63,10 @@ export default function AdminReportRow({
           </p>
         </div>
         {report.photo_url ? (
-          <span className="rounded border border-gray-600 px-2 py-0.5 text-xs text-gray-400">
-            Has photo
-          </span>
+          <AdminReportThumbnail
+            src={report.photo_url}
+            alt={report.animal_type}
+          />
         ) : null}
       </div>
 
