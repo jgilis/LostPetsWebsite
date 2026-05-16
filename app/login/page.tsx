@@ -1,7 +1,31 @@
 "use client";
 
 import { useState } from "react";
+import type { AuthError } from "@supabase/supabase-js";
 import { signInWithEmail } from "@/src/lib/auth";
+
+const MAGIC_LINK_RATE_LIMIT_MESSAGE =
+  "Email rate limit exceeded — limited to 2 magic links per hour. Please wait before trying again. This helps prevent spam and protects your account.";
+
+function formatMagicLinkError(error: AuthError): string {
+  const message = error.message.toLowerCase();
+  const code = (error.code ?? "").toLowerCase();
+
+  const isRateLimit =
+    error.status === 429 ||
+    code === "over_email_send_rate_limit" ||
+    code.includes("rate_limit") ||
+    message.includes("rate limit") ||
+    message.includes("email rate limit") ||
+    message.includes("over_email_send") ||
+    (message.includes("retry") && message.includes("limit"));
+
+  if (isRateLimit) {
+    return MAGIC_LINK_RATE_LIMIT_MESSAGE;
+  }
+
+  return error.message;
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -22,7 +46,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (signInError) {
-      setError(signInError.message);
+      setError(formatMagicLinkError(signInError));
       return;
     }
 
