@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAdmin } from "../../../src/hooks/useAdmin";
+import AdminHeader from "../../../src/components/admin/AdminHeader";
 import {
   getFlaggedReportsWithFlags,
   updateReportStatus,
@@ -77,7 +78,7 @@ export default function AdminFlagsPage() {
     fetchFlags();
   }, []);
 
-  if (adminLoading) return <p>Checking access...</p>;
+  if (adminLoading) return <p className="p-8 text-gray-400">Checking access...</p>;
   if (!isAdmin) return null;
 
   const setStatus = async (
@@ -91,23 +92,21 @@ export default function AdminFlagsPage() {
     fetchFlags();
   };
 
-  if (loading) return <p>Loading reports...</p>;
+  if (loading) return <p className="p-8 text-gray-400">Loading reports...</p>;
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>🚨 Flagged Posts</h1>
+    <div className="mx-auto max-w-3xl px-6 py-8">
+      <AdminHeader title="Flagged Reports" showBackLink />
 
-      {flags.length === 0 && <p>No flagged reports 🎉</p>}
+      {flags.length === 0 && (
+        <p className="text-gray-400">No flagged reports.</p>
+      )}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <div className="flex flex-col gap-4">
         {flags.map((r) => (
           <div
             key={r.id}
-            style={{
-              border: "1px solid #ccc",
-              padding: "1rem",
-              borderRadius: "8px",
-            }}
+            className="rounded-lg border border-gray-700 bg-gray-900 p-4 text-gray-200"
           >
             <p><strong>ID:</strong> {r.id}</p>
             <p><strong>Status:</strong> {r.status}</p>
@@ -127,27 +126,36 @@ export default function AdminFlagsPage() {
               ))}
             </ul>
 
-            <p style={{ fontSize: "12px", color: "#666" }}>
+            <p className="text-xs text-gray-500">
               Last flagged:{" "}
               {r.lastFlagged
                 ? new Date(r.lastFlagged).toLocaleString()
                 : "N/A"}
             </p>
 
-            <div style={{ display: "flex", gap: "0.5rem" }}>
-              <button onClick={() => setStatus(r.id, "active")}>
-                ✅ Restore
-              </button>
-
-              <button onClick={() => setStatus(r.id, "flagged")}>
-                ⚠️ Keep flagged
+            <div className="mt-4 flex flex-wrap gap-2 border-t border-gray-800 pt-3">
+              <button
+                type="button"
+                onClick={() => void setStatus(r.id, "active")}
+                className="rounded-md border border-gray-600 px-3 py-1.5 text-sm hover:bg-gray-800"
+              >
+                Restore
               </button>
 
               <button
-                onClick={() => setStatus(r.id, "removed")}
-                style={{ background: "red", color: "white" }}
+                type="button"
+                onClick={() => void setStatus(r.id, "flagged")}
+                className="rounded-md border border-amber-700/60 px-3 py-1.5 text-sm text-amber-200 hover:bg-amber-950/40"
               >
-                ❌ Remove
+                Keep flagged
+              </button>
+
+              <button
+                type="button"
+                onClick={() => void setStatus(r.id, "removed")}
+                className="rounded-md border border-red-800 bg-red-950/50 px-3 py-1.5 text-sm text-red-200 hover:bg-red-950"
+              >
+                Remove
               </button>
             </div>
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import SessionControls from "../auth/SessionControls";
 import NotificationNavLink from "../notifications/NotificationNavLink";
 import { useNotifications } from "../notifications/NotificationsProvider";
 import { RealtimeDebug } from "../realtime/RealtimeDebug";
@@ -10,11 +11,12 @@ export default function SiteFooter() {
   const { loadNotifications } = useNotifications();
 
   return (
-    <footer className="text-center text-xs text-gray-500 py-6 space-x-4 border-t border-gray-800 mt-10">
-      <NotificationNavLink />
-      <a href="/login" className="hover:text-gray-300">
-        Login
-      </a>
+    <footer className="text-center text-xs text-gray-500 py-6 border-t border-gray-800 mt-10">
+      <div className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+        <SessionControls />
+        <NotificationNavLink />
+      </div>
+      <div className="space-x-4">
       <a href="/about" className="hover:text-gray-300">
         About
       </a>
@@ -31,6 +33,7 @@ export default function SiteFooter() {
           void loadNotifications();
         }}
       />
+      </div>
     </footer>
   );
 }

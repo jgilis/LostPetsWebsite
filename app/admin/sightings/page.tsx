@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAdminSightings } from "../../../src/lib/sightings";
-import { updateSightingStatus } from "../../../src/lib/sightings";
+import { useAdmin } from "../../../src/hooks/useAdmin";
+import AdminHeader from "../../../src/components/admin/AdminHeader";
+import { getAdminSightings, updateSightingStatus } from "../../../src/lib/sightings";
 
 type ReportRef = {
   id: string;
@@ -22,12 +23,9 @@ type Sighting = {
   photo_url: string | null;
   status: string;
   created_at: string;
-
-  // optional joined data
   reports?: ReportRef | null;
 };
 
-// 🧠 distance helper (unchanged logic, admin-only use)
 function getDistanceMeters(
   lat1: number,
   lon1: number,
@@ -42,16 +40,29 @@ function getDistanceMeters(
 
   const a =
     Math.sin(Δφ / 2) ** 2 +
-    Math.cos(φ1) *
-      Math.cos(φ2) *
-      Math.sin(Δλ / 2) ** 2;
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   return R * c;
 }
 
+const statusLabel: Record<string, string> = {
+  pending: "Pending review",
+  approved: "Approved",
+  rejected: "Rejected",
+  removed: "Removed",
+};
+
+const statusClass: Record<string, string> = {
+  pending: "text-amber-400",
+  approved: "text-emerald-400",
+  rejected: "text-red-400",
+  removed: "text-gray-500",
+};
+
 export default function AdminSightingsPage() {
+  const { loading: adminLoading, isAdmin } = useAdmin();
   const [sightings, setSightings] = useState<Sighting[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -62,11 +73,13 @@ export default function AdminSightingsPage() {
       setLoading(false);
     }
 
-    load();
+    void load();
   }, []);
 
-    // 🧠 NEW: fetch sighting for event payload
-    async function updateStatus(id: string, status: "approved" | "rejected" | "removed" | "pending") {
+  async function updateStatus(
+    id: string,
+    status: "approved" | "rejected" | "removed" | "pending"
+  ) {
     const result = await updateSightingStatus(id, status);
 
     if (!result) {
@@ -79,142 +92,97 @@ export default function AdminSightingsPage() {
     );
   }
 
-  if (loading) return <p>Loading sightings...</p>;
+  if (adminLoading) {
+    return <p className="p-8 text-gray-400">Checking access...</p>;
+  }
+
+  if (!isAdmin) return null;
+
+  if (loading) {
+    return <p className="p-8 text-gray-400">Loading sightings...</p>;
+  }
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>🐾 Sightings Admin</h1>
+    <div className="mx-auto max-w-3xl px-6 py-8">
+      <AdminHeader title="All Sightings" showBackLink />
 
-      {sightings.length === 0 && <p>No sightings yet.</p>}
+      {sightings.length === 0 && (
+        <p className="text-gray-400">No sightings yet.</p>
+      )}
 
-      {sightings.map((s) => (
-        <div
-          key={s.id}
-          style={{
-            border: "1px solid #ddd",
-            padding: "12px",
-            marginBottom: "10px",
-            borderRadius: "8px",
-          }}
-        >
-          <p>
-            📍 {s.latitude.toFixed(5)}, {s.longitude.toFixed(5)}
-          </p>
-
-          {/* 🧠 LOST REPORT CONTEXT */}
-          {s.reports && (
-            <>
-              <p>
-                🐾 {s.reports.animal_type}{" "}
-                {s.reports.animal_name
-                  ? `(${s.reports.animal_name})`
-                  : ""}
-              </p>
-
-              <p>
-                📏 Distance from last known location:{" "}
-                {getDistanceMeters(
-                  s.reports.latitude,
-                  s.reports.longitude,
-                  s.latitude,
-                  s.longitude
-                ).toFixed(0)}
-              </p>
-            </>
-          )}
-
-          <p>📝 {s.description || "No description"}</p>
-
-          <p
-            style={{
-              fontSize: "12px",
-              fontWeight: 600,
-              color:
-                s.status === "pending"
-                  ? "#f59e0b"
-                  : s.status === "approved"
-                  ? "#10b981"
-                  : "#6b7280",
-            }}
-          >
-            {s.status === "pending" && "🟡 Pending review"}
-            {s.status === "approved" && "🟢 Approved"}
-            {s.status === "rejected" && "🔴 Rejected"}
-            {s.status === "removed" && "⚫ Removed"}
-          </p>
-
+      <div className="flex flex-col gap-4">
+        {sightings.map((s) => (
           <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "6px",
-              marginTop: "10px",
-            }}
+            key={s.id}
+            className="rounded-lg border border-gray-700 bg-gray-900 p-4 text-gray-200"
           >
-            {/* PRIMARY */}
-            <a
-              href={`/?mapMode=admin-scoped&focusReport=${s.lost_report_id}&focusSighting=${s.id}`}
-              style={{
-                color: "#2563eb",
-                fontWeight: 600,
-                textDecoration: "underline",
-              }}
-            >
-              View on platform map
-            </a>
+            <p className="text-sm text-gray-400">
+              {s.latitude.toFixed(5)}, {s.longitude.toFixed(5)}
+            </p>
 
-            {/* SECONDARY */}
-            <a
-              href={`https://www.google.com/maps?q=${s.latitude},${s.longitude}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: "#666",
-                fontSize: "14px",
-                textDecoration: "underline",
-              }}
+            {s.reports && (
+              <div className="mt-2 space-y-1 text-sm">
+                <p>
+                  {s.reports.animal_type}
+                  {s.reports.animal_name ? ` (${s.reports.animal_name})` : ""}
+                </p>
+                <p className="text-gray-400">
+                  Distance from last known location:{" "}
+                  {getDistanceMeters(
+                    s.reports.latitude,
+                    s.reports.longitude,
+                    s.latitude,
+                    s.longitude
+                  ).toFixed(0)}
+                  m
+                </p>
+              </div>
+            )}
+
+            <p className="mt-2">{s.description || "No description"}</p>
+
+            <p
+              className={`mt-2 text-xs font-semibold ${statusClass[s.status] ?? "text-gray-400"}`}
             >
-              Open in Google Maps
-            </a>
+              {statusLabel[s.status] ?? s.status}
+            </p>
+
+            <div className="mt-3 flex flex-col gap-1 border-t border-gray-800 pt-3 text-sm">
+              <a
+                href={`/?mapMode=admin-scoped&focusReport=${s.lost_report_id}&focusSighting=${s.id}`}
+                className="font-medium text-blue-400 hover:text-blue-300"
+              >
+                View on platform map
+              </a>
+              <a
+                href={`https://www.google.com/maps?q=${s.latitude},${s.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-gray-200"
+              >
+                Open in Google Maps
+              </a>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2 border-t border-gray-800 pt-3">
+              <button
+                type="button"
+                onClick={() => void updateStatus(s.id, "approved")}
+                className="rounded-md border border-emerald-800 bg-emerald-950/50 px-3 py-1.5 text-sm text-emerald-200 hover:bg-emerald-950"
+              >
+                Approve
+              </button>
+              <button
+                type="button"
+                onClick={() => void updateStatus(s.id, "rejected")}
+                className="rounded-md border border-red-800 bg-red-950/50 px-3 py-1.5 text-sm text-red-200 hover:bg-red-950"
+              >
+                Reject
+              </button>
+            </div>
           </div>
-
-          <div
-            style={{
-              display: "flex",
-              gap: "8px",
-              marginTop: "12px",
-            }}
-          >
-            <button
-              onClick={() => updateStatus(s.id, "approved")}
-              style={{
-                padding: "6px 10px",
-                background: "#10b981",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-              }}
-            >
-              Approve
-            </button>
-
-            <button
-              onClick={() => updateStatus(s.id, "rejected")}
-              style={{
-                padding: "6px 10px",
-                background: "#ef4444",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-              }}
-            >
-              Reject
-            </button>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

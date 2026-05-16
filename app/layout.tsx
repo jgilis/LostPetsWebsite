@@ -4,6 +4,7 @@ import "./globals.css";
 import SiteFooter from "../src/components/layout/SiteFooter";
 import { NotificationsProvider } from "../src/components/notifications/NotificationsProvider";
 import ServiceWorkerRegistration from "../src/components/pwa/ServiceWorkerRegistration";
+import AuthHashCleanup from "../src/components/auth/AuthHashCleanup";
 
 // ✅ Import Leaflet CSS globally
 import 'leaflet/dist/leaflet.css';
@@ -51,6 +52,7 @@ export default function RootLayout({
         </NotificationsProvider>
 
         <ServiceWorkerRegistration />
+        <AuthHashCleanup />
 
       </body>
     </html>
