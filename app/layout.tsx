@@ -5,6 +5,7 @@ import SiteFooter from "../src/components/layout/SiteFooter";
 import { NotificationsProvider } from "../src/components/notifications/NotificationsProvider";
 import ServiceWorkerRegistration from "../src/components/pwa/ServiceWorkerRegistration";
 import AuthHashCleanup from "../src/components/auth/AuthHashCleanup";
+import { UserProfileProvider } from "../src/components/auth/UserProfileProvider";
 import { VisibilitySyncProvider } from "../src/components/sync/VisibilitySyncProvider";
 import { RealtimeResyncProvider } from "../src/components/sync/RealtimeResyncProvider";
 
@@ -46,6 +47,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-gray-950 text-white">
 
+        <UserProfileProvider>
         <VisibilitySyncProvider>
           <RealtimeResyncProvider>
           <NotificationsProvider>
@@ -56,6 +58,7 @@ export default function RootLayout({
           </NotificationsProvider>
           </RealtimeResyncProvider>
         </VisibilitySyncProvider>
+        </UserProfileProvider>
 
         <ServiceWorkerRegistration />
         <AuthHashCleanup />
