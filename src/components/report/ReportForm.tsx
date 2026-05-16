@@ -256,7 +256,25 @@ export default function ReportForm({
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      
+      <div className="mb-6 rounded-lg border border-gray-700 bg-gray-900/50 px-4 py-3 text-sm">
+        <p className="leading-relaxed text-gray-200">
+          <span className="font-medium text-white">Before you submit:</span>{" "}
+          we recommend logging in first. It is free — and it will stay that way.
+          Sign-in uses a magic link sent to your email (no passwords). You can
+          always log back in later with the same address. Ownership and
+          notifications work best when you are signed in.
+        </p>
+        <p className="mt-2 text-gray-400">
+          You can still fill out the form below without logging in.
+        </p>
+        <a
+          href="/login"
+          className="mt-3 inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+        >
+          Log in
+        </a>
+      </div>
+
       <div className="grid md:grid-cols-2 gap-8 items-start bg-gray-900 text-white rounded-lg p-6 shadow-lg border border-gray-800">
 
         {/* ================= LEFT COLUMN ================= */}
