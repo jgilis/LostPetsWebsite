@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SiteFooter from "../src/components/layout/SiteFooter";
 import { NotificationsProvider } from "../src/components/notifications/NotificationsProvider";
+import ServiceWorkerRegistration from "../src/components/pwa/ServiceWorkerRegistration";
 
 // ✅ Import Leaflet CSS globally
 import 'leaflet/dist/leaflet.css';
@@ -20,6 +21,17 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Lost & Found Pets Map",
   description: "Community lost & found pets map",
+  manifest: "/manifest.json",
+  themeColor: "#0a0a0a",
+  appleWebApp: {
+    capable: true,
+    title: "Lost Pets",
+    statusBarStyle: "black-translucent",
+  },
+  icons: {
+    icon: "/icons/icon.svg",
+    apple: "/icons/icon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -37,6 +49,8 @@ export default function RootLayout({
 
           <SiteFooter />
         </NotificationsProvider>
+
+        <ServiceWorkerRegistration />
 
       </body>
     </html>
