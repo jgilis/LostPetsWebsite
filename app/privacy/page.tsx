@@ -34,6 +34,12 @@ export default function PrivacyPolicy() {
           lost animal, including location and optional notes
         </li>
         <li>
+          <strong>Device geolocation (optional)</strong> — when you choose
+          &quot;Use my location&quot; for a sighting, we collect latitude and
+          longitude from your device. This is optional; we do not use it for any
+          purpose other than placing that sighting on the map.
+        </li>
+        <li>
           <strong>Uploaded images</strong> — photos you attach to a report or
           sighting
         </li>
@@ -68,6 +74,11 @@ export default function PrivacyPolicy() {
         <li>
           <strong>Show reports and sightings on the map</strong> so the
           community can help lost pets
+        </li>
+        <li>
+          <strong>Place reports and sightings accurately</strong> — including
+          device geolocation when you choose to share it, so locations on the
+          map reflect where the animal was reported or seen
         </li>
         <li>
           <strong>Run moderation</strong> — admins review sightings and
@@ -136,6 +147,11 @@ export default function PrivacyPolicy() {
         <li>
           Open the <strong>Notifications</strong> page while logged in to view
           and clear unread alerts for your account
+        </li>
+        <li>
+          When submitting a sighting, choose <strong>Pick on map</strong>{" "}
+          instead of <strong>Use my location</strong> if you prefer not to share
+          your device&apos;s geolocation
         </li>
       </ul>
 
