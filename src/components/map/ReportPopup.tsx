@@ -79,11 +79,6 @@ export default function ReportPopup({
           marginTop: "8px",
         }}
       >
-        {/* CONTACT */}
-        <div style={{ wordBreak: "break-word" }}>
-          Contact: {report.contact_info}
-        </div>
-
         {isReportOwner && (
           <a
             href={`/edit?id=${report.id}`}

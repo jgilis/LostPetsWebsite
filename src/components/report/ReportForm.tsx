@@ -25,7 +25,6 @@ export default function ReportForm({
   const [latitude, setLatitude] = useState<number>(51.0206);
   const [longitude, setLongitude] = useState<number>(4.4756);
 
-  const [contact, setContact] = useState<string>("");
   const [photo, setPhoto] = useState<File | null>(null);
 
   const [consent, setConsent] = useState(false);
@@ -83,12 +82,6 @@ export default function ReportForm({
       return;
     }
 
-    if (!contact || contact.trim().length < 3) {
-      setMessage("Please provide contact information.");
-      setMessageType("error");
-      return;
-    }
-
     setIsSubmitting(true);
     setMessage("Submitting...");
     setMessageType("info");
@@ -123,18 +116,6 @@ export default function ReportForm({
       const { latitude: safeLat, longitude: safeLng } =
         applyLocationOffset(latitude, longitude);
 
-      if (contact.includes("http")) {
-        setMessage("Links are not allowed in contact info.");
-        setMessageType("error");
-        return;
-      }
-
-      if (contact.length > 200) {
-        setMessage("Contact info is too long.");
-        setMessageType("error");
-        return;
-      }
-
       const { data: userData, error: authError } = await supabase.auth.getUser();
       if (authError || !userData.user) {
         setMessage(
@@ -165,7 +146,7 @@ export default function ReportForm({
           description: description ?? "",
           latitude: safeLat,
           longitude: safeLng,
-          contact_info: contact ?? "",
+          contact_info: "",
           photo_url,
         },
       };
@@ -229,7 +210,6 @@ export default function ReportForm({
       setPhoto(null);
       setLatitude(51.0206);
       setLongitude(4.4756);
-      setContact("");
       setConsent(false);
 
     } catch (err) {
@@ -321,18 +301,6 @@ export default function ReportForm({
               onChange={(e) => setDescription(e.target.value)}
               className="w-full bg-gray-800 border border-gray-700 rounded p-2 min-h-[120px] text-white"
               placeholder="Describe the pet, location, behavior, etc."
-            />
-          </label>
-
-          {/* CONTACT */}
-          <label className="block">
-            <span className="block text-sm font-medium mb-1">Contact</span>
-            <input
-              value={contact ?? ""}
-              onChange={(e) => setContact(e.target.value)}
-              required
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
-              placeholder="Phone or email"
             />
           </label>
 
