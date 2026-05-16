@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -37,25 +38,37 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const resolvedUserIdRef = useRef<string | null>(null);
 
   const applySignedOut = useCallback(() => {
+    resolvedUserIdRef.current = null;
     clearProfileAdminCache();
     setUser(null);
     setIsAdmin(false);
     setLoading(false);
   }, []);
 
-  const applySessionWithProfile = useCallback(async (nextUser: User | null) => {
-    if (!nextUser) {
-      applySignedOut();
-      return;
-    }
+  const applySessionWithProfile = useCallback(
+    async (nextUser: User | null) => {
+      if (!nextUser) {
+        applySignedOut();
+        return;
+      }
 
-    setUser(nextUser);
-    const admin = await fetchIsAdminForUser(nextUser.id);
-    setIsAdmin(admin);
-    setLoading(false);
-  }, [applySignedOut]);
+      setUser(nextUser);
+
+      if (resolvedUserIdRef.current === nextUser.id) {
+        setLoading(false);
+        return;
+      }
+
+      resolvedUserIdRef.current = nextUser.id;
+      const admin = await fetchIsAdminForUser(nextUser.id);
+      setIsAdmin(admin);
+      setLoading(false);
+    },
+    [applySignedOut],
+  );
 
   useEffect(() => {
     let active = true;
@@ -70,7 +83,6 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // Cold start / refresh: wait for INITIAL_SESSION before any profile fetch.
       if (event === "INITIAL_SESSION") {
         void applySessionWithProfile(session?.user ?? null);
         return;
