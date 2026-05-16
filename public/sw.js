@@ -85,3 +85,50 @@ self.addEventListener("fetch", (event) => {
     );
   }
 });
+
+self.addEventListener("push", (event) => {
+  let data = { title: "Lost Pets", body: "You have a new notification.", url: "/" };
+
+  try {
+    if (event.data) {
+      data = { ...data, ...event.data.json() };
+    }
+  } catch {
+    // use defaults
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: "/icons/icon.svg",
+      badge: "/icons/icon.svg",
+      data: { url: data.url || "/" },
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const path = event.notification.data?.url || "/";
+  const targetUrl = new URL(path, self.location.origin).href;
+
+  event.waitUntil(
+    clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((windowClients) => {
+        for (const client of windowClients) {
+          if (!client.url.startsWith(self.location.origin)) continue;
+          if ("navigate" in client && typeof client.navigate === "function") {
+            return client.navigate(targetUrl).then(() => client.focus());
+          }
+          if ("focus" in client) {
+            return client.focus();
+          }
+        }
+        if (clients.openWindow) {
+          return clients.openWindow(targetUrl);
+        }
+      }),
+  );
+});

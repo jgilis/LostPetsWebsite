@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { signOut } from "@/src/lib/auth";
 import { supabase } from "@/src/lib/supabase";
+import PushNotificationControls from "../notifications/PushNotificationControls";
 
 export default function SessionControls() {
   const [user, setUser] = useState<User | null>(null);
@@ -67,6 +68,7 @@ export default function SessionControls() {
       >
         {signingOut ? "Logging out…" : "Logout"}
       </button>
+      <PushNotificationControls />
     </span>
   );
 }
