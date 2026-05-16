@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { supabase } from "../../lib/supabase";
 import LocationPicker from "./LocationPicker";
 import { applyLocationOffset } from "../../lib/location";
@@ -33,28 +33,14 @@ export default function ReportForm({
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | "info" | null>(null);
   const [showLoginCta, setShowLoginCta] = useState(false);
-  const [editLink, setEditLink] = useState<string | null>(null);
+  const [submittedReportId, setSubmittedReportId] = useState<string | null>(
+    null,
+  );
 
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const lastSubmitKey = "last_submit_time";
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const copyToClipboard = async () => {
-    if (!editLink) return;
-    await navigator.clipboard.writeText(editLink);
-    setMessage("Edit link copied!");
-    setMessageType("success");
-
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-
-    setTimeout(() => {
-      setMessage(null);
-      setMessageType(null);
-    }, 2000);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -231,7 +217,7 @@ export default function ReportForm({
 
       localStorage.setItem(lastSubmitKey, Date.now().toString());
 
-      setEditLink(result.edit_link);
+      setSubmittedReportId(result.report?.id ?? null);
       //setMessage("Report submitted successfully! Redirecting to map...");
       //setMessageType("success");
 
@@ -263,9 +249,6 @@ export default function ReportForm({
           Sign-in uses a magic link sent to your email (no passwords). You can
           always log back in later with the same address. Ownership and
           notifications work best when you are signed in.
-        </p>
-        <p className="mt-2 text-gray-400">
-          You can still fill out the form below without logging in.
         </p>
         <a
           href="/login"
@@ -448,28 +431,23 @@ export default function ReportForm({
           )}
 
           {/* EDIT LINK */}
-          {editLink && (
+          {submittedReportId && (
             <div className="mt-6 p-4 rounded-lg border bg-green-900/20 border-green-600 text-green-200 space-y-3">
               
               <div>
                 <p className="font-medium">✓ Report submitted successfully</p>
                 <p className="text-sm text-green-300">
-                  You can edit or delete this report using the link below.
+                  You can edit or delete this report while logged in.
                 </p>
               </div>
 
-              <div className="break-all text-xs bg-black/30 p-2 rounded">
-                {editLink}
-              </div>
-
               <div className="flex flex-col gap-2">
-                <button
-                  type="button"
-                  onClick={copyToClipboard}
+                <a
+                  href={`/edit?id=${submittedReportId}`}
                   className="text-sm underline text-green-300 text-left"
                 >
-                  Copy edit link
-                </button>
+                  Manage this report
+                </a>
 
                 <button
                   type="button"

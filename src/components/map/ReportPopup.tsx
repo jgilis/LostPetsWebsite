@@ -12,15 +12,14 @@ import PopupPhoto from "./PopupPhoto";
 
 type Props = {
   report: Report;
-
-  // TEMP
-  // later replace with real auth/permissions
   canSeeExactSightings?: boolean;
+  isReportOwner?: boolean;
 };
 
 export default function ReportPopup({
   report,
   canSeeExactSightings = false,
+  isReportOwner = false,
 }: Props) {
   const [showSightingModal, setShowSightingModal] =
     useState(false);
@@ -84,6 +83,22 @@ export default function ReportPopup({
         <div style={{ wordBreak: "break-word" }}>
           Contact: {report.contact_info}
         </div>
+
+        {isReportOwner && (
+          <a
+            href={`/edit?id=${report.id}`}
+            style={{
+              padding: "6px 10px",
+              backgroundColor: "#374151",
+              color: "white",
+              borderRadius: "6px",
+              textDecoration: "none",
+              fontSize: "14px",
+            }}
+          >
+            Edit or delete report
+          </a>
+        )}
 
         {/* SIGHTING BUTTON */}
         {report.type === "lost" && (

@@ -40,11 +40,12 @@ export default memo(function ReportMarker({
     closeOnEscapeKey: true,
   };
   
-  const canSeeExactSightings =
-    isAdmin ||
-    (!!userId &&
-      !!report.owner_user_id &&
-      userId === report.owner_user_id);
+  const isReportOwner =
+    !!userId &&
+    !!report.owner_user_id &&
+    userId === report.owner_user_id;
+
+  const canSeeExactSightings = isAdmin || isReportOwner;
 
   if (report.type === "found") {
     return (
@@ -62,6 +63,7 @@ export default memo(function ReportMarker({
           <ReportPopup
             report={report}
             canSeeExactSightings={canSeeExactSightings}
+            isReportOwner={isReportOwner}
           />
         </Popup>
       </CircleMarker>
@@ -77,6 +79,7 @@ export default memo(function ReportMarker({
         <ReportPopup
           report={report}
           canSeeExactSightings={canSeeExactSightings}
+          isReportOwner={isReportOwner}
         />
       </Popup>
     </Marker>
