@@ -108,30 +108,25 @@ export default function PushNotificationControls() {
 
   return (
     <span className="inline-flex flex-col items-center gap-1">
-      <span className="inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-        <span className="text-gray-600" aria-hidden="true">
-          ·
-        </span>
-        {enabled ? (
-          <button
-            type="button"
-            onClick={() => void handleDisable()}
-            disabled={busy}
-            className="text-gray-300 underline hover:text-white disabled:opacity-50"
-          >
-            {busy ? "Updating…" : "Disable notifications"}
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => void handleEnable()}
-            disabled={busy}
-            className="text-gray-300 underline hover:text-white disabled:opacity-50"
-          >
-            {busy ? "Enabling…" : "Enable notifications 🔔"}
-          </button>
-        )}
-      </span>
+      {enabled ? (
+        <button
+          type="button"
+          onClick={() => void handleDisable()}
+          disabled={busy}
+          className="text-gray-400 underline hover:text-gray-200 disabled:opacity-50"
+        >
+          {busy ? "Updating…" : "Push notifications on"}
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => void handleEnable()}
+          disabled={busy}
+          className="text-gray-400 underline hover:text-gray-200 disabled:opacity-50"
+        >
+          {busy ? "Enabling…" : "Enable push notifications"}
+        </button>
+      )}
       {message && (
         <span className="max-w-xs text-center text-[11px] text-amber-400/90">
           {message}

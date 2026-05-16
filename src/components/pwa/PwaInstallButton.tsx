@@ -20,7 +20,7 @@ export default function PwaInstallButton() {
       type="button"
       onClick={() => void install()}
       disabled={installing}
-      className="font-medium text-gray-300 underline hover:text-white disabled:opacity-50"
+      className="text-gray-400 underline hover:text-gray-200 disabled:opacity-50"
     >
       {installing ? "Installing…" : "Install App 📱"}
     </button>

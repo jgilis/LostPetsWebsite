@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { signOut } from "@/src/lib/auth";
 import { supabase } from "@/src/lib/supabase";
-import PushNotificationControls from "../notifications/PushNotificationControls";
 
 export default function SessionControls() {
   const [user, setUser] = useState<User | null>(null);
@@ -48,27 +47,30 @@ export default function SessionControls() {
 
   if (!user) {
     return (
-      <a href="/login" className="hover:text-gray-300">
-        Login
+      <a
+        href="/login"
+        className="text-gray-400 underline hover:text-gray-200"
+      >
+        Account
       </a>
     );
   }
 
   return (
-    <span className="inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-      <span className="text-gray-400">Logged in as {user.email ?? "user"}</span>
-      <span className="text-gray-600" aria-hidden="true">
-        ·
-      </span>
-      <button
-        type="button"
-        onClick={() => void handleLogout()}
-        disabled={signingOut}
-        className="text-gray-300 underline hover:text-white disabled:opacity-50"
-      >
-        {signingOut ? "Logging out…" : "Logout"}
-      </button>
-      <PushNotificationControls />
-    </span>
+    <details className="group relative text-left">
+      <summary className="cursor-pointer list-none text-gray-400 underline hover:text-gray-200 [&::-webkit-details-marker]:hidden">
+        Account
+      </summary>
+      <div className="absolute bottom-full left-1/2 z-10 mb-2 min-w-[8rem] -translate-x-1/2 rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-left shadow-lg">
+        <button
+          type="button"
+          onClick={() => void handleLogout()}
+          disabled={signingOut}
+          className="w-full text-left text-gray-300 underline hover:text-white disabled:opacity-50"
+        >
+          {signingOut ? "Logging out…" : "Log out"}
+        </button>
+      </div>
+    </details>
   );
 }

@@ -16,7 +16,7 @@ export default function NotificationNavLink() {
   return (
     <Link
       href="/notifications"
-      className="hover:text-gray-300 inline-flex items-center gap-1.5"
+      className="inline-flex items-center gap-1.5 font-medium text-gray-300 hover:text-white"
     >
       Notifications
       {unreadCount > 0 && (
