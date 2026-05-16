@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { useNotifications } from "../../../src/components/notifications/NotificationsProvider";
+import { getPublicSightingById } from "../../../src/lib/sightings";
 
 const SightingMap = dynamic(() => import("../../../src/components/sightings/SightingMap"), {
   ssr: false,
@@ -35,11 +36,11 @@ export default function SightingClient({
 }) {
   const [sighting, setSighting] = useState(initialSighting);
   const { events } = useNotifications();
-  const lastAppliedEventId = useRef<string | null>(null);
+  const lastHandledEventId = useRef<string | null>(null);
 
   useEffect(() => {
     setSighting(initialSighting);
-    lastAppliedEventId.current = null;
+    lastHandledEventId.current = null;
   }, [initialSighting]);
 
   useEffect(() => {
@@ -50,19 +51,15 @@ export default function SightingClient({
     );
 
     if (!moderationEvent) return;
-    if (lastAppliedEventId.current === moderationEvent.id) return;
+    if (lastHandledEventId.current === moderationEvent.id) return;
 
-    const nextStatus = moderationEvent.payload.status;
-    if (!nextStatus) return;
+    lastHandledEventId.current = moderationEvent.id;
 
-    lastAppliedEventId.current = moderationEvent.id;
-
-    setSighting((current) => ({
-      ...current,
-      status: nextStatus,
-      latitude: moderationEvent.payload.latitude ?? current.latitude,
-      longitude: moderationEvent.payload.longitude ?? current.longitude,
-    }));
+    void getPublicSightingById(initialSighting.id).then((fresh) => {
+      if (fresh) {
+        setSighting(fresh as SightingDetail);
+      }
+    });
   }, [events, initialSighting.id]);
 
   const report = Array.isArray(sighting.report)
