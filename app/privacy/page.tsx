@@ -21,6 +21,10 @@ export default function PrivacyPolicy() {
         Use the same email address whenever you sign in to return to your reports
         and notifications.
       </p>
+      <p>
+        Authentication email addresses are managed through our authentication
+        provider and are not publicly visible to other users.
+      </p>
 
       <h2 className="text-xl font-semibold">2. What we store</h2>
       <p>When you use the app, we may store:</p>
