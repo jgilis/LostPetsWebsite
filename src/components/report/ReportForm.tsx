@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase";
 import LocationPicker from "./LocationPicker";
 import { applyLocationOffset } from "../../lib/location";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
 
 interface ReportFormProps {
   onReportCreated?: () => void;
@@ -38,6 +39,9 @@ export default function ReportForm({
 
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { userId, loading: authLoading } = useCurrentUser();
+  const isLoggedIn = !!userId;
 
   const lastSubmitKey = "last_submit_time";
 
@@ -222,6 +226,7 @@ export default function ReportForm({
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
+      {!authLoading && !isLoggedIn && (
       <div className="mb-6 rounded-lg border border-gray-700 bg-gray-900/50 px-4 py-3 text-sm">
         <p className="leading-relaxed text-gray-200">
           <span className="font-medium text-white">Before you submit:</span>{" "}
@@ -237,6 +242,7 @@ export default function ReportForm({
           Log in before submitting
         </a>
       </div>
+      )}
 
       <div className="grid md:grid-cols-2 gap-8 items-start bg-gray-900 text-white rounded-lg p-6 shadow-lg border border-gray-800">
 
