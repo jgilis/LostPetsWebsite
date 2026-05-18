@@ -63,15 +63,16 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
+              <p className="mb-3 text-sm text-gray-400">
+                You are currently not logged in. Provide an email address and
+                we&apos;ll send you a link to sign in.
+              </p>
               <label
                 htmlFor="login-email"
                 className="mb-1 block text-sm font-medium text-gray-200"
               >
                 Email address
               </label>
-              <p className="mb-3 text-sm text-gray-400">
-                We&apos;ll send you a magic link to sign in
-              </p>
               <input
                 id="login-email"
                 type="email"

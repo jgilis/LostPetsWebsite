@@ -1,39 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { User } from "@supabase/supabase-js";
+import { useState } from "react";
 import { signOut } from "@/src/lib/auth";
-import { supabase } from "@/src/lib/supabase";
+import { useCurrentUser } from "@/src/hooks/useCurrentUser";
 
 export default function SessionControls() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useCurrentUser();
   const [signingOut, setSigningOut] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-
-    const syncUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (active) {
-        setUser(data.user);
-        setLoading(false);
-      }
-    };
-
-    void syncUser();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
-      void syncUser();
-    });
-
-    return () => {
-      active = false;
-      subscription.unsubscribe();
-    };
-  }, []);
 
   const handleLogout = async () => {
     setSigningOut(true);
@@ -56,12 +29,17 @@ export default function SessionControls() {
     );
   }
 
+  const email = user.email ?? "Signed in";
+
   return (
     <details className="group relative text-left">
       <summary className="cursor-pointer list-none text-gray-400 underline hover:text-gray-200 [&::-webkit-details-marker]:hidden">
         Account
       </summary>
-      <div className="absolute bottom-full left-1/2 z-10 mb-2 min-w-[8rem] -translate-x-1/2 rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-left shadow-lg">
+      <div className="absolute bottom-full left-1/2 z-10 mb-2 min-w-[12rem] max-w-[16rem] -translate-x-1/2 rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-left shadow-lg">
+        <p className="mb-2 truncate text-xs text-gray-400" title={email}>
+          {email}
+        </p>
         <button
           type="button"
           onClick={() => void handleLogout()}
