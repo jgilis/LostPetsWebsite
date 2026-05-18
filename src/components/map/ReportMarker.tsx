@@ -48,25 +48,41 @@ export default memo(function ReportMarker({
   const canSeeExactSightings = isAdmin || isReportOwner;
 
   if (report.type === "found") {
+    const center: [number, number] = [report.latitude, report.longitude];
+
     return (
-      <CircleMarker
-        center={[report.latitude, report.longitude]}
-        radius={8}
-        pathOptions={{
-          color,
-          fillColor: color,
-          fillOpacity: 0.9,
-          weight: 2,
-        }}
-      >
-        <Popup {...popupProps}>
-          <ReportPopup
-            report={report}
-            canSeeExactSightings={canSeeExactSightings}
-            isReportOwner={isReportOwner}
-          />
-        </Popup>
-      </CircleMarker>
+      <>
+        <CircleMarker
+          center={center}
+          radius={14}
+          pathOptions={{
+            fillOpacity: 0,
+            opacity: 0,
+            weight: 0,
+            stroke: false,
+          }}
+        >
+          <Popup {...popupProps}>
+            <ReportPopup
+              report={report}
+              canSeeExactSightings={canSeeExactSightings}
+              isReportOwner={isReportOwner}
+            />
+          </Popup>
+        </CircleMarker>
+        <CircleMarker
+          center={center}
+          radius={10}
+          interactive={false}
+          pathOptions={{
+            color,
+            fillColor: color,
+            fillOpacity: 0.9,
+            weight: 2,
+            interactive: false,
+          }}
+        />
+      </>
     );
   }
 

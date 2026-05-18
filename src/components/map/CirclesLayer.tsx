@@ -24,11 +24,13 @@ export default function CirclesLayer({
           center={[r.latitude, r.longitude]}
           radius={100}
           pane="overlayPane"
+          interactive={false}
           pathOptions={{
             color: getColor(r.animal_type),
             fillColor: getColor(r.animal_type),
             fillOpacity: 0.12,
             weight: 1,
+            interactive: false,
           }}
         />
       ))}
