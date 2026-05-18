@@ -72,7 +72,7 @@ export default memo(function ReportMarker({
         </CircleMarker>
         <CircleMarker
           center={center}
-          radius={10}
+          radius={8}
           interactive={false}
           pathOptions={{
             color,
