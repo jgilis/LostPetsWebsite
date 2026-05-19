@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { usePwaInstall } from "@/src/hooks/usePwaInstall";
+import { useTranslation } from "@/src/i18n/I18nProvider";
 
 export default function PwaInstallButton() {
   const { canInstall, installing, install } = usePwaInstall();
+  const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -22,7 +24,7 @@ export default function PwaInstallButton() {
       disabled={installing}
       className="text-gray-400 underline hover:text-gray-200 disabled:opacity-50"
     >
-      {installing ? "Installing…" : "Install App 📱"}
+      {installing ? t("pwaInstalling") : `${t("pwaInstall")} 📱`}
     </button>
   );
 }

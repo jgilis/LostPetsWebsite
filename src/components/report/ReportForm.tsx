@@ -6,6 +6,7 @@ import LocationPicker from "./LocationPicker";
 import { applyLocationOffset } from "../../lib/location";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
+import { useTranslation } from "@/src/i18n/I18nProvider";
 
 interface ReportFormProps {
   onReportCreated?: () => void;
@@ -41,6 +42,7 @@ export default function ReportForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { userId, loading: authLoading } = useCurrentUser();
+  const { t } = useTranslation();
   const isLoggedIn = !!userId;
 
   const lastSubmitKey = "last_submit_time";
@@ -53,7 +55,7 @@ export default function ReportForm({
     setShowLoginCta(false);
 
     if (!captchaToken) {
-      setMessage("Please complete the captcha.");
+      setMessage(t("reportErrorCaptcha"));
       setMessageType("error");
       return;
     }
@@ -62,32 +64,32 @@ export default function ReportForm({
     if (last) {
       const diff = Date.now() - Number(last);
       if (diff < 30000) {
-        setMessage("Please wait a few seconds before submitting again.");
+        setMessage(t("reportErrorRateLimit"));
         setMessageType("error");
         return;
       }
     }
 
     if (!consent) {
-      setMessage("You must give consent to submit.");
+      setMessage(t("reportErrorConsent"));
       setMessageType("error");
       return;
     }
 
     if (!description || description.trim().length < 5) {
-      setMessage("Please provide a short description.");
+      setMessage(t("reportErrorDescription"));
       setMessageType("error");
       return;
     }
 
     if (!latitude || !longitude) {
-      setMessage("Please select a location.");
+      setMessage(t("reportErrorLocation"));
       setMessageType("error");
       return;
     }
 
     setIsSubmitting(true);
-    setMessage("Submitting...");
+    setMessage(t("reportSubmitting"));
     setMessageType("info");
 
     try {
@@ -105,7 +107,7 @@ export default function ReportForm({
           });
 
         if (error) {
-          setMessage("Photo upload failed: " + error.message);
+          setMessage(`${t("reportErrorPhoto")} ${error.message}`);
           setMessageType("error");
           return;
         }
@@ -122,9 +124,7 @@ export default function ReportForm({
 
       const { data: userData, error: authError } = await supabase.auth.getUser();
       if (authError || !userData.user) {
-        setMessage(
-          "You must be logged in to submit a report. Logging in is free.",
-        );
+        setMessage(t("reportErrorAuth"));
         setMessageType("error");
         setShowLoginCta(true);
         return;
@@ -133,9 +133,7 @@ export default function ReportForm({
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData.session?.access_token;
       if (!accessToken) {
-        setMessage(
-          "You must be logged in to submit a report. Logging in is free.",
-        );
+        setMessage(t("reportErrorAuth"));
         setMessageType("error");
         setShowLoginCta(true);
         return;
@@ -173,14 +171,14 @@ export default function ReportForm({
       try {
         result = JSON.parse(text);
       } catch {
-        setMessage("Server error (invalid response)");
+        setMessage(t("reportErrorServer"));
         setMessageType("error");
         return;
       }
 
       // handle HTTP errors explicitly
       if (!res.ok) {
-        const errorMsg = result?.error || "Request failed";
+        const errorMsg = result?.error || t("reportErrorFailed");
         setMessage(errorMsg);
         setMessageType("error");
         if (
@@ -195,7 +193,7 @@ export default function ReportForm({
       }
 
       if (!result.success) {
-        setMessage(result.error || "Submission failed");
+        setMessage(result.error || t("reportErrorSubmission"));
         setMessageType("error");
         return;
       }
@@ -217,7 +215,7 @@ export default function ReportForm({
       setConsent(false);
 
     } catch (err) {
-      setMessage("Something went wrong. Please try again.");
+      setMessage(t("reportErrorGeneric"));
       setMessageType("error");
     } finally {
       setIsSubmitting(false);
@@ -229,17 +227,14 @@ export default function ReportForm({
       {!authLoading && !isLoggedIn && (
       <div className="mb-6 rounded-lg border border-gray-700 bg-gray-900/50 px-4 py-3 text-sm">
         <p className="leading-relaxed text-gray-200">
-          <span className="font-medium text-white">Before you submit:</span>{" "}
-          you must log in to submit a report 🔐 You can fill out this form now,
-          but it will not go through until you are signed in. Login is free and
-          fast — we send a magic link to your email (no passwords) ✉️ Use the
-          same address anytime to get back to your reports and notifications.
+          <span className="font-medium text-white">{t("reportLoginTitle")}</span>{" "}
+          {t("reportLoginBody")}
         </p>
         <a
           href="/login"
           className="mt-3 inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
         >
-          Log in before submitting
+          {t("reportLoginCta")}
         </a>
       </div>
       )}
@@ -251,72 +246,72 @@ export default function ReportForm({
 
           {/* TYPE */}
           <label className="block">
-            <span className="block text-sm font-medium mb-1">Type</span>
+            <span className="block text-sm font-medium mb-1">{t("reportType")}</span>
             <select
               value={type}
               onChange={(e) => setType(e.target.value as "lost" | "found" | "")}
               className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
             >
               <option value="" disabled>
-                Select status...
+                {t("reportSelectStatus")}
               </option>
 
-              <option value="lost">Lost</option>
-              <option value="found">Found</option>
+              <option value="lost">{t("reportLost")}</option>
+              <option value="found">{t("reportFound")}</option>
             </select>
           </label>
 
           {/* ANIMAL TYPE */}
           <label className="block">
-            <span className="block text-sm font-medium mb-1">Animal type</span>
+            <span className="block text-sm font-medium mb-1">{t("reportAnimalType")}</span>
             <select
               value={animalType}
               onChange={(e) => setAnimalType(e.target.value)}
               className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
             >
               <option value="" disabled>
-                Select animal type...
+                {t("reportSelectAnimal")}
               </option>
 
-              <option value="dog">Dog</option>
-              <option value="cat">Cat</option>
-              <option value="bird">Bird</option>
-              <option value="rodent">Rodent</option>
-              <option value="other">Other</option>
+              <option value="dog">{t("animalDog")}</option>
+              <option value="cat">{t("animalCat")}</option>
+              <option value="bird">{t("animalBird")}</option>
+              <option value="rodent">{t("animalRodent")}</option>
+              <option value="other">{t("animalOther")}</option>
             </select>
           </label>
 
           {/* ANIMAL NAME */}
           <label className="block">
             <span className="block text-sm font-medium mb-1">
-              Animal name (optional)
+              {t("reportAnimalName")}
             </span>
             <input
               value={animalName ?? ""}
               onChange={(e) => setAnimalName(e.target.value)}
               className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
-              placeholder="e.g. Bella"
+              placeholder={t("reportAnimalNamePlaceholder")}
             />
           </label>
 
           {/* DESCRIPTION */}
           <label className="block">
-            <span className="block text-sm font-medium mb-1">Description</span>
+            <span className="block text-sm font-medium mb-1">{t("reportDescription")}</span>
             <textarea
               value={description ?? ""}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full bg-gray-800 border border-gray-700 rounded p-2 min-h-[120px] text-white"
-              placeholder="Describe the pet, location, behavior, etc."
+              placeholder={t("reportDescriptionPlaceholder")}
             />
           </label>
 
           {/* PHOTO */}
           <div className="block space-y-2">
-            <span className="block text-sm font-medium">Photo (optional)</span>
+            <span className="block text-sm font-medium">{t("reportPhoto")}</span>
             
             <label className="inline-block">
               <span className="cursor-pointer inline-block bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded hover:bg-gray-700">
-                Choose photo
+                {t("reportChoosePhoto")}
               </span>
 
               <input
@@ -329,7 +324,7 @@ export default function ReportForm({
 
             {photo && (
               <p className="text-xs text-gray-400">
-                Selected: {photo.name}
+                {t("reportPhotoSelected")} {photo.name}
               </p>
             )}
           </div>
@@ -348,7 +343,7 @@ export default function ReportForm({
               setLongitude={setLongitude}
             />
             <p className="text-xs italic text-gray-400">
-              Location will be slightly blurred for privacy.
+              {t("reportLocationPrivacy")}
             </p>
           </div>
 
@@ -369,7 +364,7 @@ export default function ReportForm({
               onChange={() => setConsent(!consent)}
               className="mt-1"
             />
-            <span>I consent to sharing this report</span>
+            <span>{t("reportConsent")}</span>
           </label>
 
           {/* SUBMIT */}
@@ -378,7 +373,7 @@ export default function ReportForm({
             className="w-full bg-white text-black py-2 rounded hover:opacity-90 disabled:opacity-50 font-medium"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Submitting..." : "Submit report"}
+            {isSubmitting ? t("reportSubmitting") : t("reportSubmit")}
           </button>
 
           {/* MESSAGE */}
@@ -398,7 +393,7 @@ export default function ReportForm({
                   href="/login"
                   className="mt-3 inline-flex items-center justify-center rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
                 >
-                  Log in
+                  {t("reportLoginLink")}
                 </a>
               )}
             </div>
@@ -409,9 +404,9 @@ export default function ReportForm({
             <div className="mt-6 p-4 rounded-lg border bg-green-900/20 border-green-600 text-green-200 space-y-3">
               
               <div>
-                <p className="font-medium">✓ Report submitted successfully</p>
+                <p className="font-medium">✓ {t("reportSuccessTitle")}</p>
                 <p className="text-sm text-green-300">
-                  You can edit or delete this report while logged in.
+                  {t("reportSuccessBody")}
                 </p>
               </div>
 
@@ -420,7 +415,7 @@ export default function ReportForm({
                   href={`/edit?id=${submittedReportId}`}
                   className="text-sm underline text-green-300 text-left"
                 >
-                  Manage this report
+                  {t("reportManage")}
                 </a>
 
                 <button
@@ -428,7 +423,7 @@ export default function ReportForm({
                   onClick={onViewMap}
                   className="text-sm underline text-green-300 hover:text-green-200 text-left"
                 >
-                  → View on map
+                  → {t("reportViewMap")}
                 </button>
               </div>
             </div>

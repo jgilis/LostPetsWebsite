@@ -8,8 +8,10 @@ import {
   getPushEnabledForUser,
   isPushSupported,
 } from "@/src/lib/pushNotifications";
+import { useTranslation } from "@/src/i18n/I18nProvider";
 
 export default function PushNotificationControls() {
+  const { t } = useTranslation();
   const [userId, setUserId] = useState<string | null>(null);
   const [enabled, setEnabled] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -86,16 +88,16 @@ export default function PushNotificationControls() {
     }
 
     if (result.reason === "denied") {
-      setMessage("Notifications are blocked in browser settings.");
+      setMessage(t("pushBlocked"));
       return;
     }
 
     if (result.reason === "not_configured") {
-      setMessage("Push is not configured on this deployment yet.");
+      setMessage(t("pushNotConfigured"));
       return;
     }
 
-    setMessage(result.message ?? "Could not enable notifications.");
+    setMessage(result.message ?? t("pushError"));
   };
 
   const handleDisable = async () => {
@@ -115,7 +117,7 @@ export default function PushNotificationControls() {
           disabled={busy}
           className="text-gray-400 underline hover:text-gray-200 disabled:opacity-50"
         >
-          {busy ? "Updating…" : "Push notifications on"}
+          {busy ? t("pushUpdating") : t("pushOn")}
         </button>
       ) : (
         <button
@@ -124,7 +126,7 @@ export default function PushNotificationControls() {
           disabled={busy}
           className="text-gray-400 underline hover:text-gray-200 disabled:opacity-50"
         >
-          {busy ? "Enabling…" : "Enable push notifications"}
+          {busy ? t("pushEnabling") : t("pushOff")}
         </button>
       )}
       {message && (

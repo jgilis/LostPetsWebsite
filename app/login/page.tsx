@@ -3,11 +3,13 @@
 import { useState } from "react";
 import type { AuthError } from "@supabase/supabase-js";
 import { signInWithEmail } from "@/src/lib/auth";
+import { useTranslation } from "@/src/i18n/I18nProvider";
+import type { TranslationKey } from "@/src/i18n/types";
 
-const MAGIC_LINK_RATE_LIMIT_MESSAGE =
-  "Email rate limit exceeded — limited to 2 magic links per hour. Please wait before trying again. This helps prevent spam and protects your account.";
-
-function formatMagicLinkError(error: AuthError): string {
+function formatMagicLinkError(
+  error: AuthError,
+  t: (key: TranslationKey) => string,
+): string {
   const message = error.message.toLowerCase();
   const code = (error.code ?? "").toLowerCase();
 
@@ -21,13 +23,14 @@ function formatMagicLinkError(error: AuthError): string {
     (message.includes("retry") && message.includes("limit"));
 
   if (isRateLimit) {
-    return MAGIC_LINK_RATE_LIMIT_MESSAGE;
+    return t("loginRateLimit");
   }
 
   return error.message;
 }
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -46,7 +49,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (signInError) {
-      setError(formatMagicLinkError(signInError));
+      setError(formatMagicLinkError(signInError, t));
       return;
     }
 
@@ -58,25 +61,22 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="rounded-xl border border-gray-800 bg-gray-900/90 p-8 shadow-xl">
           <h1 className="mb-8 text-3xl font-bold tracking-tight text-white">
-            Login
+            {t("loginTitle")}
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <p className="mb-3 text-sm text-gray-400">
-                You are currently not logged in. Provide an email address and
-                we&apos;ll send you a link to sign in.
-              </p>
+              <p className="mb-3 text-sm text-gray-400">{t("loginIntro")}</p>
               <label
                 htmlFor="login-email"
                 className="mb-1 block text-sm font-medium text-gray-200"
               >
-                Email address
+                {t("loginEmailLabel")}
               </label>
               <input
                 id="login-email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t("loginEmailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -95,13 +95,13 @@ export default function LoginPage() {
                   : "cursor-not-allowed bg-gray-600 text-gray-300"
               }`}
             >
-              {loading ? "Sending…" : "Send login link"}
+              {loading ? t("loginSending") : t("loginSendLink")}
             </button>
           </form>
 
           {success && (
             <p className="mt-6 text-sm text-green-400" role="status">
-              Check your email for the login link.
+              {t("loginCheckEmail")}
             </p>
           )}
 
@@ -111,7 +111,6 @@ export default function LoginPage() {
             </p>
           )}
         </div>
-
       </div>
     </div>
   );

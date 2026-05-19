@@ -11,6 +11,7 @@ import {
   updateReportStatus,
 } from "../../../src/lib/reports";
 import type { ReportStatus } from "../../../src/lib/reports";
+import { useTranslation } from "@/src/i18n/I18nProvider";
 
 type FlagRow = {
   id: string;
@@ -27,6 +28,7 @@ type EnrichedFlag = AdminReport & {
 };
 
 export default function AdminFlagsPage() {
+  const { t } = useTranslation();
   const { loading: adminLoading, isAdmin } = useAdmin();
   const [flags, setFlags] = useState<EnrichedFlag[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,21 +98,21 @@ export default function AdminFlagsPage() {
   );
 
   if (adminLoading) {
-    return <p className="p-8 text-gray-400">Checking access...</p>;
+    return <p className="p-8 text-gray-400">{t("adminCheckingAccess")}</p>;
   }
 
   if (!isAdmin) return null;
 
   if (loading) {
-    return <p className="p-8 text-gray-400">Loading reports...</p>;
+    return <p className="p-8 text-gray-400">{t("adminLoadingReports")}</p>;
   }
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-8">
-      <AdminHeader title="Flagged Reports" showBackLink />
+      <AdminHeader title={t("adminFlaggedReports")} showBackLink />
 
       {flags.length === 0 && (
-        <p className="text-gray-400">No flagged reports.</p>
+        <p className="text-gray-400">{t("adminNoFlagged")}</p>
       )}
 
       <div className="flex flex-col gap-4">

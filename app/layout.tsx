@@ -8,6 +8,8 @@ import AuthHashCleanup from "../src/components/auth/AuthHashCleanup";
 import { UserProfileProvider } from "../src/components/auth/UserProfileProvider";
 import { VisibilitySyncProvider } from "../src/components/sync/VisibilitySyncProvider";
 import { RealtimeResyncProvider } from "../src/components/sync/RealtimeResyncProvider";
+import { I18nProvider } from "../src/i18n/I18nProvider";
+import { DEFAULT_LANGUAGE } from "../src/i18n/config";
 
 // ✅ Import Leaflet CSS globally
 import 'leaflet/dist/leaflet.css';
@@ -47,9 +49,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang={DEFAULT_LANGUAGE} suppressHydrationWarning>
       <body className="bg-gray-950 text-white">
 
+        <I18nProvider>
         <UserProfileProvider>
         <VisibilitySyncProvider>
           <RealtimeResyncProvider>
@@ -62,6 +65,7 @@ export default function RootLayout({
           </RealtimeResyncProvider>
         </VisibilitySyncProvider>
         </UserProfileProvider>
+        </I18nProvider>
 
         <ServiceWorkerRegistration />
         <AuthHashCleanup />

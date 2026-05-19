@@ -6,9 +6,12 @@ import PushNotificationControls from "../notifications/PushNotificationControls"
 import { useNotifications } from "../notifications/NotificationsProvider";
 import { RealtimeDebug } from "../realtime/RealtimeDebug";
 import PwaInstallButton from "../pwa/PwaInstallButton";
+import LanguageSwitcher from "../i18n/LanguageSwitcher";
+import { useTranslation } from "@/src/i18n/I18nProvider";
 
 export default function SiteFooter() {
   const { loadNotifications } = useNotifications();
+  const { t } = useTranslation();
 
   return (
     <footer className="mt-10 border-t border-gray-800 py-6 text-center">
@@ -20,21 +23,22 @@ export default function SiteFooter() {
           href="/"
           className="font-medium text-gray-300 hover:text-white"
         >
-          Home / Map
+          {t("navHomeMap")}
         </a>
         <a
           href="/?tab=report"
           className="font-medium text-gray-300 hover:text-white"
         >
-          Report
+          {t("navReport")}
         </a>
         <NotificationNavLink />
       </nav>
 
       <div
         aria-label="App actions"
-        className="mb-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-gray-400"
+        className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-gray-400"
       >
+        <LanguageSwitcher />
         <PwaInstallButton />
         <PushNotificationControls />
         <SessionControls />
@@ -45,13 +49,13 @@ export default function SiteFooter() {
         className="flex flex-wrap items-center justify-center gap-x-4 text-[11px] text-gray-500"
       >
         <a href="/about" className="hover:text-gray-300">
-          About
+          {t("navAbout")}
         </a>
         <a href="/privacy" className="hover:text-gray-300">
-          Privacy Policy
+          {t("navPrivacy")}
         </a>
         <a href="/terms" className="hover:text-gray-300">
-          Terms of Use
+          {t("navTerms")}
         </a>
       </nav>
 

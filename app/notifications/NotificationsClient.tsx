@@ -2,16 +2,18 @@
 
 import { useEffect } from "react";
 import { useNotifications } from "../../src/components/notifications/NotificationsProvider";
+import { useTranslation } from "@/src/i18n/I18nProvider";
 
 export default function NotificationsClient() {
   const { events, loading, loadNotifications } = useNotifications();
+  const { t } = useTranslation();
 
   useEffect(() => {
     void loadNotifications({ markRead: true });
   }, [loadNotifications]);
 
   if (loading) {
-    return <p style={{ padding: "20px" }}>Loading notifications...</p>;
+    return <p style={{ padding: "20px" }}>{t("notificationsLoading")}</p>;
   }
 
   return (
@@ -29,12 +31,10 @@ export default function NotificationsClient() {
           marginBottom: "20px",
         }}
       >
-        🔔 Notifications
+        🔔 {t("notificationsTitle")}
       </h1>
 
-      {events.length === 0 && (
-        <p>No notifications yet.</p>
-      )}
+      {events.length === 0 && <p>{t("notificationsEmpty")}</p>}
 
       {events.map((event) => (
         <div
@@ -54,32 +54,31 @@ export default function NotificationsClient() {
               marginBottom: "6px",
             }}
           >
-            🐾 Potential sighting approved
+            🐾 {t("notificationsSightingApproved")}
           </p>
 
-          <p style={{
-            marginBottom: "6px",
-            color: "#444",
-           }}>
-            A possible sighting of your lost pet was approved by moderation.
+          <p
+            style={{
+              marginBottom: "6px",
+              color: "#444",
+            }}
+          >
+            {t("notificationsSightingBody")}
           </p>
 
-          {event.payload.latitude &&
-            event.payload.longitude && (
-              <p
-                style={{
-                  fontSize: "14px",
-                  color: "#666",
-                  marginBottom: "6px",
-                }}
-              >
-                Approximate area:
-                {" "}
-                {event.payload.latitude.toFixed(3)},
-                {" "}
-                {event.payload.longitude.toFixed(3)}
-              </p>
-            )}
+          {event.payload.latitude && event.payload.longitude && (
+            <p
+              style={{
+                fontSize: "14px",
+                color: "#666",
+                marginBottom: "6px",
+              }}
+            >
+              {t("notificationsApproxArea")}{" "}
+              {event.payload.latitude.toFixed(3)},{" "}
+              {event.payload.longitude.toFixed(3)}
+            </p>
+          )}
 
           <p
             style={{
@@ -87,9 +86,7 @@ export default function NotificationsClient() {
               color: "#666",
             }}
           >
-            {new Date(
-              event.created_at
-            ).toLocaleString()}
+            {new Date(event.created_at).toLocaleString()}
           </p>
 
           {event.payload.sighting_id && (
@@ -103,7 +100,7 @@ export default function NotificationsClient() {
                 textDecoration: "underline",
               }}
             >
-              View sighting →
+              {t("notificationsViewSighting")} →
             </a>
           )}
         </div>

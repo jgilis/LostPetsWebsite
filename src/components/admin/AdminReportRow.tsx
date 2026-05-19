@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  formatAdminReportStatus,
   formatReportLocation,
   formatReportTimestamp,
   truncateText,
@@ -10,6 +9,23 @@ import {
 import type { ReportStatus } from "@/src/lib/reports";
 import { isReportOutOfMechelen } from "@/src/lib/mechelenBounds";
 import AdminReportThumbnail from "./AdminReportThumbnail";
+import { useTranslation } from "@/src/i18n/I18nProvider";
+import type { TranslationKey } from "@/src/i18n/types";
+
+function statusTranslationKey(status: string): TranslationKey {
+  switch (status) {
+    case "removed":
+      return "statusHidden";
+    case "flagged":
+      return "statusFlagged";
+    case "resolved":
+      return "statusResolved";
+    case "expired":
+      return "statusExpired";
+    default:
+      return "statusActive";
+  }
+}
 
 type AdminReportRowProps = {
   report: AdminReport;
@@ -31,18 +47,15 @@ export default function AdminReportRow({
   flagExtras,
   showRestoreActions = false,
 }: AdminReportRowProps) {
-  const description = report.description?.trim() || "No description";
+  const { t } = useTranslation();
+  const description = report.description?.trim() || t("adminNoDescription");
   const location = formatReportLocation(report.latitude, report.longitude);
   const reportedAt = formatReportTimestamp(report);
-  const statusLabel = formatAdminReportStatus(report.status);
+  const statusLabel = t(statusTranslationKey(report.status));
   const outOfArea = isReportOutOfMechelen(report.latitude, report.longitude);
 
   const handleRemove = async () => {
-    if (
-      !window.confirm(
-        "Remove this report from the public map? The record will be kept for admin audit.",
-      )
-    ) {
+    if (!window.confirm(t("adminRemoveConfirm"))) {
       return;
     }
 
@@ -69,12 +82,12 @@ export default function AdminReportRow({
                 className="ml-2 text-sm font-normal text-amber-300"
                 title="Coordinates outside the usual Mechelen area"
               >
-                ⚠ Out of area
+                ⚠ {t("adminOutOfArea")}
               </span>
             ) : null}
           </p>
           <p className="mt-0.5 text-sm">
-            Status:{" "}
+            {t("adminStatus")}{" "}
             <span className="capitalize text-gray-300">{statusLabel}</span>
           </p>
         </div>
@@ -93,7 +106,7 @@ export default function AdminReportRow({
       <dl className="mt-3 space-y-1 text-xs text-gray-400">
         {location && (
           <div className="flex flex-wrap gap-x-2">
-            <dt className="text-gray-500">Location</dt>
+            <dt className="text-gray-500">{t("adminLocation")}</dt>
             <dd className={outOfArea ? "text-amber-200" : undefined}>
               {location}
               {outOfArea ? " ⚠" : null}
@@ -102,7 +115,7 @@ export default function AdminReportRow({
         )}
         {reportedAt && (
           <div className="flex flex-wrap gap-x-2">
-            <dt className="text-gray-500">Reported</dt>
+            <dt className="text-gray-500">{t("adminReported")}</dt>
             <dd>{reportedAt}</dd>
           </div>
         )}
@@ -115,7 +128,8 @@ export default function AdminReportRow({
       {flagExtras && (
         <div className="mt-3 border-t border-gray-800 pt-3 text-sm">
           <p className="text-amber-200/90">
-            {flagExtras.count} flag{flagExtras.count === 1 ? "" : "s"}
+            {flagExtras.count}{" "}
+            {flagExtras.count === 1 ? t("adminFlags") : t("adminFlagsPlural")}
           </p>
           {flagExtras.latestReasons.length > 0 && (
             <ul className="mt-1 list-inside list-disc text-gray-400">
@@ -126,7 +140,8 @@ export default function AdminReportRow({
           )}
           {flagExtras.lastFlagged && (
             <p className="mt-1 text-xs text-gray-500">
-              Last flagged: {new Date(flagExtras.lastFlagged).toLocaleString()}
+              {t("adminLastFlagged")}{" "}
+              {new Date(flagExtras.lastFlagged).toLocaleString()}
             </p>
           )}
         </div>
@@ -138,7 +153,7 @@ export default function AdminReportRow({
           onClick={() => void onStatusChange(report.id, "resolved")}
           className={`${actionButtonClass} border-emerald-800/60 text-emerald-200 hover:bg-emerald-950/40`}
         >
-          Resolve
+          {t("adminResolve")}
         </button>
 
         <button
@@ -146,7 +161,7 @@ export default function AdminReportRow({
           onClick={() => void handleRemove()}
           className={`${actionButtonClass} border-red-800 bg-red-950/50 text-red-200 hover:bg-red-950`}
         >
-          Remove
+          {t("adminRemove")}
         </button>
 
         {showRestoreActions && (
@@ -156,14 +171,14 @@ export default function AdminReportRow({
               onClick={() => void onStatusChange(report.id, "active")}
               className={`${actionButtonClass} border-gray-600 hover:bg-gray-800`}
             >
-              Restore
+              {t("adminRestore")}
             </button>
             <button
               type="button"
               onClick={() => void onStatusChange(report.id, "flagged")}
               className={`${actionButtonClass} border-amber-700/60 text-amber-200 hover:bg-amber-950/40`}
             >
-              Keep flagged
+              {t("adminKeepFlagged")}
             </button>
           </>
         )}

@@ -26,6 +26,26 @@ import { useReportSightings } from "./useReportSightings";
 import type { MapProps } from "./mapTypes";
 import AdminMapLegend from "./AdminMapLegend";
 import PopupViewGuard from "./PopupViewGuard";
+import { useTranslation } from "@/src/i18n/I18nProvider";
+import type { TranslationKey } from "@/src/i18n/types";
+
+const ANIMAL_FILTER_LABELS: Record<
+  "all" | "dog" | "cat" | "bird" | "rodent" | "other",
+  TranslationKey
+> = {
+  all: "filterAll",
+  dog: "filterDog",
+  cat: "filterCat",
+  bird: "filterBird",
+  rodent: "filterRodent",
+  other: "filterOther",
+};
+
+const TYPE_FILTER_LABELS: Record<"all" | "lost" | "found", TranslationKey> = {
+  all: "filterAll",
+  lost: "filterLost",
+  found: "filterFound",
+};
 
 function MapClickCloser() {
   const wasDraggedRef = useRef(false);
@@ -91,6 +111,7 @@ export default function Map({
   >("all");
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+  const { t } = useTranslation();
 
   useEffect(() => setIsMounted(true), []);
 
@@ -165,16 +186,16 @@ export default function Map({
   );
 
   if (!isMounted) return null;
-  if (!L || !icons || !sightingIcon) return <p>Loading map...</p>;
+  if (!L || !icons || !sightingIcon) return <p>{t("mapLoading")}</p>;
   if (
     isAdminScoped &&
     (!reportOriginIcon || !currentSightingIcon)
   ) {
-    return <p>Loading map...</p>;
+    return <p>{t("mapLoading")}</p>;
   }
   const loading = reportsLoading || (isAdminScoped && sightingsLoading);
 
-  if (loading) return <p>Loading reports...</p>;
+  if (loading) return <p>{t("reportsLoading")}</p>;
 
   return (
     <div>
@@ -244,7 +265,7 @@ export default function Map({
                   alignItems: "center",
                 }}
               >
-                {a.toUpperCase()}
+                {t(ANIMAL_FILTER_LABELS[a]).toUpperCase()}
               </button>
             );
           })}
@@ -260,14 +281,14 @@ export default function Map({
             paddingBottom: "10px",
           }}
         >
-          {["all", "lost", "found"].map((t) => {
-            const isActive = typeFilter === t;
+          {(["all", "lost", "found"] as const).map((typeKey) => {
+            const isActive = typeFilter === typeKey;
             const color = "#000000";
 
             return (
               <button
-                key={t}
-                onClick={() => setTypeFilter(t as any)}
+                key={typeKey}
+                onClick={() => setTypeFilter(typeKey as any)}
                 style={{
                   padding: "6px 10px",
                   borderRadius: "20px",
@@ -288,7 +309,7 @@ export default function Map({
                   boxShadow: "0 0 0 2px #ffffff",
                 }}
               >
-                {t.toUpperCase()}
+                {t(TYPE_FILTER_LABELS[typeKey]).toUpperCase()}
               </button>
             );
           })}

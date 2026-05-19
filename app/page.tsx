@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import MapWrapper from "../src/components/map/MapWrapper";
 import ReportForm from "../src/components/report/ReportForm";
+import { useTranslation } from "@/src/i18n/I18nProvider";
 
 export default function HomePage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [tab, setTab] = useState<"map" | "report">("map");
+  const { t } = useTranslation();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -21,16 +23,9 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-gray-950 text-white flex justify-center">
-      
-      {/* SINGLE GLOBAL LAYOUT CONTAINER */}
       <div className="w-full max-w-6xl px-4 py-6 space-y-6">
+        <h1 className="text-2xl font-bold text-center">{t("appTitle")}</h1>
 
-        {/* TITLE */}
-        <h1 className="text-2xl font-bold text-center">
-          Lost Pets Map — Mechelen
-        </h1>
-
-        {/* TABS */}
         <div className="flex border-b border-gray-700 mb-8">
           <button
             onClick={() => setTab("map")}
@@ -40,7 +35,7 @@ export default function HomePage() {
                 : "opacity-70 hover:opacity-100"
             }`}
           >
-            🗺 Map
+            🗺 {t("tabMap")}
           </button>
 
           <button
@@ -51,11 +46,10 @@ export default function HomePage() {
                 : "opacity-70 hover:opacity-100"
             }`}
           >
-            ➕ Report
+            ➕ {t("tabReport")}
           </button>
         </div>
 
-        {/* CONTENT */}
         {tab === "map" && (
           <div className="w-full h-[65vh] rounded-lg border border-gray-700">
             <div className="w-full h-full rounded-lg">
@@ -67,7 +61,7 @@ export default function HomePage() {
         {tab === "report" && (
           <div className="w-full">
             <h2 className="text-xl font-semibold mb-4 text-center">
-              Report a Lost or Found Pet
+              {t("reportPageTitle")}
             </h2>
 
             <ReportForm
@@ -76,7 +70,6 @@ export default function HomePage() {
             />
           </div>
         )}
-
       </div>
     </main>
   );
