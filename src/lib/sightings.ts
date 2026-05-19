@@ -253,34 +253,16 @@ export async function updateSightingStatus(
 
   const report = getReport(sighting.reports);
 
-  // 3. map status → event type
-  let eventType:
-    | "sighting_approved"
-    | "sighting_rejected"
-    | "sighting_updated";
-
-  switch (status) {
-    case "approved":
-      eventType = "sighting_approved";
-      break;
-
-    case "rejected":
-      eventType = "sighting_rejected";
-      break;
-
-    default:
-      eventType = "sighting_updated";
-      break;
+  // Notify report owner only when a sighting is approved (not rejected/removed/etc.).
+  if (status !== "approved") {
+    return true;
   }
 
-  // 4. emit event
   const { error: eventError } = await supabase
     .from("notification_events")
     .insert({
-      type: eventType,
-
+      type: "sighting_approved",
       target_user_id: report?.owner_user_id ?? null,
-
       payload: {
         sighting_id: sighting.id,
         lost_report_id: sighting.lost_report_id,

@@ -95,6 +95,16 @@ serve(async (req: Request) => {
   }
 
   const record = body.record ?? (body as NotificationRecord);
+  if (record?.type !== "sighting_approved") {
+    return new Response(
+      JSON.stringify({ sent: 0, skipped: "not an owner-approved sighting event" }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+  }
+
   const userId = record?.target_user_id;
   if (!userId) {
     return new Response(JSON.stringify({ sent: 0, skipped: "no target_user_id" }), {

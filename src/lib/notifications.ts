@@ -14,6 +14,7 @@ export async function getUnreadNotificationCount() {
     .from("notification_events")
     .select("*", { count: "exact", head: true })
     .eq("target_user_id", userId)
+    .eq("type", "sighting_approved")
     .is("read_at", null);
 
   if (error) {
@@ -50,6 +51,7 @@ export async function getOwnerSightingsNotifications() {
     .from("notification_events")
     .select("*")
     .eq("target_user_id", userId)
+    .eq("type", "sighting_approved")
     .order("created_at", { ascending: false });
 
   if (error) {
