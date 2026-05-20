@@ -12,7 +12,12 @@ export const fr: Record<keyof typeof en, string> = {
 
   appTitle: "Carte des animaux perdus — Malines",
   tabMap: "Carte",
+  tabFeed: "Liste",
   tabReport: "Signaler",
+  feedLoading: "Chargement des signalements...",
+  feedEmpty: "Aucun signalement pour ces filtres.",
+  feedEmptyArea: "Pas encore de signalements dans cette zone",
+  feedEmptyHint: "Soyez le premier à signaler un animal perdu ou trouvé",
   reportPageTitle: "Signaler un animal perdu ou trouvé",
 
   loginTitle: "Connexion",
@@ -95,6 +100,13 @@ export const fr: Record<keyof typeof en, string> = {
 
   mapLoading: "Chargement de la carte...",
   reportsLoading: "Chargement des signalements...",
+  reportDetailLoading: "Chargement du signalement...",
+  reportDetailNotFound: "Signalement introuvable",
+  reportDetailId: "ID du signalement",
+  reportViewFull: "Voir le signalement complet",
+  reportBack: "Retour",
+  reportBackToFeed: "Retour au fil",
+  reportBackToMap: "Retour à la carte",
 
   notificationsTitle: "Notifications",
   notificationsLoading: "Chargement des notifications...",

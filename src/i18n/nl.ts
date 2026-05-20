@@ -12,7 +12,12 @@ export const nl: Record<keyof typeof en, string> = {
 
   appTitle: "Verloren huisdierenkaart — Mechelen",
   tabMap: "Kaart",
+  tabFeed: "Overzicht",
   tabReport: "Melding",
+  feedLoading: "Meldingen laden...",
+  feedEmpty: "Geen meldingen voor deze filters.",
+  feedEmptyArea: "Nog geen meldingen in dit gebied",
+  feedEmptyHint: "Wees de eerste die een vermist of gevonden huisdier meldt",
   reportPageTitle: "Meld een vermist of gevonden huisdier",
 
   loginTitle: "Inloggen",
@@ -95,6 +100,13 @@ export const nl: Record<keyof typeof en, string> = {
 
   mapLoading: "Kaart laden...",
   reportsLoading: "Meldingen laden...",
+  reportDetailLoading: "Melding laden...",
+  reportDetailNotFound: "Melding niet gevonden",
+  reportDetailId: "Meldings-ID",
+  reportViewFull: "Volledige melding bekijken",
+  reportBack: "Terug",
+  reportBackToFeed: "Terug naar overzicht",
+  reportBackToMap: "Terug naar kaart",
 
   notificationsTitle: "Meldingen",
   notificationsLoading: "Meldingen laden...",

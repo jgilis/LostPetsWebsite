@@ -11,7 +11,6 @@ export type AdminReport = {
   photo_url?: string | null;
   status: ReportStatus | string;
   date_reported?: string | null;
-  created_at?: string | null;
 };
 
 export function formatAdminReportStatus(status: string): string {
@@ -39,7 +38,7 @@ export function formatReportLocation(
 }
 
 export function formatReportTimestamp(report: AdminReport): string | null {
-  const raw = report.date_reported ?? report.created_at;
+  const raw = report.date_reported;
   if (!raw) return null;
 
   const date = new Date(raw);

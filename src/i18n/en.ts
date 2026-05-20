@@ -10,7 +10,12 @@ export const en = {
 
   appTitle: "Lost Pets Map — Mechelen",
   tabMap: "Map",
+  tabFeed: "Feed",
   tabReport: "Report",
+  feedLoading: "Loading reports...",
+  feedEmpty: "No reports match your filters.",
+  feedEmptyArea: "No reports yet in this area",
+  feedEmptyHint: "Be the first to report a lost or found pet",
   reportPageTitle: "Report a Lost or Found Pet",
 
   loginTitle: "Login",
@@ -93,6 +98,13 @@ export const en = {
 
   mapLoading: "Loading map...",
   reportsLoading: "Loading reports...",
+  reportDetailLoading: "Loading report...",
+  reportDetailNotFound: "Report not found",
+  reportDetailId: "Report ID",
+  reportViewFull: "View full report",
+  reportBack: "Back",
+  reportBackToFeed: "Back to Feed",
+  reportBackToMap: "Back to Map",
 
   notificationsTitle: "Notifications",
   notificationsLoading: "Loading notifications...",

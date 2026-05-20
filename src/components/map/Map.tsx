@@ -72,6 +72,11 @@ function MapClickCloser() {
 export default function Map({
   mode: modeProp,
   reportId: reportIdProp,
+  typeFilter: typeFilterProp,
+  animalFilter: animalFilterProp,
+  onTypeFilterChange,
+  onAnimalFilterChange,
+  hideFilters = false,
 }: MapProps) {
   const searchParams = useSearchParams();
 
@@ -105,10 +110,27 @@ export default function Map({
 
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
 
-  const [typeFilter, setTypeFilter] = useState<"all" | "lost" | "found">("all");
-  const [animalFilter, setAnimalFilter] = useState<
+  const [internalTypeFilter, setInternalTypeFilter] = useState<
+    "all" | "lost" | "found"
+  >("all");
+  const [internalAnimalFilter, setInternalAnimalFilter] = useState<
     "all" | "dog" | "cat" | "bird" | "rodent" | "other"
   >("all");
+
+  const filtersControlled =
+    onTypeFilterChange != null && onAnimalFilterChange != null;
+  const typeFilter = filtersControlled
+    ? (typeFilterProp ?? "all")
+    : internalTypeFilter;
+  const animalFilter = filtersControlled
+    ? (animalFilterProp ?? "all")
+    : internalAnimalFilter;
+  const setTypeFilter = filtersControlled
+    ? onTypeFilterChange
+    : setInternalTypeFilter;
+  const setAnimalFilter = filtersControlled
+    ? onAnimalFilterChange
+    : setInternalAnimalFilter;
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
   const { t } = useTranslation();
@@ -200,7 +222,7 @@ export default function Map({
   return (
     <div>
 
-      {/* 🧩 FILTER UI (RESTORED) */}
+      {!hideFilters && (
       <div
         style={{
           display: "flex",
@@ -316,6 +338,7 @@ export default function Map({
         </div>
 
       </div>
+      )}
 
       {/* MAP */}
       <div style={{ position: "relative" }}>
