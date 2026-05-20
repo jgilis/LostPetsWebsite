@@ -16,6 +16,11 @@ export const en = {
   feedEmpty: "No reports match your filters.",
   feedEmptyArea: "No reports yet in this area",
   feedEmptyHint: "Be the first to report a lost or found pet",
+  feedOwnershipAll: "All",
+  feedOwnershipMine: "My reports",
+  feedEmptyMyReports: "You have no active reports.",
+  feedEmptyMyReportsLogin: "Log in to see your reports.",
+  feedViewEdit: "View / Edit",
   reportPageTitle: "Report a Lost or Found Pet",
 
   loginTitle: "Login",
@@ -109,6 +114,10 @@ export const en = {
   reportYouReportedThis: "You reported this",
   reportYouCreatedThis: "You created this report",
   reportEditOrDelete: "Edit or delete report",
+  reportEdit: "Edit report",
+  reportDelete: "Delete report",
+  reportDeleteConfirm: "Delete this report permanently?",
+  reportDeleteFailed: "Delete failed.",
 
   notificationsTitle: "Notifications",
   notificationsLoading: "Loading notifications...",

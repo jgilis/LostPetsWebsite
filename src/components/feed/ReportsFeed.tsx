@@ -18,6 +18,8 @@ import { useCurrentUser } from "@/src/hooks/useCurrentUser";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import type { TranslationKey } from "@/src/i18n/types";
 
+type OwnershipFilter = "all" | "mine";
+
 const ANIMAL_LABEL_KEYS: Record<Report["animal_type"], TranslationKey> = {
   dog: "animalDog",
   cat: "animalCat",
@@ -68,9 +70,11 @@ function FeedSkeleton() {
 function ReportFeedCard({
   report,
   onBeforeNavigate,
+  emphasizeOwned,
 }: {
   report: Report;
   onBeforeNavigate: () => void;
+  emphasizeOwned: boolean;
 }) {
   const { t } = useTranslation();
   const { user } = useCurrentUser();
@@ -88,54 +92,58 @@ function ReportFeedCard({
     <Link
       href={reportDetailHref(report.id, "feed")}
       onClick={onBeforeNavigate}
-      className="flex w-full cursor-pointer gap-3 rounded-lg border border-gray-700 bg-gray-900 p-3.5 text-left transition-colors hover:border-gray-600 hover:bg-gray-800/80 active:bg-gray-800"
+      className={`flex w-full cursor-pointer gap-3 rounded-lg border bg-gray-900 p-3.5 text-left transition-colors hover:border-gray-600 hover:bg-gray-800/80 active:bg-gray-800 ${
+        emphasizeOwned && isOwner
+          ? "border-sky-800/60"
+          : "border-gray-700"
+      }`}
     >
-      {report.photo_url && !photoBroken ? (
-        <img
-          src={report.photo_url}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          className="h-16 w-16 shrink-0 rounded-md border border-gray-600 object-cover"
-          onError={() => setPhotoBroken(true)}
-        />
-      ) : (
-        <div
-          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md border border-gray-700 bg-gray-800 text-xs text-gray-500"
-          aria-hidden
-        >
-          —
-        </div>
-      )}
+        {report.photo_url && !photoBroken ? (
+          <img
+            src={report.photo_url}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-16 w-16 shrink-0 rounded-md border border-gray-600 object-cover"
+            onError={() => setPhotoBroken(true)}
+          />
+        ) : (
+          <div
+            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md border border-gray-700 bg-gray-800 text-xs text-gray-500"
+            aria-hidden
+          >
+            —
+          </div>
+        )}
 
-      <div className="min-w-0 flex-1">
-        {isOwner ? (
-          <span className="mb-1.5 inline-block rounded-full border border-sky-800/50 bg-sky-950/40 px-2 py-0.5 text-xs font-medium text-sky-200/90">
-            {t("reportYourReport")}
-          </span>
-        ) : null}
-        <p className="font-semibold capitalize text-white">
-          {t(ANIMAL_LABEL_KEYS[report.animal_type])}
-          <span className="ml-2 text-sm font-normal text-gray-400">
-            · {typeLabel}
-          </span>
-          {report.animal_name ? (
-            <span className="ml-1 text-sm font-normal text-gray-300">
-              ({report.animal_name})
+        <div className="min-w-0 flex-1">
+          {isOwner ? (
+            <span className="mb-1.5 inline-block rounded-full border border-sky-800/50 bg-sky-950/40 px-2 py-0.5 text-xs font-medium text-sky-200/90">
+              {t("reportYourReport")}
             </span>
           ) : null}
-        </p>
-
-        {location ? (
-          <p className="mt-1 text-xs text-gray-400">
-            {t("adminLocation")}: {location}
+          <p className="font-semibold capitalize text-white">
+            {t(ANIMAL_LABEL_KEYS[report.animal_type])}
+            <span className="ml-2 text-sm font-normal text-gray-400">
+              · {typeLabel}
+            </span>
+            {report.animal_name ? (
+              <span className="ml-1 text-sm font-normal text-gray-300">
+                ({report.animal_name})
+              </span>
+            ) : null}
           </p>
-        ) : null}
 
-        <p className="mt-2 text-sm leading-relaxed text-gray-300">
-          {truncateText(description, 120)}
-        </p>
-      </div>
+          {location ? (
+            <p className="mt-1 text-xs text-gray-400">
+              {t("adminLocation")}: {location}
+            </p>
+          ) : null}
+
+          <p className="mt-2 text-sm leading-relaxed text-gray-300">
+            {truncateText(description, 120)}
+          </p>
+        </div>
     </Link>
   );
 }
@@ -146,14 +154,29 @@ export default function ReportsFeed({
 }: ReportsFeedProps) {
   const { reports, loading } = useReports();
   const { t } = useTranslation();
+  const { user } = useCurrentUser();
   const scrollRef = useRef<HTMLUListElement>(null);
+  const [ownershipFilter, setOwnershipFilter] =
+    useState<OwnershipFilter>("all");
 
   const sortedReports = useMemo(() => {
-    const filtered = filterReports(reports, typeFilter, animalFilter);
+    let filtered = filterReports(reports, typeFilter, animalFilter);
+
+    if (ownershipFilter === "mine" && user?.id) {
+      filtered = filtered.filter(
+        (r) => r.owner_user_id === user.id,
+      );
+    }
+
     return sortReportsNewestFirst(filtered);
-  }, [reports, typeFilter, animalFilter]);
+  }, [reports, typeFilter, animalFilter, ownershipFilter, user?.id]);
 
   const hasAnyReports = reports.length > 0;
+  const showMyReportsEmpty =
+    ownershipFilter === "mine" &&
+    !loading &&
+    hasAnyReports &&
+    sortedReports.length === 0;
 
   const saveScroll = () => {
     if (scrollRef.current) {
@@ -172,6 +195,33 @@ export default function ReportsFeed({
 
   return (
     <div className="flex min-h-[65vh] max-h-[65vh] flex-col overflow-hidden rounded-lg border border-gray-800/80 bg-gray-950/40">
+      <div
+        className="flex shrink-0 justify-center gap-2 border-b border-gray-800/80 px-3 py-2.5"
+        role="group"
+        aria-label={t("feedOwnershipMine")}
+      >
+        {(["all", "mine"] as const).map((scope) => {
+          const isActive = ownershipFilter === scope;
+          return (
+            <button
+              key={scope}
+              type="button"
+              onClick={() => setOwnershipFilter(scope)}
+              className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                isActive
+                  ? "bg-gray-700 text-white"
+                  : "bg-gray-900 text-gray-400 hover:text-gray-200"
+              }`}
+              aria-pressed={isActive}
+            >
+              {scope === "all"
+                ? t("feedOwnershipAll")
+                : t("feedOwnershipMine")}
+            </button>
+          );
+        })}
+      </div>
+
       {loading ? (
         <div className="flex min-h-0 flex-1 flex-col px-1 py-3">
           <p className="mb-4 text-center text-sm text-gray-500" role="status">
@@ -193,6 +243,17 @@ export default function ReportsFeed({
             {t("feedEmptyHint")}
           </p>
         </div>
+      ) : showMyReportsEmpty ? (
+        <div
+          className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center"
+          role="status"
+        >
+          <p className="text-sm text-gray-400">
+            {user?.id
+              ? t("feedEmptyMyReports")
+              : t("feedEmptyMyReportsLogin")}
+          </p>
+        </div>
       ) : sortedReports.length === 0 ? (
         <div
           className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center"
@@ -210,6 +271,7 @@ export default function ReportsFeed({
               <ReportFeedCard
                 report={report}
                 onBeforeNavigate={saveScroll}
+                emphasizeOwned={ownershipFilter === "mine"}
               />
             </li>
           ))}

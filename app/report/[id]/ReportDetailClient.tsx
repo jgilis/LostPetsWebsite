@@ -1,8 +1,11 @@
 "use client";
 
+/** Report view surface: read-only content plus owner actions (edit → /edit, delete inline). */
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Report } from "@/src/lib/reports";
+import { supabase } from "@/src/lib/supabase";
 import {
   reportBackHref,
   type ReportFromContext,
@@ -37,12 +40,35 @@ export default function ReportDetailClient({
   from?: ReportFromContext;
 }) {
   const { t } = useTranslation();
+  const router = useRouter();
   const { user } = useCurrentUser();
   const [photoBroken, setPhotoBroken] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const isOwner =
     !!user?.id &&
     !!report.owner_user_id &&
     user.id === report.owner_user_id;
+
+  const handleDelete = async () => {
+    if (!isOwner || !user?.id || deleting) return;
+    if (!window.confirm(t("reportDeleteConfirm"))) return;
+
+    setDeleting(true);
+    const { error } = await supabase
+      .from("reports")
+      .delete()
+      .eq("id", report.id)
+      .eq("owner_user_id", user.id);
+
+    setDeleting(false);
+
+    if (error) {
+      window.alert(t("reportDeleteFailed"));
+      return;
+    }
+
+    router.push(reportBackHref(from));
+  };
 
   const location = formatReportLocation(report.latitude, report.longitude);
   const reportedAt = formatReportTimestampDisplay(report);
@@ -102,12 +128,23 @@ export default function ReportDetailClient({
             <p className="text-sm font-medium text-sky-200/90">
               {t("reportYouCreatedThis")}
             </p>
-            <a
-              href={`/edit?id=${report.id}`}
-              className="mt-3 inline-block rounded-md bg-gray-700 px-3 py-2 text-sm text-white hover:bg-gray-600"
-            >
-              {t("reportEditOrDelete")}
-            </a>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {/* Sole in-app entry to /edit (mutation surface). */}
+              <Link
+                href={`/edit?id=${report.id}`}
+                className="inline-block rounded-md bg-gray-700 px-3 py-2 text-sm text-white hover:bg-gray-600"
+              >
+                {t("reportEdit")}
+              </Link>
+              <button
+                type="button"
+                onClick={() => void handleDelete()}
+                disabled={deleting}
+                className="rounded-md bg-red-900/80 px-3 py-2 text-sm text-white hover:bg-red-800 disabled:opacity-60"
+              >
+                {t("reportDelete")}
+              </button>
+            </div>
           </section>
         ) : null}
 

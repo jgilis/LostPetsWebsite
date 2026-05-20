@@ -18,6 +18,11 @@ export const fr: Record<keyof typeof en, string> = {
   feedEmpty: "Aucun signalement pour ces filtres.",
   feedEmptyArea: "Pas encore de signalements dans cette zone",
   feedEmptyHint: "Soyez le premier à signaler un animal perdu ou trouvé",
+  feedOwnershipAll: "Tous",
+  feedOwnershipMine: "Mes signalements",
+  feedEmptyMyReports: "Vous n'avez aucun signalement actif.",
+  feedEmptyMyReportsLogin: "Connectez-vous pour voir vos signalements.",
+  feedViewEdit: "Voir / Modifier",
   reportPageTitle: "Signaler un animal perdu ou trouvé",
 
   loginTitle: "Connexion",
@@ -111,6 +116,10 @@ export const fr: Record<keyof typeof en, string> = {
   reportYouReportedThis: "Vous avez signalé ceci",
   reportYouCreatedThis: "Vous avez créé ce signalement",
   reportEditOrDelete: "Modifier ou supprimer le signalement",
+  reportEdit: "Modifier le signalement",
+  reportDelete: "Supprimer le signalement",
+  reportDeleteConfirm: "Supprimer ce signalement définitivement ?",
+  reportDeleteFailed: "Échec de la suppression.",
 
   notificationsTitle: "Notifications",
   notificationsLoading: "Chargement des notifications...",

@@ -1,3 +1,4 @@
+/** Primary report view surface. Edit/delete mutations start here (edit links to /edit). */
 import { getReportById } from "@/src/lib/reports";
 import { parseReportFrom } from "@/src/lib/reportNavigation";
 import ReportDetailClient from "./ReportDetailClient";

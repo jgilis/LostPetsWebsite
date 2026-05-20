@@ -115,22 +115,6 @@ export default function ReportPopup({
           marginTop: "8px",
         }}
       >
-        {isOwner ? (
-          <a
-            href={`/edit?id=${report.id}`}
-            style={{
-              padding: "6px 10px",
-              backgroundColor: "#374151",
-              color: "white",
-              borderRadius: "6px",
-              textDecoration: "none",
-              fontSize: "14px",
-            }}
-          >
-            {t("reportEditOrDelete")}
-          </a>
-        ) : null}
-
         {/* SIGHTING BUTTON */}
         {report.type === "lost" && !isOwner && (
           <button

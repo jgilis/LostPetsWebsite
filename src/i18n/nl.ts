@@ -18,6 +18,11 @@ export const nl: Record<keyof typeof en, string> = {
   feedEmpty: "Geen meldingen voor deze filters.",
   feedEmptyArea: "Nog geen meldingen in dit gebied",
   feedEmptyHint: "Wees de eerste die een vermist of gevonden huisdier meldt",
+  feedOwnershipAll: "Alle",
+  feedOwnershipMine: "Mijn meldingen",
+  feedEmptyMyReports: "Je hebt geen actieve meldingen.",
+  feedEmptyMyReportsLogin: "Log in om je meldingen te zien.",
+  feedViewEdit: "Bekijken / Bewerken",
   reportPageTitle: "Meld een vermist of gevonden huisdier",
 
   loginTitle: "Inloggen",
@@ -111,6 +116,10 @@ export const nl: Record<keyof typeof en, string> = {
   reportYouReportedThis: "Jij hebt dit gemeld",
   reportYouCreatedThis: "Jij hebt deze melding aangemaakt",
   reportEditOrDelete: "Melding bewerken of verwijderen",
+  reportEdit: "Melding bewerken",
+  reportDelete: "Melding verwijderen",
+  reportDeleteConfirm: "Deze melding permanent verwijderen?",
+  reportDeleteFailed: "Verwijderen mislukt.",
 
   notificationsTitle: "Meldingen",
   notificationsLoading: "Meldingen laden...",
