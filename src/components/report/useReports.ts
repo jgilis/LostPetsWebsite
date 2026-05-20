@@ -20,8 +20,8 @@ export interface Report {
   photo_url?: string | null;
   status: "active" | "flagged" | "removed" | "resolved" | "expired";
   owner_user_id?: string | null;
-  created_at?: string | null;
-  date_reported?: string | null;
+  created_at?: string;
+  date_reported?: string;
 }
 
 // 👇 Raw type from DB (includes expires_at and loose typing)
@@ -107,8 +107,8 @@ export function useReports(options?: { reportId?: string | null }) {
         photo_url: r.photo_url ?? null,
         status,
         owner_user_id: r.owner_user_id ?? null,
-        created_at: r.created_at ?? null,
-        date_reported: r.date_reported ?? null,
+        created_at: r.created_at ?? undefined,
+        date_reported: r.date_reported ?? undefined,
       };
     });
 

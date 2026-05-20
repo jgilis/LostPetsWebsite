@@ -20,7 +20,7 @@ const ANIMAL_LABEL_KEYS: Record<Report["animal_type"], TranslationKey> = {
 };
 
 function reportSortTime(report: Report): number {
-  const raw = report.date_reported ?? report.created_at;
+  const raw = report.date_reported;
   if (!raw) return 0;
 
   const time = new Date(raw).getTime();
