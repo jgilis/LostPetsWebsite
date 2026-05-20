@@ -244,22 +244,30 @@ export default function Map({
         <div
           style={{
             display: "flex",
-            gap: "8px",
-            flexWrap: "nowrap",
-            overflowX: "auto",
-            WebkitOverflowScrolling: "touch",
-            overscrollBehaviorX: "contain",
-            touchAction: "pan-x",
-            justifyContent: "flex-start",
+            justifyContent: "center",
             width: "100%",
             minWidth: 0,
-            maxWidth: "100%",
+            overflowX: "hidden",
             paddingTop: "6px",
             paddingBottom: "4px",
-            paddingLeft: "8px",
-            paddingRight: "8px",
           }}
         >
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "nowrap",
+              gap: "8px",
+              width: "max-content",
+              maxWidth: "100%",
+              minWidth: 0,
+              overflowX: "auto",
+              WebkitOverflowScrolling: "touch",
+              overscrollBehaviorX: "contain",
+              touchAction: "pan-x",
+              paddingLeft: "8px",
+              paddingRight: "8px",
+            }}
+          >
           {(["all", "dog", "cat", "bird", "rodent", "other"] as const).map((a) => {
             const isActive = animalFilter === a;
 
@@ -297,6 +305,7 @@ export default function Map({
               </button>
             );
           })}
+          </div>
         </div>
 
         {/* TYPE FILTER (BOTTOM) */}
