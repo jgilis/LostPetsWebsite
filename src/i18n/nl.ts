@@ -100,6 +100,13 @@ export const nl: Record<keyof typeof en, string> = {
 
   mapLoading: "Kaart laden...",
   reportsLoading: "Meldingen laden...",
+  reportDetailLoading: "Melding laden...",
+  reportDetailNotFound: "Melding niet gevonden",
+  reportDetailId: "Meldings-ID",
+  reportViewFull: "Volledige melding bekijken",
+  reportBack: "Terug",
+  reportBackToFeed: "Terug naar overzicht",
+  reportBackToMap: "Terug naar kaart",
 
   notificationsTitle: "Meldingen",
   notificationsLoading: "Meldingen laden...",

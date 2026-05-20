@@ -1,6 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  readAndClearFeedScrollPosition,
+  reportDetailHref,
+  saveFeedScrollPosition,
+} from "@/src/lib/reportNavigation";
 import { useReports, type Report } from "../report/useReports";
 import { filterReports } from "../map/filters";
 import type { AnimalFilter, TypeFilter } from "../report/ReportFiltersBar";
@@ -58,7 +64,13 @@ function FeedSkeleton() {
   );
 }
 
-function ReportFeedCard({ report }: { report: Report }) {
+function ReportFeedCard({
+  report,
+  onBeforeNavigate,
+}: {
+  report: Report;
+  onBeforeNavigate: () => void;
+}) {
   const { t } = useTranslation();
   const [photoBroken, setPhotoBroken] = useState(false);
   const location = formatReportLocation(report.latitude, report.longitude);
@@ -67,14 +79,10 @@ function ReportFeedCard({ report }: { report: Report }) {
   const typeLabel =
     report.type === "lost" ? t("reportLost") : t("reportFound");
   return (
-    <button
-      type="button"
-      onClick={() => {
-        if (process.env.NODE_ENV === "development") {
-          console.debug("[ReportsFeed] report selected:", report.id);
-        }
-      }}
-      className="flex w-full gap-3 rounded-lg border border-gray-700 bg-gray-900 p-3.5 text-left transition-colors hover:border-gray-600 hover:bg-gray-800/80 active:bg-gray-800"
+    <Link
+      href={reportDetailHref(report.id, "feed")}
+      onClick={onBeforeNavigate}
+      className="flex w-full cursor-pointer gap-3 rounded-lg border border-gray-700 bg-gray-900 p-3.5 text-left transition-colors hover:border-gray-600 hover:bg-gray-800/80 active:bg-gray-800"
     >
       {report.photo_url && !photoBroken ? (
         <img
@@ -117,7 +125,7 @@ function ReportFeedCard({ report }: { report: Report }) {
           {truncateText(description, 120)}
         </p>
       </div>
-    </button>
+    </Link>
   );
 }
 
@@ -127,6 +135,7 @@ export default function ReportsFeed({
 }: ReportsFeedProps) {
   const { reports, loading } = useReports();
   const { t } = useTranslation();
+  const scrollRef = useRef<HTMLUListElement>(null);
 
   const sortedReports = useMemo(() => {
     const filtered = filterReports(reports, typeFilter, animalFilter);
@@ -134,6 +143,21 @@ export default function ReportsFeed({
   }, [reports, typeFilter, animalFilter]);
 
   const hasAnyReports = reports.length > 0;
+
+  const saveScroll = () => {
+    if (scrollRef.current) {
+      saveFeedScrollPosition(scrollRef.current.scrollTop);
+    }
+  };
+
+  useEffect(() => {
+    if (loading || sortedReports.length === 0) return;
+
+    const top = readAndClearFeedScrollPosition();
+    if (top == null || !scrollRef.current) return;
+
+    scrollRef.current.scrollTop = top;
+  }, [loading, sortedReports.length]);
 
   return (
     <div className="flex min-h-[65vh] max-h-[65vh] flex-col overflow-hidden rounded-lg border border-gray-800/80 bg-gray-950/40">
@@ -166,10 +190,16 @@ export default function ReportsFeed({
           <p className="text-sm text-gray-400">{t("feedEmpty")}</p>
         </div>
       ) : (
-        <ul className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-1 py-3 pr-2 touch-pan-y">
+        <ul
+          ref={scrollRef}
+          className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-1 py-3 pr-2 touch-pan-y"
+        >
           {sortedReports.map((report) => (
             <li key={report.id}>
-              <ReportFeedCard report={report} />
+              <ReportFeedCard
+                report={report}
+                onBeforeNavigate={saveScroll}
+              />
             </li>
           ))}
         </ul>

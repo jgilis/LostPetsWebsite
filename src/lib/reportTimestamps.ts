@@ -13,3 +13,15 @@ export function getReportTimestamp(
 ): string | null {
   return report.date_reported ?? report.created_at ?? null;
 }
+
+export function formatReportTimestampDisplay(
+  report: ReportTimestampFields,
+): string | null {
+  const raw = getReportTimestamp(report);
+  if (!raw) return null;
+
+  const date = new Date(raw);
+  if (Number.isNaN(date.getTime())) return null;
+
+  return date.toLocaleString();
+}

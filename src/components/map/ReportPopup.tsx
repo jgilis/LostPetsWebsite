@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
+import { reportDetailHref } from "@/src/lib/reportNavigation";
+import { useTranslation } from "@/src/i18n/I18nProvider";
 import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
 import { useRealtimeResyncRegister } from "../sync/RealtimeResyncProvider";
 import type { Report } from "../report/useReports";
@@ -23,6 +26,7 @@ export default function ReportPopup({
   canSeeExactSightings = false,
   isReportOwner = false,
 }: Props) {
+  const { t } = useTranslation();
   const [showSightingModal, setShowSightingModal] =
     useState(false);
 
@@ -249,6 +253,27 @@ export default function ReportPopup({
           )}
         </div>
       )}
+
+      <div
+        style={{
+          marginTop: "12px",
+          paddingTop: "8px",
+          borderTop: "1px solid #e5e7eb",
+        }}
+      >
+        <Link
+          href={reportDetailHref(report.id, "map")}
+          style={{
+            display: "inline-block",
+            padding: "4px 0",
+            fontSize: "13px",
+            color: "#6b7280",
+            textDecoration: "underline",
+          }}
+        >
+          {t("reportViewFull")}
+        </Link>
+      </div>
     </div>
   );
 }

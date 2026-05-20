@@ -98,6 +98,13 @@ export const en = {
 
   mapLoading: "Loading map...",
   reportsLoading: "Loading reports...",
+  reportDetailLoading: "Loading report...",
+  reportDetailNotFound: "Report not found",
+  reportDetailId: "Report ID",
+  reportViewFull: "View full report",
+  reportBack: "Back",
+  reportBackToFeed: "Back to Feed",
+  reportBackToMap: "Back to Map",
 
   notificationsTitle: "Notifications",
   notificationsLoading: "Loading notifications...",

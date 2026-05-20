@@ -100,6 +100,13 @@ export const fr: Record<keyof typeof en, string> = {
 
   mapLoading: "Chargement de la carte...",
   reportsLoading: "Chargement des signalements...",
+  reportDetailLoading: "Chargement du signalement...",
+  reportDetailNotFound: "Signalement introuvable",
+  reportDetailId: "ID du signalement",
+  reportViewFull: "Voir le signalement complet",
+  reportBack: "Retour",
+  reportBackToFeed: "Retour au fil",
+  reportBackToMap: "Retour à la carte",
 
   notificationsTitle: "Notifications",
   notificationsLoading: "Chargement des notifications...",
