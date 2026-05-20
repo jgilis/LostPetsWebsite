@@ -45,23 +45,17 @@ export default function ReportFiltersBar({
   sticky = false,
 }: ReportFiltersBarProps) {
   const { t } = useTranslation();
-  const isMobile =
-    typeof window !== "undefined" && window.innerWidth < 640;
 
   return (
     <div
       className={
         sticky
-          ? "sticky top-0 z-[400] flex w-full max-w-full flex-col gap-2.5 bg-gray-950 pt-1.5"
-          : "flex w-full max-w-full flex-col gap-2.5"
+          ? "sticky top-0 z-[400] flex w-full min-w-0 max-w-full flex-col gap-2.5 bg-gray-950 pt-1.5"
+          : "flex w-full min-w-0 max-w-full flex-col gap-2.5"
       }
     >
       <div
-        className={`flex gap-2 ${
-          isMobile
-            ? "flex-nowrap justify-start overflow-x-auto px-2"
-            : "flex-wrap justify-center"
-        }`}
+        className="flex w-full min-w-0 max-w-full flex-nowrap justify-start gap-2 overflow-x-auto overscroll-x-contain px-2 touch-pan-x [-webkit-overflow-scrolling:touch]"
       >
         {(["all", "dog", "cat", "bird", "rodent", "other"] as const).map((a) => {
           const isActive = animalFilter === a;
@@ -73,7 +67,7 @@ export default function ReportFiltersBar({
               key={a}
               type="button"
               onClick={() => onAnimalFilterChange(a)}
-              className="inline-flex items-center whitespace-nowrap rounded-full border-4 font-medium leading-normal"
+              className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border-4 font-medium leading-normal"
               style={{
                 padding: "5px 10px",
                 borderColor: color,

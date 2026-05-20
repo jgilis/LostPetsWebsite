@@ -245,14 +245,19 @@ export default function Map({
           style={{
             display: "flex",
             gap: "8px",
-            flexWrap: isMobile ? "nowrap" : "wrap",
-            overflowX: isMobile ? "auto" : "visible",
-            justifyContent: isMobile ? "flex-start" : "center",
+            flexWrap: "nowrap",
+            overflowX: "auto",
+            WebkitOverflowScrolling: "touch",
+            overscrollBehaviorX: "contain",
+            touchAction: "pan-x",
+            justifyContent: "flex-start",
             width: "100%",
+            minWidth: 0,
+            maxWidth: "100%",
             paddingTop: "6px",
             paddingBottom: "4px",
-            paddingLeft: isMobile ? "8px" : "0",
-            paddingRight: isMobile ? "8px" : "0",
+            paddingLeft: "8px",
+            paddingRight: "8px",
           }}
         >
           {(["all", "dog", "cat", "bird", "rodent", "other"] as const).map((a) => {
@@ -273,6 +278,7 @@ export default function Map({
                   cursor: "pointer",
                   fontWeight: 500,
                   whiteSpace: "nowrap",
+                  flexShrink: 0,
 
                   border: `4px solid ${color}`,
 
