@@ -11,6 +11,7 @@ import {
   formatReportLocation,
 } from "@/src/lib/adminReports";
 import { formatReportTimestampDisplay } from "@/src/lib/reportTimestamps";
+import { useCurrentUser } from "@/src/hooks/useCurrentUser";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import type { TranslationKey } from "@/src/i18n/types";
 
@@ -36,7 +37,12 @@ export default function ReportDetailClient({
   from?: ReportFromContext;
 }) {
   const { t } = useTranslation();
+  const { user } = useCurrentUser();
   const [photoBroken, setPhotoBroken] = useState(false);
+  const isOwner =
+    !!user?.id &&
+    !!report.owner_user_id &&
+    user.id === report.owner_user_id;
 
   const location = formatReportLocation(report.latitude, report.longitude);
   const reportedAt = formatReportTimestampDisplay(report);
@@ -87,6 +93,23 @@ export default function ReportDetailClient({
             ) : null}
           </p>
         </header>
+
+        {isOwner ? (
+          <section
+            className="rounded-lg border border-sky-900/50 bg-sky-950/30 px-4 py-3"
+            aria-label={t("reportYouCreatedThis")}
+          >
+            <p className="text-sm font-medium text-sky-200/90">
+              {t("reportYouCreatedThis")}
+            </p>
+            <a
+              href={`/edit?id=${report.id}`}
+              className="mt-3 inline-block rounded-md bg-gray-700 px-3 py-2 text-sm text-white hover:bg-gray-600"
+            >
+              {t("reportEditOrDelete")}
+            </a>
+          </section>
+        ) : null}
 
         {reportedAt ? (
           <p className="text-sm text-gray-400">

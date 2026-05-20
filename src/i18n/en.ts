@@ -105,6 +105,10 @@ export const en = {
   reportBack: "Back",
   reportBackToFeed: "Back to Feed",
   reportBackToMap: "Back to Map",
+  reportYourReport: "Your report",
+  reportYouReportedThis: "You reported this",
+  reportYouCreatedThis: "You created this report",
+  reportEditOrDelete: "Edit or delete report",
 
   notificationsTitle: "Notifications",
   notificationsLoading: "Loading notifications...",

@@ -107,6 +107,10 @@ export const fr: Record<keyof typeof en, string> = {
   reportBack: "Retour",
   reportBackToFeed: "Retour au fil",
   reportBackToMap: "Retour à la carte",
+  reportYourReport: "Votre signalement",
+  reportYouReportedThis: "Vous avez signalé ceci",
+  reportYouCreatedThis: "Vous avez créé ce signalement",
+  reportEditOrDelete: "Modifier ou supprimer le signalement",
 
   notificationsTitle: "Notifications",
   notificationsLoading: "Chargement des notifications...",

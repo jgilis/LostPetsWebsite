@@ -107,6 +107,10 @@ export const nl: Record<keyof typeof en, string> = {
   reportBack: "Terug",
   reportBackToFeed: "Terug naar overzicht",
   reportBackToMap: "Terug naar kaart",
+  reportYourReport: "Jouw melding",
+  reportYouReportedThis: "Jij hebt dit gemeld",
+  reportYouCreatedThis: "Jij hebt deze melding aangemaakt",
+  reportEditOrDelete: "Melding bewerken of verwijderen",
 
   notificationsTitle: "Meldingen",
   notificationsLoading: "Meldingen laden...",

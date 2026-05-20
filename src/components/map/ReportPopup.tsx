@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { reportDetailHref } from "@/src/lib/reportNavigation";
+import { useCurrentUser } from "@/src/hooks/useCurrentUser";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
 import { useRealtimeResyncRegister } from "../sync/RealtimeResyncProvider";
@@ -27,6 +28,11 @@ export default function ReportPopup({
   isReportOwner = false,
 }: Props) {
   const { t } = useTranslation();
+  const { user } = useCurrentUser();
+  const isOwner =
+    !!user?.id &&
+    !!report.owner_user_id &&
+    user.id === report.owner_user_id;
   const [showSightingModal, setShowSightingModal] =
     useState(false);
 
@@ -61,6 +67,20 @@ export default function ReportPopup({
       className="report-popup-body"
       onWheel={(e) => e.stopPropagation()}
     >
+      {isOwner ? (
+        <p
+          style={{
+            margin: "0 0 8px",
+            fontSize: "13px",
+            fontWeight: 500,
+            color: "#047857",
+          }}
+        >
+          <span aria-hidden>✓ </span>
+          {t("reportYouReportedThis")}
+        </p>
+      ) : null}
+
       <strong>{report.type}</strong> {report.animal_type}
       <br />
 
@@ -95,24 +115,38 @@ export default function ReportPopup({
           marginTop: "8px",
         }}
       >
-        {isReportOwner && (
-          <a
-            href={`/edit?id=${report.id}`}
+        {isOwner ? (
+          <div
             style={{
-              padding: "6px 10px",
-              backgroundColor: "#374151",
-              color: "white",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              gap: "6px",
+              padding: "8px",
               borderRadius: "6px",
-              textDecoration: "none",
-              fontSize: "14px",
+              border: "1px solid #d1d5db",
+              backgroundColor: "#f9fafb",
+              width: "100%",
             }}
           >
-            Edit or delete report
-          </a>
-        )}
+            <a
+              href={`/edit?id=${report.id}`}
+              style={{
+                padding: "6px 10px",
+                backgroundColor: "#374151",
+                color: "white",
+                borderRadius: "6px",
+                textDecoration: "none",
+                fontSize: "14px",
+              }}
+            >
+              {t("reportEditOrDelete")}
+            </a>
+          </div>
+        ) : null}
 
         {/* SIGHTING BUTTON */}
-        {report.type === "lost" && !isReportOwner && (
+        {report.type === "lost" && !isOwner && (
           <button
             onClick={() =>
               setShowSightingModal(true)
@@ -131,7 +165,7 @@ export default function ReportPopup({
         )}
 
         {/* REPORT BUTTON */}
-        {!isReportOwner && (
+        {!isOwner && (
         <button
           onClick={async () => {
             const reason = prompt(

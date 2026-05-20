@@ -14,6 +14,7 @@ import {
   formatReportLocation,
   truncateText,
 } from "@/src/lib/adminReports";
+import { useCurrentUser } from "@/src/hooks/useCurrentUser";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import type { TranslationKey } from "@/src/i18n/types";
 
@@ -72,7 +73,12 @@ function ReportFeedCard({
   onBeforeNavigate: () => void;
 }) {
   const { t } = useTranslation();
+  const { user } = useCurrentUser();
   const [photoBroken, setPhotoBroken] = useState(false);
+  const isOwner =
+    !!user?.id &&
+    !!report.owner_user_id &&
+    user.id === report.owner_user_id;
   const location = formatReportLocation(report.latitude, report.longitude);
   const description =
     report.description?.trim() || t("adminNoDescription");
@@ -103,6 +109,11 @@ function ReportFeedCard({
       )}
 
       <div className="min-w-0 flex-1">
+        {isOwner ? (
+          <span className="mb-1.5 inline-block rounded-full border border-sky-800/50 bg-sky-950/40 px-2 py-0.5 text-xs font-medium text-sky-200/90">
+            {t("reportYourReport")}
+          </span>
+        ) : null}
         <p className="font-semibold capitalize text-white">
           {t(ANIMAL_LABEL_KEYS[report.animal_type])}
           <span className="ml-2 text-sm font-normal text-gray-400">
