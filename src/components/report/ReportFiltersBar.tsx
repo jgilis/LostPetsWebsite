@@ -54,8 +54,8 @@ export default function ReportFiltersBar({
           : "flex w-full min-w-0 max-w-full flex-col gap-2.5"
       }
     >
-      <div className="flex w-full min-w-0 justify-center overflow-x-hidden">
-        <div className="flex w-max max-w-full min-w-0 flex-nowrap gap-2 overflow-x-auto overscroll-x-contain px-2 touch-pan-x [-webkit-overflow-scrolling:touch]">
+      <div className="flex w-full min-w-0 justify-center overflow-x-hidden py-1">
+        <div className="flex w-max max-w-full min-w-0 flex-nowrap gap-2 overflow-x-auto overscroll-x-contain px-2 py-1 touch-pan-x [-webkit-overflow-scrolling:touch]">
         {(["all", "dog", "cat", "bird", "rodent", "other"] as const).map((a) => {
           const isActive = animalFilter === a;
           const color =

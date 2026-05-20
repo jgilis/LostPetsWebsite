@@ -248,7 +248,7 @@ export default function Map({
             width: "100%",
             minWidth: 0,
             overflowX: "hidden",
-            paddingTop: "6px",
+            paddingTop: "4px",
             paddingBottom: "4px",
           }}
         >
@@ -266,6 +266,8 @@ export default function Map({
               touchAction: "pan-x",
               paddingLeft: "8px",
               paddingRight: "8px",
+              paddingTop: "4px",
+              paddingBottom: "4px",
             }}
           >
           {(["all", "dog", "cat", "bird", "rodent", "other"] as const).map((a) => {
