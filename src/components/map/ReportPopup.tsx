@@ -116,33 +116,19 @@ export default function ReportPopup({
         }}
       >
         {isOwner ? (
-          <div
+          <a
+            href={`/edit?id=${report.id}`}
             style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              gap: "6px",
-              padding: "8px",
+              padding: "6px 10px",
+              backgroundColor: "#374151",
+              color: "white",
               borderRadius: "6px",
-              border: "1px solid #d1d5db",
-              backgroundColor: "#f9fafb",
-              width: "100%",
+              textDecoration: "none",
+              fontSize: "14px",
             }}
           >
-            <a
-              href={`/edit?id=${report.id}`}
-              style={{
-                padding: "6px 10px",
-                backgroundColor: "#374151",
-                color: "white",
-                borderRadius: "6px",
-                textDecoration: "none",
-                fontSize: "14px",
-              }}
-            >
-              {t("reportEditOrDelete")}
-            </a>
-          </div>
+            {t("reportEditOrDelete")}
+          </a>
         ) : null}
 
         {/* SIGHTING BUTTON */}
