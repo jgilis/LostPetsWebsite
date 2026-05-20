@@ -20,6 +20,8 @@ export interface Report {
   photo_url?: string | null;
   status: "active" | "flagged" | "removed" | "resolved" | "expired";
   owner_user_id?: string | null;
+  created_at?: string | null;
+  date_reported?: string | null;
 }
 
 // 👇 Raw type from DB (includes expires_at and loose typing)
@@ -35,7 +37,9 @@ type ReportRow = {
   photo_url?: string | null;
   status?: "active" | "flagged" | "removed" | "resolved" | "expired" | null;
   expires_at?: string | null;
-  owner_user_id?: string | null; // ✅ ADD THIS
+  owner_user_id?: string | null;
+  created_at?: string | null;
+  date_reported?: string | null;
 };
 
 export function useReports(options?: { reportId?: string | null }) {
@@ -62,7 +66,9 @@ export function useReports(options?: { reportId?: string | null }) {
         photo_url,
         status,
         expires_at,
-        owner_user_id
+        owner_user_id,
+        created_at,
+        date_reported
       `);
 
     if (reportId) {
@@ -101,6 +107,8 @@ export function useReports(options?: { reportId?: string | null }) {
         photo_url: r.photo_url ?? null,
         status,
         owner_user_id: r.owner_user_id ?? null,
+        created_at: r.created_at ?? null,
+        date_reported: r.date_reported ?? null,
       };
     });
 
