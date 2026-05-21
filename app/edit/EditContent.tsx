@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCurrentUser } from "../../src/hooks/useCurrentUser";
+import { isOwner } from "../../src/lib/permissions";
 import { supabase } from "../../src/lib/supabase";
 
 type Report = {
@@ -52,7 +53,7 @@ export default function EditContent() {
       if (error || !data) {
         setMessage("Report not found.");
         setReport(null);
-      } else if (data.owner_user_id !== userId) {
+      } else if (!isOwner(userId, data.owner_user_id)) {
         setMessage("You do not have permission to manage this report.");
         setReport(null);
       } else {
@@ -71,7 +72,7 @@ export default function EditContent() {
   }, [authLoading, userId, reportId]);
 
   const handleDelete = async () => {
-    if (!report || !userId || report.owner_user_id !== userId) return;
+    if (!report || !userId || !isOwner(userId, report.owner_user_id)) return;
 
     if (!window.confirm("Delete this report permanently?")) return;
 

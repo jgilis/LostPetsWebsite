@@ -4,6 +4,8 @@
 **Date:** 2026-05-15  
 **Repository:** LostPetsWebsite
 
+> **Update (post–4B):** Identity system fully unified on Supabase Auth (`auth.uid()`). Legacy token system removed.
+
 ---
 
 ## SECTION 1 — Current Identity Architecture

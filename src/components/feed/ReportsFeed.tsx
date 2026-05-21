@@ -231,8 +231,8 @@ export default function ReportsFeed({
     );
 
     if (ownershipFilter === "mine" && user?.id) {
-      filtered = filtered.filter(
-        (r) => r.owner_user_id === user.id,
+      filtered = filtered.filter((r) =>
+        isOwner(user.id, r.owner_user_id),
       );
     }
 
