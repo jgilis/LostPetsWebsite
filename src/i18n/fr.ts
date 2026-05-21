@@ -27,6 +27,7 @@ export const fr: Record<keyof typeof en, string> = {
   feedFilterResolved: "Retrouvés",
   feedFilterAll: "Tous",
   feedEmptyResolved: "Pas encore d'histoires de retrouvailles.",
+  feedNoPhoto: "Pas de photo",
   reportResolved: "Retrouvé",
   reportResolvedMessage: "Cet animal a été retrouvé.",
   reportMarkResolved: "Marquer comme retrouvé",

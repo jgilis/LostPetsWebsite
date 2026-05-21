@@ -25,6 +25,7 @@ export const en = {
   feedFilterResolved: "Reunited",
   feedFilterAll: "All",
   feedEmptyResolved: "No reunited stories yet.",
+  feedNoPhoto: "No photo",
   reportResolved: "Reunited",
   reportResolvedMessage: "This pet has been reunited.",
   reportMarkResolved: "Mark as reunited",

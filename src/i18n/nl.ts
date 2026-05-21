@@ -27,6 +27,7 @@ export const nl: Record<keyof typeof en, string> = {
   feedFilterResolved: "Herenigd",
   feedFilterAll: "Alles",
   feedEmptyResolved: "Nog geen herenigingsverhalen.",
+  feedNoPhoto: "Geen foto",
   reportResolved: "Herenigd",
   reportResolvedMessage: "Dit huisdier is herenigd.",
   reportMarkResolved: "Markeer als herenigd",
