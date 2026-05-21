@@ -21,6 +21,16 @@ export const en = {
   feedEmptyMyReports: "You have no active reports.",
   feedEmptyMyReportsLogin: "Log in to see your reports.",
   feedViewEdit: "View / Edit",
+  feedFilterActive: "Active",
+  feedFilterResolved: "Reunited",
+  feedFilterAll: "All",
+  feedEmptyResolved: "No reunited stories yet.",
+  reportResolved: "Reunited",
+  reportResolvedMessage: "This pet has been reunited.",
+  reportMarkResolved: "Mark as reunited",
+  reportMarkResolvedConfirm:
+    "Mark this report as reunited? It will be removed from the map but can still appear in the feed.",
+  reportMarkResolvedFailed: "Could not update this report. Please try again.",
   reportPageTitle: "Report a Lost or Found Pet",
 
   loginTitle: "Login",

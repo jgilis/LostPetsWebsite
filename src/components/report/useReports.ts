@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import {
-  isPublicMapReport,
+  isPublicFeedReport,
   normalizeReportRow,
   REPORT_PUBLIC_SELECT,
   type Report,
@@ -47,7 +47,7 @@ export function useReports(options?: { reportId?: string | null }) {
     );
 
     setReports(
-      isScoped ? cleaned : cleaned.filter(isPublicMapReport),
+      isScoped ? cleaned : cleaned.filter(isPublicFeedReport),
     );
     setLoading(false);
   }, [reportId, isScoped]);

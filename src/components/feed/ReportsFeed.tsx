@@ -8,7 +8,11 @@ import {
   saveFeedScrollPosition,
 } from "@/src/lib/reportNavigation";
 import { useReports, type Report } from "../report/useReports";
-import { filterReports } from "../map/filters";
+import {
+  filterFeedReports,
+  type FeedLifecycleFilter,
+} from "../map/filters";
+import { isPublicFeedReport } from "@/src/lib/reports";
 import type { AnimalFilter, TypeFilter } from "../report/ReportFiltersBar";
 import {
   formatReportLocation,
@@ -88,6 +92,7 @@ function ReportFeedCard({
     report.description?.trim() || t("adminNoDescription");
   const typeLabel =
     report.type === "lost" ? t("reportLost") : t("reportFound");
+  const isResolved = report.status === "resolved";
   return (
     <Link
       href={reportDetailHref(report.id, "feed")}
@@ -95,7 +100,9 @@ function ReportFeedCard({
       className={`flex w-full cursor-pointer gap-3 rounded-lg border bg-gray-900 p-3.5 text-left transition-colors hover:border-gray-600 hover:bg-gray-800/80 active:bg-gray-800 ${
         emphasizeOwned && isOwner
           ? "border-sky-800/60"
-          : "border-gray-700"
+          : isResolved
+            ? "border-emerald-900/40"
+            : "border-gray-700"
       }`}
     >
         {report.photo_url && !photoBroken ? (
@@ -117,11 +124,18 @@ function ReportFeedCard({
         )}
 
         <div className="min-w-0 flex-1">
-          {isOwner ? (
-            <span className="mb-1.5 inline-block rounded-full border border-sky-800/50 bg-sky-950/40 px-2 py-0.5 text-xs font-medium text-sky-200/90">
-              {t("reportYourReport")}
-            </span>
-          ) : null}
+          <div className="mb-1.5 flex flex-wrap gap-1.5">
+            {isResolved ? (
+              <span className="inline-block rounded-full border border-emerald-800/50 bg-emerald-950/40 px-2 py-0.5 text-xs font-medium text-emerald-200/90">
+                {t("reportResolved")}
+              </span>
+            ) : null}
+            {isOwner ? (
+              <span className="inline-block rounded-full border border-sky-800/50 bg-sky-950/40 px-2 py-0.5 text-xs font-medium text-sky-200/90">
+                {t("reportYourReport")}
+              </span>
+            ) : null}
+          </div>
           <p className="font-semibold capitalize text-white">
             {t(ANIMAL_LABEL_KEYS[report.animal_type])}
             <span className="ml-2 text-sm font-normal text-gray-400">
@@ -158,9 +172,16 @@ export default function ReportsFeed({
   const scrollRef = useRef<HTMLUListElement>(null);
   const [ownershipFilter, setOwnershipFilter] =
     useState<OwnershipFilter>("all");
+  const [lifecycleFilter, setLifecycleFilter] =
+    useState<FeedLifecycleFilter>("active");
 
   const sortedReports = useMemo(() => {
-    let filtered = filterReports(reports, typeFilter, animalFilter);
+    let filtered = filterFeedReports(
+      reports,
+      typeFilter,
+      animalFilter,
+      lifecycleFilter,
+    );
 
     if (ownershipFilter === "mine" && user?.id) {
       filtered = filtered.filter(
@@ -169,14 +190,26 @@ export default function ReportsFeed({
     }
 
     return sortReportsNewestFirst(filtered);
-  }, [reports, typeFilter, animalFilter, ownershipFilter, user?.id]);
+  }, [
+    reports,
+    typeFilter,
+    animalFilter,
+    lifecycleFilter,
+    ownershipFilter,
+    user?.id,
+  ]);
 
-  const hasAnyReports = reports.length > 0;
+  const hasAnyFeedReports = reports.some(isPublicFeedReport);
   const showMyReportsEmpty =
     ownershipFilter === "mine" &&
     !loading &&
-    hasAnyReports &&
+    hasAnyFeedReports &&
     sortedReports.length === 0;
+
+  const emptyLifecycleMessage =
+    lifecycleFilter === "resolved"
+      ? t("feedEmptyResolved")
+      : t("feedEmpty");
 
   const saveScroll = () => {
     if (scrollRef.current) {
@@ -196,10 +229,43 @@ export default function ReportsFeed({
   return (
     <div className="flex min-h-[65vh] max-h-[65vh] flex-col overflow-hidden rounded-lg border border-gray-800/80 bg-gray-950/40">
       <div
-        className="flex shrink-0 justify-center gap-2 border-b border-gray-800/80 px-3 py-2.5"
-        role="group"
-        aria-label={t("feedOwnershipMine")}
+        className="flex shrink-0 flex-col gap-2 border-b border-gray-800/80 px-3 py-2.5"
       >
+        <div
+          className="flex justify-center gap-2"
+          role="group"
+          aria-label={t("feedFilterActive")}
+        >
+          {(["active", "resolved", "all"] as const).map((lifecycle) => {
+            const isActive = lifecycleFilter === lifecycle;
+            const labelKey =
+              lifecycle === "active"
+                ? "feedFilterActive"
+                : lifecycle === "resolved"
+                  ? "feedFilterResolved"
+                  : "feedFilterAll";
+            return (
+              <button
+                key={lifecycle}
+                type="button"
+                onClick={() => setLifecycleFilter(lifecycle)}
+                className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-gray-700 text-white"
+                    : "bg-gray-900 text-gray-400 hover:text-gray-200"
+                }`}
+                aria-pressed={isActive}
+              >
+                {t(labelKey)}
+              </button>
+            );
+          })}
+        </div>
+        <div
+          className="flex justify-center gap-2"
+          role="group"
+          aria-label={t("feedOwnershipMine")}
+        >
         {(["all", "mine"] as const).map((scope) => {
           const isActive = ownershipFilter === scope;
           return (
@@ -220,6 +286,7 @@ export default function ReportsFeed({
             </button>
           );
         })}
+        </div>
       </div>
 
       {loading ? (
@@ -231,7 +298,7 @@ export default function ReportsFeed({
             <FeedSkeleton />
           </div>
         </div>
-      ) : !hasAnyReports ? (
+      ) : !hasAnyFeedReports ? (
         <div
           className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center"
           role="status"
@@ -259,7 +326,7 @@ export default function ReportsFeed({
           className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center"
           role="status"
         >
-          <p className="text-sm text-gray-400">{t("feedEmpty")}</p>
+          <p className="text-sm text-gray-400">{emptyLifecycleMessage}</p>
         </div>
       ) : (
         <ul

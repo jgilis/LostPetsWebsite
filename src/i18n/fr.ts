@@ -23,6 +23,17 @@ export const fr: Record<keyof typeof en, string> = {
   feedEmptyMyReports: "Vous n'avez aucun signalement actif.",
   feedEmptyMyReportsLogin: "Connectez-vous pour voir vos signalements.",
   feedViewEdit: "Voir / Modifier",
+  feedFilterActive: "Actifs",
+  feedFilterResolved: "Retrouvés",
+  feedFilterAll: "Tous",
+  feedEmptyResolved: "Pas encore d'histoires de retrouvailles.",
+  reportResolved: "Retrouvé",
+  reportResolvedMessage: "Cet animal a été retrouvé.",
+  reportMarkResolved: "Marquer comme retrouvé",
+  reportMarkResolvedConfirm:
+    "Marquer ce signalement comme retrouvé ? Il disparaîtra de la carte mais pourra rester dans le fil.",
+  reportMarkResolvedFailed:
+    "Impossible de mettre à jour ce signalement. Veuillez réessayer.",
   reportPageTitle: "Signaler un animal perdu ou trouvé",
 
   loginTitle: "Connexion",

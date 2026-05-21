@@ -23,6 +23,16 @@ export const nl: Record<keyof typeof en, string> = {
   feedEmptyMyReports: "Je hebt geen actieve meldingen.",
   feedEmptyMyReportsLogin: "Log in om je meldingen te zien.",
   feedViewEdit: "Bekijken / Bewerken",
+  feedFilterActive: "Actief",
+  feedFilterResolved: "Herenigd",
+  feedFilterAll: "Alles",
+  feedEmptyResolved: "Nog geen herenigingsverhalen.",
+  reportResolved: "Herenigd",
+  reportResolvedMessage: "Dit huisdier is herenigd.",
+  reportMarkResolved: "Markeer als herenigd",
+  reportMarkResolvedConfirm:
+    "Deze melding als herenigd markeren? Hij verdwijnt van de kaart maar kan in het overzicht blijven.",
+  reportMarkResolvedFailed: "Melding kon niet worden bijgewerkt. Probeer opnieuw.",
   reportPageTitle: "Meld een vermist of gevonden huisdier",
 
   loginTitle: "Inloggen",

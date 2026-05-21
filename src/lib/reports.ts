@@ -84,9 +84,14 @@ export function normalizeReportRow(r: ReportRow): Report {
   };
 }
 
-/** Same visibility as map and feed (active after auto-expire). */
+/** Map: active reports only. */
 export function isPublicMapReport(report: Report): boolean {
   return report.status === "active";
+}
+
+/** Feed: active and resolved (reunited); never flagged/removed/expired. */
+export function isPublicFeedReport(report: Report): boolean {
+  return report.status === "active" || report.status === "resolved";
 }
 
 export async function getReportById(id: string): Promise<Report | null> {
@@ -107,7 +112,7 @@ export async function getReportById(id: string): Promise<Report | null> {
   if (!data) return null;
 
   const report = normalizeReportRow(data as ReportRow);
-  if (!isPublicMapReport(report)) return null;
+  if (!isPublicFeedReport(report)) return null;
 
   return report;
 }

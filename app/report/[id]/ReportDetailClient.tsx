@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { Report } from "@/src/lib/reports";
+import type { Report, ReportStatus } from "@/src/lib/reports";
 import { supabase } from "@/src/lib/supabase";
 import {
   reportBackHref,
@@ -33,7 +33,7 @@ const ANIMAL_LABEL_KEYS: Record<Report["animal_type"], TranslationKey> = {
 };
 
 export default function ReportDetailClient({
-  report,
+  report: initialReport,
   from = null,
 }: {
   report: Report;
@@ -42,12 +42,16 @@ export default function ReportDetailClient({
   const { t } = useTranslation();
   const router = useRouter();
   const { user } = useCurrentUser();
+  const [report, setReport] = useState(initialReport);
   const [photoBroken, setPhotoBroken] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [resolving, setResolving] = useState(false);
   const isOwner =
     !!user?.id &&
     !!report.owner_user_id &&
     user.id === report.owner_user_id;
+  const isResolved = report.status === "resolved";
+  const isActive = report.status === "active";
 
   const handleDelete = async () => {
     if (!isOwner || !user?.id || deleting) return;
@@ -70,6 +74,28 @@ export default function ReportDetailClient({
     router.push(reportBackHref(from));
   };
 
+  const handleMarkResolved = async () => {
+    if (!isOwner || !user?.id || !isActive || resolving) return;
+    if (!window.confirm(t("reportMarkResolvedConfirm"))) return;
+
+    setResolving(true);
+    const { error } = await supabase
+      .from("reports")
+      .update({ status: "resolved" as ReportStatus })
+      .eq("id", report.id)
+      .eq("owner_user_id", user.id);
+
+    setResolving(false);
+
+    if (error) {
+      window.alert(t("reportMarkResolvedFailed"));
+      return;
+    }
+
+    setReport((prev) => ({ ...prev, status: "resolved" }));
+    router.refresh();
+  };
+
   const location = formatReportLocation(report.latitude, report.longitude);
   const reportedAt = formatReportTimestampDisplay(report);
   const description =
@@ -89,6 +115,20 @@ export default function ReportDetailClient({
         </Link>
       </div>
       <article className="mx-auto max-w-lg space-y-5">
+        {isResolved ? (
+          <div
+            className="rounded-lg border border-emerald-900/50 bg-emerald-950/30 px-4 py-3"
+            role="status"
+          >
+            <p className="text-sm font-medium text-emerald-200/90">
+              {t("reportResolved")}
+            </p>
+            <p className="mt-1 text-sm text-emerald-100/70">
+              {t("reportResolvedMessage")}
+            </p>
+          </div>
+        ) : null}
+
         {report.photo_url && !photoBroken ? (
           <img
             src={report.photo_url}
@@ -129,6 +169,16 @@ export default function ReportDetailClient({
               {t("reportYouCreatedThis")}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
+              {isActive ? (
+                <button
+                  type="button"
+                  onClick={() => void handleMarkResolved()}
+                  disabled={resolving}
+                  className="rounded-md bg-emerald-800/90 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700/90 disabled:opacity-60"
+                >
+                  {t("reportMarkResolved")}
+                </button>
+              ) : null}
               {/* Sole in-app entry to /edit (mutation surface). */}
               <Link
                 href={`/edit?id=${report.id}`}
