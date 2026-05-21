@@ -10,6 +10,7 @@ import type { Report } from "../report/useReports";
 import ReportPopup from "./ReportPopup";
 import { memo } from "react";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
+import { isOwner } from "../../lib/permissions";
 
 type Props = {
   report: Report;
@@ -40,10 +41,7 @@ export default memo(function ReportMarker({
     closeOnEscapeKey: true,
   };
   
-  const isReportOwner =
-    !!userId &&
-    !!report.owner_user_id &&
-    userId === report.owner_user_id;
+  const isReportOwner = isOwner(userId, report.owner_user_id);
 
   const canSeeExactSightings = isAdmin || isReportOwner;
 
@@ -66,7 +64,6 @@ export default memo(function ReportMarker({
             <ReportPopup
               report={report}
               canSeeExactSightings={canSeeExactSightings}
-              isReportOwner={isReportOwner}
             />
           </Popup>
         </CircleMarker>
@@ -95,7 +92,6 @@ export default memo(function ReportMarker({
         <ReportPopup
           report={report}
           canSeeExactSightings={canSeeExactSightings}
-          isReportOwner={isReportOwner}
         />
       </Popup>
     </Marker>

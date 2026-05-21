@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { reportDetailHref } from "@/src/lib/reportNavigation";
 import { useCurrentUser } from "@/src/hooks/useCurrentUser";
+import { isOwner } from "@/src/lib/permissions";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
 import { useRealtimeResyncRegister } from "../sync/RealtimeResyncProvider";
@@ -19,20 +20,15 @@ import PopupPhoto from "./PopupPhoto";
 type Props = {
   report: Report;
   canSeeExactSightings?: boolean;
-  isReportOwner?: boolean;
 };
 
 export default function ReportPopup({
   report,
   canSeeExactSightings = false,
-  isReportOwner = false,
 }: Props) {
   const { t } = useTranslation();
   const { user } = useCurrentUser();
-  const isOwner =
-    !!user?.id &&
-    !!report.owner_user_id &&
-    user.id === report.owner_user_id;
+  const reportIsOwner = isOwner(user?.id, report.owner_user_id);
   const [showSightingModal, setShowSightingModal] =
     useState(false);
 
@@ -67,7 +63,7 @@ export default function ReportPopup({
       className="report-popup-body"
       onWheel={(e) => e.stopPropagation()}
     >
-      {isOwner ? (
+      {reportIsOwner ? (
         <p
           style={{
             margin: "0 0 8px",
@@ -116,7 +112,7 @@ export default function ReportPopup({
         }}
       >
         {/* SIGHTING BUTTON */}
-        {report.type === "lost" && !isOwner && (
+        {report.type === "lost" && !reportIsOwner && (
           <button
             onClick={() =>
               setShowSightingModal(true)
@@ -135,7 +131,7 @@ export default function ReportPopup({
         )}
 
         {/* REPORT BUTTON */}
-        {!isOwner && (
+        {!reportIsOwner && (
         <button
           onClick={async () => {
             const reason = prompt(

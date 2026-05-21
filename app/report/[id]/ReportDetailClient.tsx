@@ -15,6 +15,7 @@ import {
 } from "@/src/lib/adminReports";
 import { formatReportTimestampDisplay } from "@/src/lib/reportTimestamps";
 import { useCurrentUser } from "@/src/hooks/useCurrentUser";
+import { isOwner } from "@/src/lib/permissions";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import type { TranslationKey } from "@/src/i18n/types";
 
@@ -46,15 +47,12 @@ export default function ReportDetailClient({
   const [photoBroken, setPhotoBroken] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [resolving, setResolving] = useState(false);
-  const isOwner =
-    !!user?.id &&
-    !!report.owner_user_id &&
-    user.id === report.owner_user_id;
+  const reportIsOwner = isOwner(user?.id, report.owner_user_id);
   const isResolved = report.status === "resolved";
   const isActive = report.status === "active";
 
   const handleDelete = async () => {
-    if (!isOwner || !user?.id || deleting) return;
+    if (!reportIsOwner || !user?.id || deleting) return;
     if (!window.confirm(t("reportDeleteConfirm"))) return;
 
     setDeleting(true);
@@ -75,7 +73,7 @@ export default function ReportDetailClient({
   };
 
   const handleMarkResolved = async () => {
-    if (!isOwner || !user?.id || !isActive || resolving) return;
+    if (!reportIsOwner || !user?.id || !isActive || resolving) return;
     if (!window.confirm(t("reportMarkResolvedConfirm"))) return;
 
     setResolving(true);
@@ -160,7 +158,7 @@ export default function ReportDetailClient({
           </p>
         </header>
 
-        {isOwner ? (
+        {reportIsOwner ? (
           <section
             className="rounded-lg border border-sky-900/50 bg-sky-950/30 px-4 py-3"
             aria-label={t("reportYouCreatedThis")}

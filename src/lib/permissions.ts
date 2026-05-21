@@ -1,12 +1,14 @@
+/** Ownership and access helpers — auth.uid() only (no owner_token). */
+
 export function isOwner(
-  ownerToken: string | null,
-  ownerUserId: string | null
-) {
-  if (!ownerToken || !ownerUserId) {
+  userId: string | null | undefined,
+  ownerUserId: string | null | undefined,
+): boolean {
+  if (!userId || !ownerUserId) {
     return false;
   }
 
-  return ownerToken === ownerUserId;
+  return userId === ownerUserId;
 }
 
 export function isAdminUser(isAdmin: boolean) {
@@ -18,36 +20,23 @@ export function canViewSighting(params: {
   isAdmin: boolean;
   isOwner: boolean;
 }) {
-  const {
-    sightingStatus,
-    isAdmin,
-    isOwner,
-  } = params;
+  const { sightingStatus, isAdmin, isOwner: reportOwner } = params;
 
-  // admins can always view
   if (isAdmin) {
     return true;
   }
 
-  // owners can only view approved sightings
-  if (
-    isOwner &&
-    sightingStatus === "approved"
-  ) {
+  if (reportOwner && sightingStatus === "approved") {
     return true;
   }
 
   return false;
 }
 
-export function canModerateSightings(
-  isAdmin: boolean
-) {
+export function canModerateSightings(isAdmin: boolean) {
   return isAdmin === true;
 }
 
-export function canViewNotifications(
-  ownerToken: string | null
-) {
-  return !!ownerToken;
+export function canViewNotifications(userId: string | null | undefined) {
+  return !!userId;
 }

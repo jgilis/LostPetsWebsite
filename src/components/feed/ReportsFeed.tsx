@@ -20,6 +20,7 @@ import {
   truncateText,
 } from "@/src/lib/adminReports";
 import { useCurrentUser } from "@/src/hooks/useCurrentUser";
+import { isOwner } from "@/src/lib/permissions";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import type { TranslationKey } from "@/src/i18n/types";
 
@@ -98,10 +99,7 @@ function ReportFeedCard({
   const { t } = useTranslation();
   const { user } = useCurrentUser();
   const [photoBroken, setPhotoBroken] = useState(false);
-  const isOwner =
-    !!user?.id &&
-    !!report.owner_user_id &&
-    user.id === report.owner_user_id;
+  const reportIsOwner = isOwner(user?.id, report.owner_user_id);
   const location = formatReportLocation(report.latitude, report.longitude);
   const reportedAt = formatReportTimestampDisplay(report);
   const description = report.description?.trim();
@@ -115,7 +113,7 @@ function ReportFeedCard({
     : t(ANIMAL_LABEL_KEYS[report.animal_type]);
 
   const borderClass =
-    emphasizeOwned && isOwner
+    emphasizeOwned && reportIsOwner
       ? "border-sky-800/50"
       : isResolved
         ? "border-emerald-800/35"
@@ -169,7 +167,7 @@ function ReportFeedCard({
               {t("reportResolved")}
             </span>
           ) : null}
-          {isOwner ? (
+          {reportIsOwner ? (
             <span className="rounded-full border border-sky-800/40 bg-sky-950/75 px-2 py-0.5 text-xs font-medium text-sky-100/95 backdrop-blur-sm">
               {t("reportYourReport")}
             </span>
