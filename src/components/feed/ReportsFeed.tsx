@@ -65,14 +65,17 @@ type ReportsFeedProps = {
 
 function FeedSkeleton() {
   return (
-    <ul className="mx-auto w-full max-w-lg space-y-5" aria-hidden>
+    <ul
+      className="mx-auto w-full max-w-lg space-y-5 md:max-w-xl md:space-y-4 xl:space-y-3.5"
+      aria-hidden
+    >
       {[0, 1, 2].map((i) => (
         <li
           key={i}
           className="animate-pulse overflow-hidden rounded-xl border border-gray-800/80 bg-gray-900/50"
         >
-          <div className="aspect-[4/3] w-full bg-gray-800/80" />
-          <div className="space-y-2 p-4">
+          <div className="aspect-[4/3] w-full bg-gray-800/80 md:aspect-[16/10] xl:aspect-[18/10]" />
+          <div className="space-y-2 p-4 md:space-y-1.5 md:p-3">
             <div className="h-5 w-2/3 rounded bg-gray-800" />
             <div className="h-3 w-1/2 rounded bg-gray-800/80" />
             <div className="h-3 w-full rounded bg-gray-800/60" />
@@ -124,7 +127,7 @@ function ReportFeedCard({
       onClick={onBeforeNavigate}
       className={`group block w-full overflow-hidden rounded-xl border bg-gray-900/80 text-left shadow-sm transition-colors hover:border-gray-600 hover:bg-gray-900 active:bg-gray-800/90 ${borderClass}`}
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-900">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-900 md:aspect-[16/10] xl:aspect-[18/10]">
         {hasPhoto ? (
           <img
             src={report.photo_url!}
@@ -141,7 +144,10 @@ function ReportFeedCard({
             className={`flex h-full w-full flex-col items-center justify-center bg-gradient-to-br ${placeholder.gradient} px-6 text-center`}
             aria-hidden
           >
-            <span className="text-4xl opacity-80" role="presentation">
+            <span
+              className="text-4xl opacity-80 md:text-3xl"
+              role="presentation"
+            >
               {placeholder.symbol}
             </span>
             <span className="mt-2 text-xs font-medium tracking-wide text-gray-400/90">
@@ -157,7 +163,7 @@ function ReportFeedCard({
           />
         ) : null}
 
-        <div className="absolute inset-x-0 top-0 flex flex-wrap gap-1.5 p-2.5">
+        <div className="absolute inset-x-0 top-0 flex flex-wrap gap-1.5 p-2.5 md:p-2">
           {isResolved ? (
             <span className="rounded-full border border-emerald-700/40 bg-emerald-950/75 px-2 py-0.5 text-xs font-medium text-emerald-100/95 backdrop-blur-sm">
               {t("reportResolved")}
@@ -170,18 +176,18 @@ function ReportFeedCard({
           ) : null}
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent px-3 pb-3 pt-10">
-          <p className="text-lg font-semibold leading-tight text-white drop-shadow-sm">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent px-3 pb-3 pt-10 md:px-3 md:pb-2.5 md:pt-8">
+          <p className="text-lg font-semibold leading-tight text-white drop-shadow-sm md:text-base">
             {title}
           </p>
-          <p className="mt-0.5 text-sm text-gray-200/90">
+          <p className="mt-0.5 text-sm text-gray-200/90 md:text-xs">
             {t(ANIMAL_LABEL_KEYS[report.animal_type])} · {typeLabel}
           </p>
         </div>
       </div>
 
-      <div className="space-y-2 px-3.5 py-3">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-400">
+      <div className="space-y-2 px-3.5 py-3 md:space-y-1.5 md:px-3 md:py-2.5">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-400 md:text-[11px] md:leading-snug">
           {location ? (
             <span className="text-gray-400">{location}</span>
           ) : null}
@@ -196,7 +202,7 @@ function ReportFeedCard({
         </div>
 
         {description ? (
-          <p className="line-clamp-2 text-sm leading-relaxed text-gray-400/95">
+          <p className="line-clamp-2 text-sm leading-relaxed text-gray-400/95 md:text-xs md:leading-snug">
             {truncateText(description, 100)}
           </p>
         ) : null}
@@ -372,7 +378,7 @@ export default function ReportsFeed({
       ) : (
         <ul
           ref={scrollRef}
-          className="mx-auto min-h-0 w-full max-w-lg flex-1 space-y-5 overflow-y-auto overscroll-contain px-2 py-4 touch-pan-y"
+          className="mx-auto min-h-0 w-full max-w-lg flex-1 space-y-5 overflow-y-auto overscroll-contain px-2 py-4 touch-pan-y md:max-w-xl md:space-y-4 md:py-3 xl:space-y-3.5"
         >
           {sortedReports.map((report) => (
             <li key={report.id}>
