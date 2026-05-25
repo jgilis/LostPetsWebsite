@@ -5,6 +5,8 @@ import "leaflet/dist/leaflet.css";
 import useLeaflet from "../../hooks/useLeaflet";
 import LocationPicker from "../report/LocationPicker";
 import { isOutOfMechelen } from "../../lib/mechelenBounds";
+import { getLocationFallback } from "@/src/lib/location/getLocationFallback";
+import { formatLocationLabel } from "@/src/lib/location/formatLocationLabel";
 
 type Props = {
   lostReportId: string;
@@ -170,7 +172,7 @@ export default function SightingModal({ lostReportId, onClose }: Props) {
         {/* SELECTED LOCATION */}
         {lat && lng && (
           <p>
-            📍 {lat.toFixed(5)}, {lng.toFixed(5)}
+            📍 {formatLocationLabel(getLocationFallback(lat, lng))}
           </p>
         )}
 

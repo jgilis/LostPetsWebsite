@@ -16,6 +16,8 @@ import {
   Sighting,
 } from "../../lib/sightings";
 import PopupPhoto from "./PopupPhoto";
+import { getLocationFallback } from "@/src/lib/location/getLocationFallback";
+import { formatLocationLabel } from "@/src/lib/location/formatLocationLabel";
 
 type Props = {
   report: Report;
@@ -208,8 +210,9 @@ export default function ReportPopup({
                     }}
                   >
                     📍{" "}
-                    {s.latitude.toFixed(4)},{" "}
-                    {s.longitude.toFixed(4)}
+                    {formatLocationLabel(
+                      getLocationFallback(s.latitude, s.longitude),
+                    )}
                   </div>
 
                   {s.description && (

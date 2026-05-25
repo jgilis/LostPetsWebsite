@@ -10,10 +10,9 @@ import {
   reportBackHref,
   type ReportFromContext,
 } from "@/src/lib/reportNavigation";
-import {
-  formatReportLocation,
-} from "@/src/lib/adminReports";
 import { formatReportTimestampDisplay } from "@/src/lib/reportTimestamps";
+import { getLocationFallback } from "@/src/lib/location/getLocationFallback";
+import LocationDisplay from "@/src/components/location/LocationDisplay";
 import { useCurrentUser } from "@/src/hooks/useCurrentUser";
 import { isOwner } from "@/src/lib/permissions";
 import { useTranslation } from "@/src/i18n/I18nProvider";
@@ -94,7 +93,10 @@ export default function ReportDetailClient({
     router.refresh();
   };
 
-  const location = formatReportLocation(report.latitude, report.longitude);
+  const locationLabel = getLocationFallback(
+    report.latitude,
+    report.longitude,
+  );
   const reportedAt = formatReportTimestampDisplay(report);
   const description =
     report.description?.trim() || t("adminNoDescription");
@@ -203,12 +205,13 @@ export default function ReportDetailClient({
           </p>
         ) : null}
 
-        {location ? (
-          <p className="text-sm text-gray-400">
-            <span className="text-gray-500">{t("adminLocation")}:</span>{" "}
-            {location}
-          </p>
-        ) : null}
+        <p className="text-sm text-gray-400">
+          <span className="text-gray-500">{t("adminLocation")}:</span>{" "}
+          <LocationDisplay
+            label={locationLabel}
+            onViewMap={() => router.push(`/?focus=${report.id}`)}
+          />
+        </p>
 
         <section>
           <h2 className="mb-2 text-sm font-medium text-gray-500">

@@ -15,10 +15,9 @@ import {
 } from "../map/filters";
 import { isPublicFeedReport } from "@/src/lib/reports";
 import type { AnimalFilter, TypeFilter } from "../report/ReportFiltersBar";
-import {
-  formatReportLocation,
-  truncateText,
-} from "@/src/lib/adminReports";
+import { truncateText } from "@/src/lib/adminReports";
+import { getLocationFallback } from "@/src/lib/location/getLocationFallback";
+import { formatLocationLabel } from "@/src/lib/location/formatLocationLabel";
 import { useCurrentUser } from "@/src/hooks/useCurrentUser";
 import { isOwner } from "@/src/lib/permissions";
 import { useTranslation } from "@/src/i18n/I18nProvider";
@@ -100,7 +99,9 @@ function ReportFeedCard({
   const { user } = useCurrentUser();
   const [photoBroken, setPhotoBroken] = useState(false);
   const reportIsOwner = isOwner(user?.id, report.owner_user_id);
-  const location = formatReportLocation(report.latitude, report.longitude);
+  const location = formatLocationLabel(
+    getLocationFallback(report.latitude, report.longitude),
+  );
   const reportedAt = formatReportTimestampDisplay(report);
   const description = report.description?.trim();
   const typeLabel =
@@ -186,10 +187,8 @@ function ReportFeedCard({
 
       <div className="space-y-2 px-3.5 py-3 md:space-y-1.5 md:px-3 md:py-2.5">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-400 md:text-[11px] md:leading-snug">
-          {location ? (
-            <span className="text-gray-400">{location}</span>
-          ) : null}
-          {location && reportedAt ? (
+          <span className="text-gray-400">{location}</span>
+          {reportedAt ? (
             <span className="text-gray-600" aria-hidden>
               ·
             </span>
