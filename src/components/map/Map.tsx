@@ -23,6 +23,9 @@ import { useSearchParams } from "next/navigation";
 import { useMapIcons } from "./useMapIcons";
 import { useMapFocus } from "./useMapFocus";
 import { useReportUrlFocus } from "./useReportUrlFocus";
+import NearbyReportsPanel from "../nearby/NearbyReportsPanel";
+import NearbyReportsScan from "../nearby/NearbyReportsScan";
+import { isPublicMapReport } from "@/src/lib/reports";
 import { useReportSightings } from "./useReportSightings";
 import type { MapProps } from "./mapTypes";
 import AdminMapLegend from "./AdminMapLegend";
@@ -207,6 +210,23 @@ export default function Map({
     zoom: mapState.zoom,
     bounds: mapState.bounds,
   });
+
+  const mapCenterLocation = useMemo(() => {
+    if (!bounds) {
+      return { lat: 51.025, lng: 4.477 };
+    }
+
+    const [west, south, east, north] = bounds;
+    return {
+      lat: (south + north) / 2,
+      lng: (west + east) / 2,
+    };
+  }, [bounds]);
+
+  const mapProximityReports = useMemo(
+    () => reports.filter(isPublicMapReport),
+    [reports],
+  );
 
   if (!isMounted) return null;
   if (!L || !icons || !sightingIcon) return <p>{t("mapLoading")}</p>;
@@ -447,6 +467,19 @@ export default function Map({
 
       {isAdminScoped && <AdminMapLegend />}
       </div>
+
+      {!isAdminScoped && (
+        <>
+          <NearbyReportsScan
+            mapCenterLocation={mapCenterLocation}
+            reports={mapProximityReports}
+          />
+          <NearbyReportsPanel
+            centerLocation={mapCenterLocation}
+            reports={mapProximityReports}
+          />
+        </>
+      )}
     </div>
   );
 }
