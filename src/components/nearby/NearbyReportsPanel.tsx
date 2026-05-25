@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { memo, useMemo } from "react";
 import type { Report } from "@/src/lib/reports";
 import {
@@ -8,7 +7,7 @@ import {
   getNearbyReports,
 } from "@/src/lib/geo/getNearbyReports";
 import type { GeoPoint } from "@/src/lib/geo/isWithinRadius";
-import { reportDetailHref } from "@/src/lib/reportNavigation";
+import ProximityEventRow from "./ProximityEventRow";
 
 type NearbyReportsPanelProps = {
   centerLocation: GeoPoint | null;
@@ -42,27 +41,9 @@ function NearbyReportsPanel({
         <p className="mt-2 text-sm text-gray-500">No reports in this area.</p>
       ) : (
         <ul className="mt-2 space-y-1.5">
-          {nearby.map((event) => {
-            const { report, distanceMeters } = event;
-            const title =
-              report.animal_name?.trim() ||
-              `${report.type} ${report.animal_type}`;
-
-            return (
-              <li key={report.id} className="text-sm text-gray-300">
-                <Link
-                  href={reportDetailHref(report.id, "map")}
-                  className="text-gray-200 hover:text-white hover:underline"
-                >
-                  {title}
-                </Link>
-                <span className="text-gray-500">
-                  {" "}
-                  · {Math.round(distanceMeters)}m
-                </span>
-              </li>
-            );
-          })}
+          {nearby.map((event) => (
+            <ProximityEventRow key={event.report.id} event={event} />
+          ))}
         </ul>
       )}
     </section>

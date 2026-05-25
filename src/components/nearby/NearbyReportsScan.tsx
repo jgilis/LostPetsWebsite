@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import type { Report } from "@/src/lib/reports";
 import {
@@ -9,7 +8,7 @@ import {
 } from "@/src/lib/geo/getNearbyReports";
 import type { ProximityEvent } from "@/src/lib/geo/types";
 import type { GeoPoint } from "@/src/lib/geo/isWithinRadius";
-import { reportDetailHref } from "@/src/lib/reportNavigation";
+import ProximityEventRow from "./ProximityEventRow";
 
 type ScanSnapshot = {
   events: ProximityEvent[];
@@ -83,27 +82,9 @@ function NearbyReportsScan({
             </p>
           ) : (
             <ul className="mt-2 space-y-1.5">
-              {snapshot.events.map((event) => {
-                const { report, distanceMeters } = event;
-                const title =
-                  report.animal_name?.trim() ||
-                  `${report.type} ${report.animal_type}`;
-
-                return (
-                  <li key={report.id} className="text-sm text-gray-300">
-                    <Link
-                      href={reportDetailHref(report.id, "map")}
-                      className="text-gray-200 hover:text-white hover:underline"
-                    >
-                      {title}
-                    </Link>
-                    <span className="text-gray-500">
-                      {" "}
-                      · {Math.round(distanceMeters)}m
-                    </span>
-                  </li>
-                );
-              })}
+              {snapshot.events.map((event) => (
+                <ProximityEventRow key={event.report.id} event={event} />
+              ))}
             </ul>
           )}
         </div>
