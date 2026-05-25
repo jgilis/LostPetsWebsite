@@ -1,20 +1,17 @@
 import type { Report } from "@/src/lib/reports";
 import { getDistanceMeters } from "./haversine";
 import type { GeoPoint } from "./isWithinRadius";
+import type { ProximityEvent } from "./types";
 
 export const DEFAULT_NEARBY_RADIUS_METERS = 500;
-
-export type NearbyReportResult = {
-  report: Report;
-  distanceMeters: number;
-};
 
 export function getNearbyReports(
   reports: Report[],
   centerLocation: GeoPoint,
   radiusMeters: number,
-): NearbyReportResult[] {
-  const results: NearbyReportResult[] = [];
+): ProximityEvent[] {
+  const computedAt = Date.now();
+  const results: ProximityEvent[] = [];
 
   for (const report of reports) {
     const distanceMeters = getDistanceMeters(
@@ -25,7 +22,13 @@ export function getNearbyReports(
     );
 
     if (distanceMeters <= radiusMeters) {
-      results.push({ report, distanceMeters });
+      results.push({
+        report,
+        distanceMeters,
+        centerLat: centerLocation.lat,
+        centerLng: centerLocation.lng,
+        computedAt,
+      });
     }
   }
 

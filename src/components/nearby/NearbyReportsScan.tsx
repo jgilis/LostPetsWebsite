@@ -6,13 +6,13 @@ import type { Report } from "@/src/lib/reports";
 import {
   DEFAULT_NEARBY_RADIUS_METERS,
   getNearbyReports,
-  type NearbyReportResult,
 } from "@/src/lib/geo/getNearbyReports";
+import type { ProximityEvent } from "@/src/lib/geo/types";
 import type { GeoPoint } from "@/src/lib/geo/isWithinRadius";
 import { reportDetailHref } from "@/src/lib/reportNavigation";
 
 type ScanSnapshot = {
-  results: NearbyReportResult[];
+  events: ProximityEvent[];
   scannedAt: number;
   center: GeoPoint;
 };
@@ -43,10 +43,10 @@ function NearbyReportsScan({
     setIsScanning(true);
     setSnapshot(null);
 
-    const results = getNearbyReports(reports, center, radiusMeters);
+    const events = getNearbyReports(reports, center, radiusMeters);
 
     setSnapshot({
-      results,
+      events,
       scannedAt: Date.now(),
       center,
     });
@@ -77,13 +77,14 @@ function NearbyReportsScan({
             Snapshot · {radiusMeters}m from map center
           </p>
 
-          {snapshot.results.length === 0 ? (
+          {snapshot.events.length === 0 ? (
             <p className="mt-2 text-sm text-gray-500">
               No reports in this area.
             </p>
           ) : (
             <ul className="mt-2 space-y-1.5">
-              {snapshot.results.map(({ report, distanceMeters }) => {
+              {snapshot.events.map((event) => {
+                const { report, distanceMeters } = event;
                 const title =
                   report.animal_name?.trim() ||
                   `${report.type} ${report.animal_type}`;

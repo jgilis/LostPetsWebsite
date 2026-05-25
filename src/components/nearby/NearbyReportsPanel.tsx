@@ -42,7 +42,8 @@ function NearbyReportsPanel({
         <p className="mt-2 text-sm text-gray-500">No reports in this area.</p>
       ) : (
         <ul className="mt-2 space-y-1.5">
-          {nearby.map(({ report, distanceMeters }) => {
+          {nearby.map((event) => {
+            const { report, distanceMeters } = event;
             const title =
               report.animal_name?.trim() ||
               `${report.type} ${report.animal_type}`;
