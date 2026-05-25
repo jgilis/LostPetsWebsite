@@ -87,7 +87,15 @@ export default function Map({
       : "default");
 
   const scopedReportId =
-    reportIdProp ?? searchParams.get("focusReport");
+    reportIdProp ??
+    (searchParams.get("mapMode") === "admin-scoped"
+      ? searchParams.get("focusReport")
+      : null);
+
+  const focusReportId =
+    searchParams.get("focus") ??
+    scopedReportId ??
+    null;
 
   const isAdminScoped =
     mode === "admin-scoped" && !!scopedReportId;
@@ -170,42 +178,37 @@ export default function Map({
     ? scopedSightingMarkers
     : focusSightingMarkers;
 
-  const focusReport = scopedReportId;
-
   const filteredReports = filterReports(
     reports,
     typeFilter,
     animalFilter
   );
-  const focusedReport = reports.find(
-    (r) => r.id === focusReport
-  );
+  const focusedReport = focusReportId
+    ? reports.find((r) => r.id === focusReportId)
+    : undefined;
 
   useEffect(() => {
-    if (!map || !focusedReport) return;
+    if (!map || reportsLoading || !focusedReport) return;
+
     map.setView(
       [focusedReport.latitude, focusedReport.longitude],
       15,
-      { animate: true }
+      { animate: true },
     );
     setSelectedReport(focusedReport.id);
-  }, [map, focusedReport]);
+  }, [map, focusedReport, reportsLoading, focusReportId]);
 
   const zoom = mapState.zoom;
   const bounds = mapState.bounds;
   const isDetailMode = mapState.zoom >= 13.5;
   const activeReports = filteredReports;
-  const isFocusMode = !!focusReport;
+  const isFocusMode = !!focusReportId;
 
   const { clusters, index } = useSupercluster({
     reports: activeReports,
     zoom: mapState.zoom,
     bounds: mapState.bounds,
   });
-
-  const selected = filteredReports.find(
-    (r) => r.id === selectedReport
-  );
 
   if (!isMounted) return null;
   if (!L || !icons || !sightingIcon) return <p>{t("mapLoading")}</p>;
@@ -430,6 +433,7 @@ export default function Map({
           }
           index={index}
           map={map}
+          openPopupReportId={selectedReport}
           onClusterClick={(id, lat, lng) => {
             if (!map) return;
 

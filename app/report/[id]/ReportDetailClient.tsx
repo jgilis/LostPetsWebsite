@@ -11,7 +11,6 @@ import {
   type ReportFromContext,
 } from "@/src/lib/reportNavigation";
 import { formatReportTimestampDisplay } from "@/src/lib/reportTimestamps";
-import { getLocationFallback } from "@/src/lib/location/getLocationFallback";
 import LocationDisplay from "@/src/components/location/LocationDisplay";
 import { useCurrentUser } from "@/src/hooks/useCurrentUser";
 import { isOwner } from "@/src/lib/permissions";
@@ -93,10 +92,6 @@ export default function ReportDetailClient({
     router.refresh();
   };
 
-  const locationLabel = getLocationFallback(
-    report.latitude,
-    report.longitude,
-  );
   const reportedAt = formatReportTimestampDisplay(report);
   const description =
     report.description?.trim() || t("adminNoDescription");
@@ -208,7 +203,8 @@ export default function ReportDetailClient({
         <p className="text-sm text-gray-400">
           <span className="text-gray-500">{t("adminLocation")}:</span>{" "}
           <LocationDisplay
-            label={locationLabel}
+            latitude={report.latitude}
+            longitude={report.longitude}
             onViewMap={() => router.push(`/?focus=${report.id}`)}
           />
         </p>

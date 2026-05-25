@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import MapWrapper from "../src/components/map/MapWrapper";
 import ReportForm from "../src/components/report/ReportForm";
 import ReportsFeed from "../src/components/feed/ReportsFeed";
@@ -17,7 +18,8 @@ function parseTabParam(value: string | null): HomeTab {
   return "map";
 }
 
-export default function HomePage() {
+function HomePageContent() {
+  const searchParams = useSearchParams();
   const [refreshKey, setRefreshKey] = useState(0);
   const [tab, setTab] = useState<HomeTab>("map");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
@@ -25,9 +27,10 @@ export default function HomePage() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setTab(parseTabParam(params.get("tab")));
-  }, []);
+    const focus = searchParams.get("focus");
+    const tabParam = searchParams.get("tab");
+    setTab(focus ? "map" : parseTabParam(tabParam));
+  }, [searchParams]);
 
   const handleReportCreated = () => {
     setRefreshKey((k) => k + 1);
@@ -121,5 +124,19 @@ export default function HomePage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-gray-950 px-4 py-10 text-center text-gray-400">
+          Loading…
+        </main>
+      }
+    >
+      <HomePageContent />
+    </Suspense>
   );
 }

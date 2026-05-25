@@ -5,10 +5,11 @@ import {
   CircleMarker,
   Popup,
 } from "react-leaflet";
+import type { Layer } from "leaflet";
 
 import type { Report } from "../report/useReports";
 import ReportPopup from "./ReportPopup";
-import { memo } from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { isOwner } from "../../lib/permissions";
 
@@ -17,14 +18,37 @@ type Props = {
   icon?: any;
   color: string;
   isAdmin?: boolean;
+  openPopup?: boolean;
 };
+
+function useOpenPopupWhenSelected(
+  open: boolean,
+  markerRef: React.RefObject<Layer | null>,
+) {
+  useEffect(() => {
+    if (!open) return;
+
+    const timer = window.setTimeout(() => {
+      const layer = markerRef.current as (Layer & { openPopup?: () => void }) | null;
+      layer?.openPopup?.();
+    }, 450);
+
+    return () => window.clearTimeout(timer);
+  }, [open, markerRef]);
+}
 
 export default memo(function ReportMarker({
   report,
   icon,
   color,
   isAdmin,
+  openPopup = false,
 }: Props) {
+  const layerRef = useRef<Layer | null>(null);
+  const setLayerRef = useCallback((instance: Layer | null) => {
+    layerRef.current = instance;
+  }, []);
+  useOpenPopupWhenSelected(openPopup, layerRef);
   const { userId } = useCurrentUser();
 
   const popupProps = {
@@ -51,6 +75,7 @@ export default memo(function ReportMarker({
     return (
       <>
         <CircleMarker
+          ref={setLayerRef}
           center={center}
           radius={14}
           pathOptions={{
@@ -85,6 +110,7 @@ export default memo(function ReportMarker({
 
   return (
     <Marker
+      ref={setLayerRef}
       position={[report.latitude, report.longitude]}
       icon={icon}
     >

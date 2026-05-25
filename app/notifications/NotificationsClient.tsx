@@ -3,8 +3,7 @@
 import { useEffect } from "react";
 import { useNotifications } from "../../src/components/notifications/NotificationsProvider";
 import { useTranslation } from "@/src/i18n/I18nProvider";
-import { getLocationFallback } from "@/src/lib/location/getLocationFallback";
-import { formatLocationLabel } from "@/src/lib/location/formatLocationLabel";
+import LocationDisplay from "@/src/components/location/LocationDisplay";
 
 export default function NotificationsClient() {
   const { events, loading, loadNotifications } = useNotifications();
@@ -77,12 +76,10 @@ export default function NotificationsClient() {
               }}
             >
               {t("notificationsApproxArea")}{" "}
-              {formatLocationLabel(
-                getLocationFallback(
-                  event.payload.latitude,
-                  event.payload.longitude,
-                ),
-              )}
+              <LocationDisplay
+                latitude={event.payload.latitude}
+                longitude={event.payload.longitude}
+              />
             </p>
           )}
 
