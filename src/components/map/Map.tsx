@@ -22,6 +22,7 @@ import useLeaflet from "../../hooks/useLeaflet";
 import { useSearchParams } from "next/navigation";
 import { useMapIcons } from "./useMapIcons";
 import { useMapFocus } from "./useMapFocus";
+import { useReportUrlFocus } from "./useReportUrlFocus";
 import { useReportSightings } from "./useReportSightings";
 import type { MapProps } from "./mapTypes";
 import AdminMapLegend from "./AdminMapLegend";
@@ -116,8 +117,6 @@ export default function Map({
     bounds: null,
   });
 
-  const [selectedReport, setSelectedReport] = useState<string | null>(null);
-
   const [internalTypeFilter, setInternalTypeFilter] = useState<
     "all" | "lost" | "found"
   >("all");
@@ -183,20 +182,19 @@ export default function Map({
     typeFilter,
     animalFilter
   );
-  const focusedReport = focusReportId
-    ? reports.find((r) => r.id === focusReportId)
-    : undefined;
 
-  useEffect(() => {
-    if (!map || reportsLoading || !focusedReport) return;
+  const filteredReportIdsRef = useRef<ReadonlySet<string>>(new Set());
+  filteredReportIdsRef.current = new Set(
+    filteredReports.map((report) => report.id),
+  );
 
-    map.setView(
-      [focusedReport.latitude, focusedReport.longitude],
-      15,
-      { animate: true },
-    );
-    setSelectedReport(focusedReport.id);
-  }, [map, focusedReport, reportsLoading, focusReportId]);
+  const { popupTargetId, popupOpenToken } = useReportUrlFocus({
+    map,
+    reportsLoading,
+    reports,
+    focusReportId,
+    filteredReportIdsRef,
+  });
 
   const zoom = mapState.zoom;
   const bounds = mapState.bounds;
@@ -433,7 +431,8 @@ export default function Map({
           }
           index={index}
           map={map}
-          openPopupReportId={selectedReport}
+          popupTargetId={popupTargetId}
+          popupOpenToken={popupOpenToken}
           onClusterClick={(id, lat, lng) => {
             if (!map) return;
 

@@ -18,23 +18,23 @@ type Props = {
   icon?: any;
   color: string;
   isAdmin?: boolean;
-  openPopup?: boolean;
+  openPopupToken?: number;
 };
 
-function useOpenPopupWhenSelected(
-  open: boolean,
+function useOpenPopupFromFocus(
+  openPopupToken: number,
   markerRef: React.RefObject<Layer | null>,
 ) {
   useEffect(() => {
-    if (!open) return;
+    if (!openPopupToken) return;
 
     const timer = window.setTimeout(() => {
       const layer = markerRef.current as (Layer & { openPopup?: () => void }) | null;
       layer?.openPopup?.();
-    }, 450);
+    }, 50);
 
     return () => window.clearTimeout(timer);
-  }, [open, markerRef]);
+  }, [openPopupToken, markerRef]);
 }
 
 export default memo(function ReportMarker({
@@ -42,13 +42,13 @@ export default memo(function ReportMarker({
   icon,
   color,
   isAdmin,
-  openPopup = false,
+  openPopupToken = 0,
 }: Props) {
   const layerRef = useRef<Layer | null>(null);
   const setLayerRef = useCallback((instance: Layer | null) => {
     layerRef.current = instance;
   }, []);
-  useOpenPopupWhenSelected(openPopup, layerRef);
+  useOpenPopupFromFocus(openPopupToken, layerRef);
   const { userId } = useCurrentUser();
 
   const popupProps = {

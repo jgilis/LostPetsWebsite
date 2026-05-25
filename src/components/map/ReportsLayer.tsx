@@ -12,7 +12,8 @@ type Props = {
   reportIconOverride?: any;
   index: any;
   map: any;
-  openPopupReportId?: string | null;
+  popupTargetId?: string | null;
+  popupOpenToken?: number;
   onClusterClick: (id: number, lat: number, lng: number) => void;
 };
 
@@ -23,7 +24,8 @@ export default function ReportsLayer({
   reportIconOverride,
   index,
   map,
-  openPopupReportId = null,
+  popupTargetId = null,
+  popupOpenToken = 0,
   onClusterClick,
 }: Props) {
   const { isAdmin } = useCurrentUser();
@@ -70,7 +72,9 @@ export default function ReportsLayer({
         icon={icon}
         color={color}
         isAdmin={isAdmin}
-        openPopup={openPopupReportId === report.id}
+        openPopupToken={
+          report.id === popupTargetId ? popupOpenToken : 0
+        }
       />
     );
   });
