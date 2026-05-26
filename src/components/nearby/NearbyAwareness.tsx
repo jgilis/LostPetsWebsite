@@ -7,8 +7,10 @@ import {
   getNearbyReports,
 } from "@/src/lib/geo/getNearbyReports";
 import type { GeoPoint } from "@/src/lib/geo/isWithinRadius";
-import { createMapCenterProvider } from "@/src/lib/geo/center/mapCenterProvider";
-import { createUserLocationProvider } from "@/src/lib/geo/center/userLocationProvider";
+import {
+  areProximityCentersEqual,
+  stabilizeProximityCenter,
+} from "@/src/lib/geo/center/stabilizeProximityCenter";
 import { useWalkingMode } from "@/src/hooks/useWalkingMode";
 import ProximityEventRow from "./ProximityEventRow";
 
@@ -23,7 +25,9 @@ function NearbyAwareness({
   reports,
   radiusMeters = DEFAULT_NEARBY_RADIUS_METERS,
 }: NearbyAwarenessProps) {
-  const lastMapCenterRef = useRef<GeoPoint | null>(centerLocation);
+  const lastMapCenterRef = useRef<GeoPoint | null>(
+    centerLocation ? stabilizeProximityCenter(centerLocation) : null,
+  );
   const [refreshToken, setRefreshToken] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -34,30 +38,34 @@ function NearbyAwareness({
     stopWalkingMode,
   } = useWalkingMode();
 
-  useEffect(() => {
-    if (centerLocation) {
-      lastMapCenterRef.current = centerLocation;
-    }
+  const stabilizedMapCenter = useMemo(() => {
+    const raw = centerLocation ?? lastMapCenterRef.current;
+    if (!raw) return null;
+    return stabilizeProximityCenter(raw);
   }, [centerLocation]);
 
-  const mapCenterProvider = useMemo(
-    () =>
-      createMapCenterProvider(
-        () => centerLocation ?? lastMapCenterRef.current,
-      ),
-    [centerLocation],
-  );
+  useEffect(() => {
+    if (!centerLocation) return;
 
-  const userLocationProvider = useMemo(
-    () => createUserLocationProvider(() => currentUserLocation),
-    [currentUserLocation],
-  );
+    const stabilized = stabilizeProximityCenter(centerLocation);
+    if (areProximityCentersEqual(lastMapCenterRef.current, stabilized)) {
+      return;
+    }
 
-  const activeCenterProvider = isWalkingModeEnabled
-    ? userLocationProvider
-    : mapCenterProvider;
+    lastMapCenterRef.current = stabilized;
+  }, [centerLocation]);
 
-  const awarenessCenter = activeCenterProvider.getCenter();
+  const awarenessCenter = useMemo(() => {
+    if (isWalkingModeEnabled) {
+      return currentUserLocation ?? stabilizedMapCenter ?? lastMapCenterRef.current;
+    }
+
+    return stabilizedMapCenter ?? lastMapCenterRef.current;
+  }, [
+    isWalkingModeEnabled,
+    currentUserLocation,
+    stabilizedMapCenter,
+  ]);
 
   const nearby = useMemo(() => {
     if (!awarenessCenter) return [];
@@ -81,13 +89,21 @@ function NearbyAwareness({
     }
   }, [isWalkingModeEnabled, startWalkingMode, stopWalkingMode]);
 
-  if (!awarenessCenter && !lastMapCenterRef.current && !currentUserLocation) {
+  if (!stabilizedMapCenter && !lastMapCenterRef.current && !currentUserLocation) {
     return null;
   }
 
+  const isAwaitingGpsFix =
+    isWalkingModeEnabled && !currentUserLocation && !!awarenessCenter;
+
   const centerStatusLabel = isWalkingModeEnabled
-    ? "Using your location"
+    ? isAwaitingGpsFix
+      ? "Using map center until GPS fix"
+      : "Using your location"
     : "Using map center";
+
+  const showList = !!awarenessCenter && !isRefreshing;
+  const showEmpty = showList && nearby.length === 0;
 
   return (
     <section
@@ -123,17 +139,17 @@ function NearbyAwareness({
         <p className="mt-2 text-sm text-gray-500">Refreshing...</p>
       ) : null}
 
-      {!awarenessCenter ? (
-        <p className="mt-2 text-sm text-gray-500">Waiting for location...</p>
-      ) : nearby.length === 0 ? (
-        <p className="mt-2 text-sm text-gray-500">No reports in this area.</p>
-      ) : (
+      {showEmpty ? (
+        <p className="mt-2 text-sm text-gray-500">No nearby reports</p>
+      ) : null}
+
+      {showList && nearby.length > 0 ? (
         <ul className="mt-2 space-y-1.5">
           {nearby.map((event) => (
             <ProximityEventRow key={event.report.id} event={event} />
           ))}
         </ul>
-      )}
+      ) : null}
     </section>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import type { ProximityEvent } from "@/src/lib/geo/types";
 import {
   getAttentionFlags,
@@ -14,16 +14,19 @@ type ProximityEventRowProps = {
   event: ProximityEvent;
 };
 
-export default function ProximityEventRow({ event }: ProximityEventRowProps) {
+function ProximityEventRow({ event }: ProximityEventRowProps) {
   const { report, distanceMeters } = event;
   const markedRef = useRef(false);
-  const attention = getDominantAttention(getAttentionFlags(event));
+  const [, setSeenRevision] = useState(0);
 
   useEffect(() => {
     if (markedRef.current) return;
     markedRef.current = true;
     markSeen(report.id);
+    setSeenRevision((revision) => revision + 1);
   }, [report.id]);
+
+  const attention = getDominantAttention(getAttentionFlags(event));
 
   const title =
     report.animal_name?.trim() ||
@@ -76,3 +79,16 @@ export default function ProximityEventRow({ event }: ProximityEventRowProps) {
     </li>
   );
 }
+
+function areProximityEventRowsEqual(
+  previous: ProximityEventRowProps,
+  next: ProximityEventRowProps,
+): boolean {
+  return (
+    previous.event.report.id === next.event.report.id &&
+    Math.round(previous.event.distanceMeters) ===
+      Math.round(next.event.distanceMeters)
+  );
+}
+
+export default memo(ProximityEventRow, areProximityEventRowsEqual);
