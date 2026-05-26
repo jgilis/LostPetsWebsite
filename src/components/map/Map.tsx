@@ -23,8 +23,7 @@ import { useSearchParams } from "next/navigation";
 import { useMapIcons } from "./useMapIcons";
 import { useMapFocus } from "./useMapFocus";
 import { useReportUrlFocus } from "./useReportUrlFocus";
-import NearbyReportsPanel from "../nearby/NearbyReportsPanel";
-import NearbyReportsScan from "../nearby/NearbyReportsScan";
+import NearbyAwareness from "../nearby/NearbyAwareness";
 import { isPublicMapReport } from "@/src/lib/reports";
 import { useReportSightings } from "./useReportSightings";
 import type { MapProps } from "./mapTypes";
@@ -469,16 +468,10 @@ export default function Map({
       </div>
 
       {!isAdminScoped && (
-        <>
-          <NearbyReportsScan
-            mapCenterLocation={mapCenterLocation}
-            reports={mapProximityReports}
-          />
-          <NearbyReportsPanel
-            centerLocation={mapCenterLocation}
-            reports={mapProximityReports}
-          />
-        </>
+        <NearbyAwareness
+          centerLocation={mapCenterLocation}
+          reports={mapProximityReports}
+        />
       )}
     </div>
   );
