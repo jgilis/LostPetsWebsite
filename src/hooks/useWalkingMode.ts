@@ -18,6 +18,7 @@ import {
   isDocumentVisible,
   onDocumentVisibilityChange,
 } from "@/src/lib/platform/browserDocument";
+import { track } from "@/src/lib/analytics/analytics";
 
 const STALE_LOCATION_MS = 60_000;
 const LOCATION_FRESHNESS_CHECK_MS = 15_000;
@@ -41,6 +42,7 @@ export function useWalkingMode() {
   const watchIdRef = useRef<GeolocationWatchId | null>(null);
   const sessionRef = useRef(0);
   const lastLocationAtRef = useRef(0);
+  const isWalkingModeEnabledRef = useRef(false);
 
   const clearWatch = useCallback(() => {
     if (watchIdRef.current == null) return;
@@ -85,6 +87,10 @@ export function useWalkingMode() {
     sessionRef.current += 1;
     clearWatch();
     lastLocationAtRef.current = 0;
+    if (isWalkingModeEnabledRef.current) {
+      track("walking_mode_disabled");
+    }
+    isWalkingModeEnabledRef.current = false;
     setIsWalkingModeEnabled(false);
     setCurrentUserLocation(null);
   }, [clearWatch]);
@@ -94,7 +100,9 @@ export function useWalkingMode() {
 
     const session = sessionRef.current + 1;
     sessionRef.current = session;
+    isWalkingModeEnabledRef.current = true;
     setIsWalkingModeEnabled(true);
+    track("walking_mode_enabled");
 
     browserGetCurrentPosition(
       (position) => {

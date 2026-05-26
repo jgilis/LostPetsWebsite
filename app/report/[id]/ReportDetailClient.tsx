@@ -3,7 +3,7 @@
 /** Report view surface: read-only content plus owner actions (edit → /edit, delete inline). */
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Report, ReportStatus } from "@/src/lib/reports";
 import { supabase } from "@/src/lib/supabase";
 import {
@@ -15,6 +15,7 @@ import LocationDisplay from "@/src/components/location/LocationDisplay";
 import { useCurrentUser } from "@/src/hooks/useCurrentUser";
 import { isOwner } from "@/src/lib/permissions";
 import { useTranslation } from "@/src/i18n/I18nProvider";
+import { track } from "@/src/lib/analytics/analytics";
 import type { TranslationKey } from "@/src/i18n/types";
 
 function backLabelKey(from: ReportFromContext): TranslationKey {
@@ -48,6 +49,12 @@ export default function ReportDetailClient({
   const reportIsOwner = isOwner(user?.id, report.owner_user_id);
   const isResolved = report.status === "resolved";
   const isActive = report.status === "active";
+
+  useEffect(() => {
+    track("report_viewed", {
+      report_id: report.id,
+    });
+  }, [report.id]);
 
   const handleDelete = async () => {
     if (!reportIsOwner || !user?.id || deleting) return;
@@ -87,6 +94,10 @@ export default function ReportDetailClient({
       window.alert(t("reportMarkResolvedFailed"));
       return;
     }
+
+    track("report_resolved", {
+      report_id: report.id,
+    });
 
     setReport((prev) => ({ ...prev, status: "resolved" }));
     router.refresh();

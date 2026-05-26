@@ -6,6 +6,7 @@ import useLeaflet from "../../hooks/useLeaflet";
 import LocationPicker from "../report/LocationPicker";
 import { isOutOfMechelen } from "../../lib/mechelenBounds";
 import LocationDisplay from "@/src/components/location/LocationDisplay";
+import { track } from "@/src/lib/analytics/analytics";
 
 type Props = {
   lostReportId: string;
@@ -84,6 +85,10 @@ export default function SightingModal({ lostReportId, onClose }: Props) {
       if (!res.ok) {
         throw new Error(data.error?.message || "Failed to submit");
       }
+
+      track("sighting_created", {
+        report_id: lostReportId,
+      });
 
       alert("Sighting submitted!");
       onClose();

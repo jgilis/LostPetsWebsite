@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import type { Map as LeafletMap } from "leaflet";
 import type { Report } from "../report/useReports";
+import { track } from "@/src/lib/analytics/analytics";
 
 const FOCUS_ZOOM = 15;
 const MOVEEND_FALLBACK_MS = 500;
@@ -65,6 +66,10 @@ export function useReportUrlFocus({
     detachMoveEnd();
     setPopupTargetId(null);
     map.closePopup();
+
+    track("map_focus_used", {
+      report_id: focusReportId,
+    });
 
     const openPopupIfVisible = () => {
       if (lastAppliedFocusIdRef.current !== focusReportId) return;

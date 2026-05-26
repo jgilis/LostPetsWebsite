@@ -10,6 +10,7 @@ import { VisibilitySyncProvider } from "../src/components/sync/VisibilitySyncPro
 import { RealtimeResyncProvider } from "../src/components/sync/RealtimeResyncProvider";
 import { I18nProvider } from "../src/i18n/I18nProvider";
 import { DEFAULT_LANGUAGE } from "../src/i18n/config";
+import { AnalyticsBootstrap } from "../src/components/analytics/AnalyticsBootstrap";
 
 // ✅ Import Leaflet CSS globally
 import 'leaflet/dist/leaflet.css';
@@ -51,6 +52,7 @@ export default function RootLayout({
   return (
     <html lang={DEFAULT_LANGUAGE} suppressHydrationWarning>
       <body className="bg-gray-950 text-white">
+        <AnalyticsBootstrap />
 
         <I18nProvider>
         <UserProfileProvider>

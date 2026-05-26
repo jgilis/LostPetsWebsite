@@ -12,6 +12,7 @@ import {
   stabilizeProximityCenter,
 } from "@/src/lib/geo/center/stabilizeProximityCenter";
 import { useWalkingMode } from "@/src/hooks/useWalkingMode";
+import { track } from "@/src/lib/analytics/analytics";
 import ProximityEventRow from "./ProximityEventRow";
 
 type NearbyAwarenessProps = {
@@ -30,6 +31,7 @@ function NearbyAwareness({
   );
   const [refreshToken, setRefreshToken] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const lastNearbyTrackedRef = useRef<string | null>(null);
 
   const {
     isWalkingModeEnabled,
@@ -117,13 +119,30 @@ function NearbyAwareness({
     }
   }, [isWalkingModeEnabled, startWalkingMode, stopWalkingMode]);
 
-  if (!stabilizedMapCenter && !lastMapCenterRef.current && !currentUserLocation) {
-    return null;
-  }
-
   const canShowResults = !isRefreshing && !isWaitingForGps;
   const showList = canShowResults && nearby.length > 0;
   const showEmpty = canShowResults && !!awarenessCenter && nearby.length === 0;
+
+  useEffect(() => {
+    if (!showList || !awarenessCenter) return;
+
+    const reportIds = nearby
+      .map((event) => event.report.id)
+      .sort()
+      .join(",");
+    const signature = `${awarenessCenter.lat},${awarenessCenter.lng}:${reportIds}`;
+
+    if (lastNearbyTrackedRef.current === signature) return;
+    lastNearbyTrackedRef.current = signature;
+
+    track("nearby_viewed", {
+      count: nearby.length,
+    });
+  }, [showList, awarenessCenter, nearby]);
+
+  if (!stabilizedMapCenter && !lastMapCenterRef.current && !currentUserLocation) {
+    return null;
+  }
 
   return (
     <section

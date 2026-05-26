@@ -7,6 +7,7 @@ import { applyLocationOffset } from "../../lib/location";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { useTranslation } from "@/src/i18n/I18nProvider";
+import { track } from "@/src/lib/analytics/analytics";
 
 interface ReportFormProps {
   onReportCreated?: () => void;
@@ -199,6 +200,10 @@ export default function ReportForm({
       }
 
       localStorage.setItem(lastSubmitKey, Date.now().toString());
+
+      track("report_created", {
+        animal_type: animalType,
+      });
 
       setSubmittedReportId(result.report?.id ?? null);
       //setMessage("Report submitted successfully! Redirecting to map...");
