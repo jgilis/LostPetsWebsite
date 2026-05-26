@@ -34,6 +34,7 @@ function NearbyAwareness({
   const {
     isWalkingModeEnabled,
     currentUserLocation,
+    hasActiveUserLocation,
     startWalkingMode,
     stopWalkingMode,
   } = useWalkingMode();
@@ -56,12 +57,17 @@ function NearbyAwareness({
   }, [centerLocation]);
 
   const awarenessCenter = useMemo(() => {
-    if (isWalkingModeEnabled) {
-      return currentUserLocation ?? stabilizedMapCenter ?? lastMapCenterRef.current;
+    if (isWalkingModeEnabled && hasActiveUserLocation && currentUserLocation) {
+      return currentUserLocation;
     }
 
     return stabilizedMapCenter ?? lastMapCenterRef.current;
-  }, [isWalkingModeEnabled, currentUserLocation, stabilizedMapCenter]);
+  }, [
+    isWalkingModeEnabled,
+    hasActiveUserLocation,
+    currentUserLocation,
+    stabilizedMapCenter,
+  ]);
 
   const nearby = useMemo(() => {
     if (!awarenessCenter) return [];
@@ -70,7 +76,7 @@ function NearbyAwareness({
   }, [awarenessCenter, reports, radiusMeters, refreshToken]);
 
   const isWaitingForGps =
-    isWalkingModeEnabled && currentUserLocation == null;
+    isWalkingModeEnabled && !hasActiveUserLocation;
 
   const systemStatusMessage = useMemo(() => {
     if (isRefreshing) {
@@ -81,7 +87,7 @@ function NearbyAwareness({
       return "Waiting for location…";
     }
 
-    if (isWalkingModeEnabled && currentUserLocation) {
+    if (isWalkingModeEnabled && hasActiveUserLocation) {
       return "Using your location";
     }
 
@@ -90,15 +96,17 @@ function NearbyAwareness({
     isRefreshing,
     isWaitingForGps,
     isWalkingModeEnabled,
-    currentUserLocation,
+    hasActiveUserLocation,
   ]);
 
   const handleRefresh = useCallback(() => {
     if (!awarenessCenter || isWaitingForGps) return;
 
     setIsRefreshing(true);
-    setRefreshToken((token) => token + 1);
-    setIsRefreshing(false);
+    window.requestAnimationFrame(() => {
+      setRefreshToken((token) => token + 1);
+      setIsRefreshing(false);
+    });
   }, [awarenessCenter, isWaitingForGps]);
 
   const handleWalkingModeToggle = useCallback(() => {
@@ -113,10 +121,9 @@ function NearbyAwareness({
     return null;
   }
 
-  const showList =
-    !isRefreshing && !isWaitingForGps && nearby.length > 0;
-  const showEmpty =
-    !isRefreshing && !isWaitingForGps && nearby.length === 0;
+  const canShowResults = !isRefreshing && !isWaitingForGps;
+  const showList = canShowResults && nearby.length > 0;
+  const showEmpty = canShowResults && !!awarenessCenter && nearby.length === 0;
 
   return (
     <section

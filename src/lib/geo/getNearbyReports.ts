@@ -32,5 +32,9 @@ export function getNearbyReports(
     }
   }
 
-  return results.sort((a, b) => a.distanceMeters - b.distanceMeters);
+  return results.sort((a, b) => {
+    const distanceDelta = a.distanceMeters - b.distanceMeters;
+    if (distanceDelta !== 0) return distanceDelta;
+    return a.report.id.localeCompare(b.report.id);
+  });
 }
