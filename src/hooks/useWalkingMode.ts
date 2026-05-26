@@ -6,12 +6,18 @@ import {
   stabilizeProximityCenter,
 } from "@/src/lib/geo/center/stabilizeProximityCenter";
 import type { GeoPoint } from "@/src/lib/geo/isWithinRadius";
-
-const GEO_OPTIONS: PositionOptions = {
-  enableHighAccuracy: true,
-  maximumAge: 10_000,
-  timeout: 15_000,
-};
+import {
+  browserClearWatch,
+  browserGetCurrentPosition,
+  browserWatchPosition,
+  isBrowserGeolocationAvailable,
+  WALKING_GEO_OPTIONS,
+  type GeolocationWatchId,
+} from "@/src/lib/platform/browserGeolocation";
+import {
+  isDocumentVisible,
+  onDocumentVisibilityChange,
+} from "@/src/lib/platform/browserDocument";
 
 const STALE_LOCATION_MS = 60_000;
 const LOCATION_FRESHNESS_CHECK_MS = 15_000;
@@ -32,19 +38,14 @@ export function useWalkingMode() {
   const [currentUserLocation, setCurrentUserLocation] =
     useState<GeoPoint | null>(null);
   const [locationFreshnessTick, setLocationFreshnessTick] = useState(0);
-  const watchIdRef = useRef<number | null>(null);
+  const watchIdRef = useRef<GeolocationWatchId | null>(null);
   const sessionRef = useRef(0);
   const lastLocationAtRef = useRef(0);
 
   const clearWatch = useCallback(() => {
-    if (
-      watchIdRef.current != null &&
-      typeof navigator !== "undefined" &&
-      navigator.geolocation
-    ) {
-      navigator.geolocation.clearWatch(watchIdRef.current);
-      watchIdRef.current = null;
-    }
+    if (watchIdRef.current == null) return;
+    browserClearWatch(watchIdRef.current);
+    watchIdRef.current = null;
   }, []);
 
   const applyPositionUpdate = useCallback((position: GeolocationPosition) => {
@@ -59,12 +60,10 @@ export function useWalkingMode() {
 
   const startWatch = useCallback(
     (session: number) => {
-      if (typeof navigator === "undefined" || !navigator.geolocation) {
-        return;
-      }
+      if (!isBrowserGeolocationAvailable()) return;
 
       clearWatch();
-      watchIdRef.current = navigator.geolocation.watchPosition(
+      const watchId = browserWatchPosition(
         (update) => {
           if (session !== sessionRef.current) return;
           applyPositionUpdate(update);
@@ -74,8 +73,10 @@ export function useWalkingMode() {
           clearWatch();
           setCurrentUserLocation(null);
         },
-        GEO_OPTIONS,
+        WALKING_GEO_OPTIONS,
       );
+
+      watchIdRef.current = watchId;
     },
     [applyPositionUpdate, clearWatch],
   );
@@ -89,15 +90,13 @@ export function useWalkingMode() {
   }, [clearWatch]);
 
   const startWalkingMode = useCallback(() => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) {
-      return;
-    }
+    if (!isBrowserGeolocationAvailable()) return;
 
     const session = sessionRef.current + 1;
     sessionRef.current = session;
     setIsWalkingModeEnabled(true);
 
-    navigator.geolocation.getCurrentPosition(
+    browserGetCurrentPosition(
       (position) => {
         if (session !== sessionRef.current) return;
         applyPositionUpdate(position);
@@ -107,7 +106,7 @@ export function useWalkingMode() {
         if (session !== sessionRef.current) return;
         stopWalkingMode();
       },
-      GEO_OPTIONS,
+      WALKING_GEO_OPTIONS,
     );
   }, [applyPositionUpdate, startWatch, stopWalkingMode]);
 
@@ -138,11 +137,10 @@ export function useWalkingMode() {
   }, [isWalkingModeEnabled, currentUserLocation, locationFreshnessTick, clearWatch]);
 
   useEffect(() => {
-    if (typeof document === "undefined") return;
+    if (!isWalkingModeEnabled) return;
 
-    const handleVisibility = () => {
-      if (document.visibilityState !== "visible") return;
-      if (!isWalkingModeEnabled) return;
+    return onDocumentVisibilityChange(() => {
+      if (!isDocumentVisible()) return;
 
       setLocationFreshnessTick((tick) => tick + 1);
 
@@ -154,7 +152,9 @@ export function useWalkingMode() {
         return;
       }
 
-      navigator.geolocation?.getCurrentPosition(
+      if (!isBrowserGeolocationAvailable()) return;
+
+      browserGetCurrentPosition(
         (position) => {
           if (session !== sessionRef.current) return;
           applyPositionUpdate(position);
@@ -163,14 +163,9 @@ export function useWalkingMode() {
         () => {
           if (session !== sessionRef.current) return;
         },
-        GEO_OPTIONS,
+        WALKING_GEO_OPTIONS,
       );
-    };
-
-    document.addEventListener("visibilitychange", handleVisibility);
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibility);
-    };
+    });
   }, [
     isWalkingModeEnabled,
     currentUserLocation,

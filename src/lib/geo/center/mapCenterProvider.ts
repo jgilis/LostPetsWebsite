@@ -1,3 +1,4 @@
+/** Reference adapter — not wired in UI. See docs/proximity-architecture.md */
 import type {
   ProximityCenter,
   ProximityCenterProvider,
