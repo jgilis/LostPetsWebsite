@@ -61,11 +61,7 @@ function NearbyAwareness({
     }
 
     return stabilizedMapCenter ?? lastMapCenterRef.current;
-  }, [
-    isWalkingModeEnabled,
-    currentUserLocation,
-    stabilizedMapCenter,
-  ]);
+  }, [isWalkingModeEnabled, currentUserLocation, stabilizedMapCenter]);
 
   const nearby = useMemo(() => {
     if (!awarenessCenter) return [];
@@ -73,13 +69,37 @@ function NearbyAwareness({
     return getNearbyReports(reports, awarenessCenter, radiusMeters);
   }, [awarenessCenter, reports, radiusMeters, refreshToken]);
 
+  const isWaitingForGps =
+    isWalkingModeEnabled && currentUserLocation == null;
+
+  const systemStatusMessage = useMemo(() => {
+    if (isRefreshing) {
+      return "Updating nearby reports…";
+    }
+
+    if (isWaitingForGps) {
+      return "Waiting for location…";
+    }
+
+    if (isWalkingModeEnabled && currentUserLocation) {
+      return "Using your location";
+    }
+
+    return "Using map view";
+  }, [
+    isRefreshing,
+    isWaitingForGps,
+    isWalkingModeEnabled,
+    currentUserLocation,
+  ]);
+
   const handleRefresh = useCallback(() => {
-    if (!awarenessCenter) return;
+    if (!awarenessCenter || isWaitingForGps) return;
 
     setIsRefreshing(true);
     setRefreshToken((token) => token + 1);
     setIsRefreshing(false);
-  }, [awarenessCenter]);
+  }, [awarenessCenter, isWaitingForGps]);
 
   const handleWalkingModeToggle = useCallback(() => {
     if (isWalkingModeEnabled) {
@@ -93,57 +113,53 @@ function NearbyAwareness({
     return null;
   }
 
-  const isAwaitingGpsFix =
-    isWalkingModeEnabled && !currentUserLocation && !!awarenessCenter;
-
-  const centerStatusLabel = isWalkingModeEnabled
-    ? isAwaitingGpsFix
-      ? "Using map center until GPS fix"
-      : "Using your location"
-    : "Using map center";
-
-  const showList = !!awarenessCenter && !isRefreshing;
-  const showEmpty = showList && nearby.length === 0;
+  const showList =
+    !isRefreshing && !isWaitingForGps && nearby.length > 0;
+  const showEmpty =
+    !isRefreshing && !isWaitingForGps && nearby.length === 0;
 
   return (
     <section
-      className="mt-3 rounded-lg border border-gray-700 bg-gray-900/50 px-3 py-2"
+      className="mt-3 rounded-lg border border-gray-700/80 bg-gray-900/40 px-3 py-2"
       aria-label="Nearby awareness"
     >
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-sm font-medium text-gray-400">
-          Nearby awareness ({radiusMeters}m)
+          Nearby reports
         </h3>
         <button
           type="button"
           onClick={handleRefresh}
-          disabled={isRefreshing || !awarenessCenter}
-          className="rounded-md bg-gray-700 px-3 py-1.5 text-xs text-white hover:bg-gray-600 disabled:opacity-60"
+          disabled={isRefreshing || !awarenessCenter || isWaitingForGps}
+          className="rounded-md bg-gray-800 px-3 py-1.5 text-xs text-gray-200 hover:bg-gray-700 disabled:opacity-50"
         >
           Refresh nearby
         </button>
         <button
           type="button"
           onClick={handleWalkingModeToggle}
-          className="rounded-md bg-gray-700 px-3 py-1.5 text-xs text-white hover:bg-gray-600"
+          aria-pressed={isWalkingModeEnabled}
+          className={
+            isWalkingModeEnabled
+              ? "rounded-md bg-gray-800 px-3 py-1.5 text-xs text-gray-200 ring-1 ring-gray-600"
+              : "rounded-md bg-gray-800 px-3 py-1.5 text-xs text-gray-200 hover:bg-gray-700"
+          }
         >
           {isWalkingModeEnabled
-            ? "Stop Walking Mode"
-            : "Start Walking Mode"}
+            ? "Walking mode on"
+            : "Walking mode off"}
         </button>
       </div>
 
-      <p className="mt-1 text-xs text-gray-500">{centerStatusLabel}</p>
-
-      {isRefreshing ? (
-        <p className="mt-2 text-sm text-gray-500">Refreshing...</p>
-      ) : null}
+      <p className="mt-2 text-sm text-gray-400" role="status">
+        {systemStatusMessage}
+      </p>
 
       {showEmpty ? (
         <p className="mt-2 text-sm text-gray-500">No nearby reports</p>
       ) : null}
 
-      {showList && nearby.length > 0 ? (
+      {showList ? (
         <ul className="mt-2 space-y-1.5">
           {nearby.map((event) => (
             <ProximityEventRow key={event.report.id} event={event} />

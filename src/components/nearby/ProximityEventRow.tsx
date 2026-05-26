@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { memo, useEffect, useRef, useState } from "react";
 import type { ProximityEvent } from "@/src/lib/geo/types";
+import { formatProximityDistance } from "@/src/lib/geo/formatProximityDistance";
 import {
   getAttentionFlags,
   getDominantAttention,
@@ -34,47 +35,49 @@ function ProximityEventRow({ event }: ProximityEventRowProps) {
 
   const rowClass =
     attention === "seen"
-      ? "text-sm text-gray-500 opacity-70"
+      ? "text-sm text-gray-500 opacity-60"
       : attention === "very-close"
         ? "text-sm font-medium text-gray-100"
         : attention === "new-nearby"
-          ? "text-sm text-gray-200"
+          ? "text-sm text-gray-300"
           : "text-sm text-gray-300";
 
   const linkClass =
     attention === "seen"
-      ? "text-gray-400 hover:text-gray-300 hover:underline"
+      ? "text-gray-500 hover:text-gray-400 hover:underline"
       : attention === "very-close"
         ? "text-gray-100 hover:text-white hover:underline"
         : attention === "new-nearby"
-          ? "text-gray-100 hover:text-white hover:underline"
+          ? "text-gray-300 hover:text-gray-200 hover:underline"
           : "text-gray-200 hover:text-white hover:underline";
 
   const attentionLabel =
     attention === "very-close"
       ? "Very close"
       : attention === "new-nearby"
-        ? "NEW nearby"
+        ? "New nearby"
         : attention === "seen"
-          ? "seen"
+          ? "Seen"
           : null;
+
+  const attentionClass =
+    attention === "very-close"
+      ? "ml-1 text-xs font-medium text-gray-300"
+      : attention === "new-nearby"
+        ? "ml-1 text-xs text-gray-500"
+        : "ml-1 text-[11px] text-gray-600";
 
   return (
     <li className={rowClass}>
       <Link href={reportDetailHref(report.id, "map")} className={linkClass}>
         {title}
       </Link>
-      <span className="text-gray-500"> · {Math.round(distanceMeters)}m</span>
+      <span className="text-gray-500">
+        {" "}
+        · {formatProximityDistance(distanceMeters)}
+      </span>
       {attentionLabel ? (
-        <span
-          className={
-            attention === "seen"
-              ? "ml-1 text-xs text-gray-600"
-              : "ml-1 text-xs text-gray-400"
-          }
-        >
-          {attentionLabel}
-        </span>
+        <span className={attentionClass}>{attentionLabel}</span>
       ) : null}
     </li>
   );
