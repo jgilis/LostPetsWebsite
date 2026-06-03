@@ -50,8 +50,8 @@ export default function ReportFiltersBar({
     <div
       className={
         sticky
-          ? "sticky top-0 z-[400] flex w-full min-w-0 max-w-full flex-col gap-2.5 bg-gray-950 pt-1.5"
-          : "flex w-full min-w-0 max-w-full flex-col gap-2.5"
+          ? "report-filters-bar sticky top-0 z-[400] flex w-full min-w-0 max-w-full flex-col gap-2.5 bg-gray-950 pt-1.5"
+          : "report-filters-bar flex w-full min-w-0 max-w-full flex-col gap-2.5"
       }
     >
       <div className="flex w-full min-w-0 justify-center overflow-x-hidden py-1">
@@ -82,7 +82,7 @@ export default function ReportFiltersBar({
         </div>
       </div>
 
-      <div className="flex justify-center gap-2 pb-2.5">
+      <div className="report-type-filters flex justify-center gap-2 pb-2.5">
         {(["all", "lost", "found"] as const).map((typeKey) => {
           const isActive = typeFilter === typeKey;
 

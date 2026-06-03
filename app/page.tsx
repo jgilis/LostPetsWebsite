@@ -39,11 +39,12 @@ function HomePageContent() {
   const showReportFilters = tab === "map" || tab === "feed";
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white flex justify-center">
-      <div className="w-full max-w-6xl px-4 py-6 space-y-6">
+    <main className="home-main min-h-screen bg-gray-950 text-white flex justify-center">
+      <div className="home-page-inner w-full max-w-6xl px-4 py-6 space-y-6">
+        <div className="home-chrome space-y-6">
         <h1 className="text-2xl font-bold text-center">{t("appTitle")}</h1>
 
-        <div className="flex border-b border-gray-700 mb-8">
+        <div className="home-tabs flex border-b border-gray-700 mb-8">
           <button
             onClick={() => setTab("map")}
             className={`flex-1 p-3 text-center transition ${
@@ -77,6 +78,7 @@ function HomePageContent() {
             ➕ {t("tabReport")}
           </button>
         </div>
+        </div>
 
         {showReportFilters && (
           <ReportFiltersBar
@@ -89,7 +91,7 @@ function HomePageContent() {
         )}
 
         {tab === "map" && (
-          <div className="w-full h-[65vh] rounded-lg border border-gray-700">
+          <div className="home-map-shell w-full h-[65vh] rounded-lg border border-gray-700">
             <div className="w-full h-full rounded-lg">
               <MapWrapper
                 refreshKey={refreshKey}

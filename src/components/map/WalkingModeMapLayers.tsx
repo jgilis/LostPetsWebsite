@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Circle, CircleMarker, useMap, useMapEvents } from "react-leaflet";
 import type { UseWalkingModeResult } from "@/src/hooks/useWalkingMode";
 
@@ -12,6 +12,29 @@ type WalkingModeMapLayersProps = {
   onManualPan: () => void;
 };
 
+const FOLLOW_VIEW_PADDING_RATIO = 0.2;
+
+function isUserInsidePaddedView(
+  map: ReturnType<typeof useMap>,
+  lat: number,
+  lng: number,
+): boolean {
+  const bounds = map.getBounds();
+  if (!bounds) return true;
+
+  const latSpan = bounds.getNorth() - bounds.getSouth();
+  const lngSpan = bounds.getEast() - bounds.getWest();
+  const padLat = latSpan * FOLLOW_VIEW_PADDING_RATIO;
+  const padLng = lngSpan * FOLLOW_VIEW_PADDING_RATIO;
+
+  return (
+    lat >= bounds.getSouth() + padLat &&
+    lat <= bounds.getNorth() - padLat &&
+    lng >= bounds.getWest() + padLng &&
+    lng <= bounds.getEast() - padLng
+  );
+}
+
 function WalkingMapFollow({
   livePosition,
   isFollowModeEnabled,
@@ -20,13 +43,30 @@ function WalkingMapFollow({
   isFollowModeEnabled: boolean;
 }) {
   const map = useMap();
+  const skipNextFollowRef = useRef(false);
+
+  useEffect(() => {
+    const onRecenter = () => {
+      skipNextFollowRef.current = true;
+    };
+    window.addEventListener("walking-map-recenter", onRecenter);
+    return () => window.removeEventListener("walking-map-recenter", onRecenter);
+  }, []);
 
   useEffect(() => {
     if (!isFollowModeEnabled) return;
 
-    map.setView([livePosition.lat, livePosition.lng], map.getZoom(), {
-      animate: true,
-    });
+    if (skipNextFollowRef.current) {
+      skipNextFollowRef.current = false;
+      map.panTo([livePosition.lat, livePosition.lng], { animate: true });
+      return;
+    }
+
+    if (isUserInsidePaddedView(map, livePosition.lat, livePosition.lng)) {
+      return;
+    }
+
+    map.panTo([livePosition.lat, livePosition.lng], { animate: true });
   }, [
     map,
     isFollowModeEnabled,

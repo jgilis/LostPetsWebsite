@@ -151,7 +151,7 @@ function NearbyAwareness({
 
   return (
     <section
-      className="mt-3 rounded-lg border border-gray-700/80 bg-gray-900/40 px-3 py-2"
+      className="nearby-awareness-panel mt-3 rounded-lg border border-gray-700/80 bg-gray-900/40 px-3 py-2"
       aria-label="Nearby awareness"
     >
       <div className="flex flex-wrap items-center gap-2">
@@ -162,7 +162,7 @@ function NearbyAwareness({
           type="button"
           onClick={handleRefresh}
           disabled={isRefreshing || !awarenessCenter || isWaitingForGps}
-          className="rounded-md bg-gray-800 px-3 py-1.5 text-xs text-gray-200 hover:bg-gray-700 disabled:opacity-50"
+          className="nearby-refresh-btn rounded-md bg-gray-800 px-3 py-1.5 text-xs text-gray-200 hover:bg-gray-700 disabled:opacity-50"
         >
           Refresh nearby
         </button>

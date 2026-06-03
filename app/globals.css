@@ -206,3 +206,64 @@ body {
   line-height: 1;
   cursor: pointer;
 }
+
+/* Walking mode — focused search layout (toggled via body.walking-mode-active) */
+body.walking-mode-active footer {
+  display: none;
+}
+
+body.walking-mode-active .home-chrome {
+  display: none;
+}
+
+body.walking-mode-active .home-main {
+  min-height: 100dvh;
+}
+
+body.walking-mode-active .home-page-inner {
+  max-width: none;
+  padding: 0.5rem 0.5rem 0.75rem;
+  gap: 0.5rem;
+  min-height: calc(100dvh - 1rem);
+  display: flex;
+  flex-direction: column;
+}
+
+body.walking-mode-active .report-type-filters {
+  display: none;
+}
+
+body.walking-mode-active .home-map-shell {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+body.walking-mode-active .walking-map-host {
+  flex: 1 1 auto;
+  min-height: min(58dvh, calc(100dvh - 14rem));
+}
+
+body.walking-mode-active .walking-map-container.leaflet-container {
+  height: 100% !important;
+  min-height: min(58dvh, calc(100dvh - 14rem));
+}
+
+body.walking-mode-active .nearby-awareness-panel {
+  flex: 0 0 auto;
+  margin-top: 0.5rem;
+  max-height: min(36dvh, 14rem);
+  overflow-y: auto;
+}
+
+body.walking-mode-active .nearby-refresh-btn {
+  display: none;
+}
+
+body.walking-mode-active .report-filters-bar {
+  flex: 0 0 auto;
+  padding-top: 0.25rem;
+}

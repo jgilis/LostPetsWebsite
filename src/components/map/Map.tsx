@@ -230,19 +230,42 @@ export default function Map({
   );
 
   const walkingMode = useWalkingMode();
-  const showWalkingOnMap =
-    !isAdminScoped &&
-    walkingMode.isWalkingModeEnabled &&
-    walkingMode.livePosition != null;
+  const isWalkingSearch =
+    !isAdminScoped && walkingMode.isWalkingModeEnabled;
+  const lastLivePositionRef = useRef(walkingMode.livePosition);
+
+  useEffect(() => {
+    if (walkingMode.livePosition) {
+      lastLivePositionRef.current = walkingMode.livePosition;
+    }
+  }, [walkingMode.livePosition]);
+
+  const walkingOverlayPosition =
+    walkingMode.livePosition ?? lastLivePositionRef.current;
+  const showWalkingLayers = isWalkingSearch && walkingOverlayPosition != null;
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.body.classList.toggle("walking-mode-active", isWalkingSearch);
+    return () => document.body.classList.remove("walking-mode-active");
+  }, [isWalkingSearch]);
+
+  useEffect(() => {
+    if (!map) return;
+    const maxZoom = isWalkingSearch ? 18 : 16;
+    map.setMaxZoom(maxZoom);
+    if (map.getZoom() > maxZoom) {
+      map.setZoom(maxZoom);
+    }
+  }, [map, isWalkingSearch]);
 
   const handleRecenter = useCallback(() => {
     walkingMode.enableFollowMode();
-    const position = walkingMode.livePosition;
+    const position = walkingMode.livePosition ?? lastLivePositionRef.current;
     if (!map || !position) return;
 
-    map.setView([position.lat, position.lng], map.getZoom(), {
-      animate: true,
-    });
+    map.panTo([position.lat, position.lng], { animate: true });
+    window.dispatchEvent(new Event("walking-map-recenter"));
   }, [map, walkingMode]);
 
   if (!isMounted) return null;
@@ -396,7 +419,10 @@ export default function Map({
       )}
 
       {/* MAP */}
-      <div style={{ position: "relative" }}>
+      <div
+        className={isWalkingSearch ? "walking-map-host relative" : "relative"}
+        style={{ position: "relative" }}
+      >
       <MapContainer
         center={[51.025, 4.477]} // Mechelen
         zoom={13}
@@ -410,7 +436,12 @@ export default function Map({
         worldCopyJump={false}
         preferCanvas={true}
         scrollWheelZoom={true}
-        style={{ height: "60vh", width: "100%" }}
+        className={isWalkingSearch ? "walking-map-container" : undefined}
+        style={
+          isWalkingSearch
+            ? { height: "100%", width: "100%" }
+            : { height: "60vh", width: "100%" }
+        }
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <MapRefBridge setMap={setMap} />
@@ -481,16 +512,16 @@ export default function Map({
           }}
         />
 
-        {showWalkingOnMap && walkingMode.livePosition ? (
+        {showWalkingLayers && walkingOverlayPosition ? (
           <WalkingModeMapLayers
-            livePosition={walkingMode.livePosition}
+            livePosition={walkingOverlayPosition}
             isFollowModeEnabled={walkingMode.isFollowModeEnabled}
             onManualPan={walkingMode.disableFollowMode}
           />
         ) : null}
       </MapContainer>
 
-      {showWalkingOnMap ? (
+      {showWalkingLayers ? (
         <button
           type="button"
           onClick={handleRecenter}
