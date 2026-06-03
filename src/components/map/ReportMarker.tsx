@@ -29,8 +29,11 @@ function useOpenPopupFromFocus(
     if (!openPopupToken) return;
 
     const timer = window.setTimeout(() => {
-      const layer = markerRef.current as (Layer & { openPopup?: () => void }) | null;
-      layer?.openPopup?.();
+      const layer = markerRef.current as
+        | (Layer & { openPopup?: () => void; getElement?: () => HTMLElement | null })
+        | null;
+      if (!layer?.getElement?.()?.isConnected) return;
+      layer.openPopup?.();
     }, 50);
 
     return () => window.clearTimeout(timer);

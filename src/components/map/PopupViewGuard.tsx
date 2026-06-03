@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useMapEvents } from "react-leaflet";
+import type { Map as LeafletMap, Popup } from "leaflet";
 
 const PADDING = {
   top: 16,
@@ -9,16 +11,39 @@ const PADDING = {
   left: 16,
 };
 
+function isMapAlive(map: LeafletMap): boolean {
+  const container = map.getContainer();
+  return !!container?.isConnected;
+}
+
+function isPopupAlive(popup: Popup): boolean {
+  const el = popup.getElement();
+  return !!el?.isConnected;
+}
+
 export default function PopupViewGuard() {
+  const cancelPendingRef = useRef<(() => void) | null>(null);
+
+  const cancelPending = () => {
+    cancelPendingRef.current?.();
+    cancelPendingRef.current = null;
+  };
+
+  useEffect(() => cancelPending, []);
+
   useMapEvents({
     popupopen(e) {
+      cancelPending();
+
       const map = e.target;
       const popup = e.popup;
-      const el = popup.getElement();
-
-      if (!el) return;
 
       const fitPopupInMap = () => {
+        if (!isMapAlive(map) || !isPopupAlive(popup)) return;
+
+        const el = popup.getElement();
+        if (!el) return;
+
         const container = map.getContainer();
         const cRect = container.getBoundingClientRect();
         const pRect = el.getBoundingClientRect();
@@ -48,12 +73,27 @@ export default function PopupViewGuard() {
         }
       };
 
-      requestAnimationFrame(() => {
-        requestAnimationFrame(fitPopupInMap);
+      let rafOuter = 0;
+      let rafInner = 0;
+      const timeoutIds: number[] = [];
+
+      rafOuter = window.requestAnimationFrame(() => {
+        rafInner = window.requestAnimationFrame(fitPopupInMap);
       });
 
-      window.setTimeout(fitPopupInMap, 50);
-      window.setTimeout(fitPopupInMap, 300);
+      timeoutIds.push(window.setTimeout(fitPopupInMap, 50));
+      timeoutIds.push(window.setTimeout(fitPopupInMap, 300));
+
+      cancelPendingRef.current = () => {
+        window.cancelAnimationFrame(rafOuter);
+        window.cancelAnimationFrame(rafInner);
+        for (const id of timeoutIds) {
+          window.clearTimeout(id);
+        }
+      };
+    },
+    popupclose() {
+      cancelPending();
     },
   });
 

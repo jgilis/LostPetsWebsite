@@ -9,6 +9,13 @@ export const WALKING_GEO_OPTIONS: PositionOptions = {
   timeout: 15_000,
 };
 
+/** Continuous watch — prefer fresh fixes while walking mode is active. */
+export const WALKING_WATCH_OPTIONS: PositionOptions = {
+  enableHighAccuracy: true,
+  maximumAge: 0,
+  timeout: 15_000,
+};
+
 export type GeolocationWatchId = number;
 
 export function isBrowserGeolocationAvailable(): boolean {

@@ -7,11 +7,12 @@ import {
   getNearbyReports,
 } from "@/src/lib/geo/getNearbyReports";
 import type { GeoPoint } from "@/src/lib/geo/isWithinRadius";
+import { formatProximityDistance } from "@/src/lib/geo/formatProximityDistance";
 import {
   areProximityCentersEqual,
   stabilizeProximityCenter,
 } from "@/src/lib/geo/center/stabilizeProximityCenter";
-import { useWalkingMode } from "@/src/hooks/useWalkingMode";
+import type { UseWalkingModeResult } from "@/src/hooks/useWalkingMode";
 import { track } from "@/src/lib/analytics/analytics";
 import ProximityEventRow from "./ProximityEventRow";
 
@@ -19,12 +20,14 @@ type NearbyAwarenessProps = {
   centerLocation: GeoPoint | null;
   reports: Report[];
   radiusMeters?: number;
+  walkingMode: UseWalkingModeResult;
 };
 
 function NearbyAwareness({
   centerLocation,
   reports,
   radiusMeters = DEFAULT_NEARBY_RADIUS_METERS,
+  walkingMode,
 }: NearbyAwarenessProps) {
   const lastMapCenterRef = useRef<GeoPoint | null>(
     centerLocation ? stabilizeProximityCenter(centerLocation) : null,
@@ -35,11 +38,12 @@ function NearbyAwareness({
 
   const {
     isWalkingModeEnabled,
-    currentUserLocation,
+    livePosition,
     hasActiveUserLocation,
+    sessionStats,
     startWalkingMode,
     stopWalkingMode,
-  } = useWalkingMode();
+  } = walkingMode;
 
   const stabilizedMapCenter = useMemo(() => {
     const raw = centerLocation ?? lastMapCenterRef.current;
@@ -59,15 +63,15 @@ function NearbyAwareness({
   }, [centerLocation]);
 
   const awarenessCenter = useMemo(() => {
-    if (isWalkingModeEnabled && hasActiveUserLocation && currentUserLocation) {
-      return currentUserLocation;
+    if (isWalkingModeEnabled && hasActiveUserLocation && livePosition) {
+      return { lat: livePosition.lat, lng: livePosition.lng };
     }
 
     return stabilizedMapCenter ?? lastMapCenterRef.current;
   }, [
     isWalkingModeEnabled,
     hasActiveUserLocation,
-    currentUserLocation,
+    livePosition,
     stabilizedMapCenter,
   ]);
 
@@ -130,7 +134,8 @@ function NearbyAwareness({
       .map((event) => event.report.id)
       .sort()
       .join(",");
-    const signature = `${awarenessCenter.lat},${awarenessCenter.lng}:${reportIds}`;
+    const stabilizedCenter = stabilizeProximityCenter(awarenessCenter);
+    const signature = `${stabilizedCenter.lat},${stabilizedCenter.lng}:${reportIds}`;
 
     if (lastNearbyTrackedRef.current === signature) return;
     lastNearbyTrackedRef.current = signature;
@@ -140,7 +145,7 @@ function NearbyAwareness({
     });
   }, [showList, awarenessCenter, nearby]);
 
-  if (!stabilizedMapCenter && !lastMapCenterRef.current && !currentUserLocation) {
+  if (!stabilizedMapCenter && !lastMapCenterRef.current && !livePosition) {
     return null;
   }
 
@@ -180,6 +185,13 @@ function NearbyAwareness({
       <p className="mt-2 text-sm text-gray-400" role="status">
         {systemStatusMessage}
       </p>
+
+      {isWalkingModeEnabled && hasActiveUserLocation ? (
+        <p className="mt-1 text-xs text-gray-500">
+          Session: {sessionStats.elapsedLabel} ·{" "}
+          {formatProximityDistance(sessionStats.distanceMeters)} walked
+        </p>
+      ) : null}
 
       {showEmpty ? (
         <p className="mt-2 text-sm text-gray-500">No nearby reports</p>

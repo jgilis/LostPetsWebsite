@@ -24,6 +24,8 @@ import { useMapIcons } from "./useMapIcons";
 import { useMapFocus } from "./useMapFocus";
 import { useReportUrlFocus } from "./useReportUrlFocus";
 import NearbyAwareness from "../nearby/NearbyAwareness";
+import WalkingModeMapLayers from "./WalkingModeMapLayers";
+import { useWalkingMode } from "@/src/hooks/useWalkingMode";
 import { isPublicMapReport } from "@/src/lib/reports";
 import { useReportSightings } from "./useReportSightings";
 import type { MapProps } from "./mapTypes";
@@ -226,6 +228,22 @@ export default function Map({
     () => reports.filter(isPublicMapReport),
     [reports],
   );
+
+  const walkingMode = useWalkingMode();
+  const showWalkingOnMap =
+    !isAdminScoped &&
+    walkingMode.isWalkingModeEnabled &&
+    walkingMode.livePosition != null;
+
+  const handleRecenter = useCallback(() => {
+    walkingMode.enableFollowMode();
+    const position = walkingMode.livePosition;
+    if (!map || !position) return;
+
+    map.setView([position.lat, position.lng], map.getZoom(), {
+      animate: true,
+    });
+  }, [map, walkingMode]);
 
   if (!isMounted) return null;
   if (!L || !icons || !sightingIcon) return <p>{t("mapLoading")}</p>;
@@ -462,7 +480,26 @@ export default function Map({
             });
           }}
         />
+
+        {showWalkingOnMap && walkingMode.livePosition ? (
+          <WalkingModeMapLayers
+            livePosition={walkingMode.livePosition}
+            isFollowModeEnabled={walkingMode.isFollowModeEnabled}
+            onManualPan={walkingMode.disableFollowMode}
+          />
+        ) : null}
       </MapContainer>
+
+      {showWalkingOnMap ? (
+        <button
+          type="button"
+          onClick={handleRecenter}
+          className="absolute bottom-3 right-3 z-[500] rounded-md bg-gray-900/90 px-3 py-2 text-xs font-medium text-gray-100 shadow ring-1 ring-gray-600 hover:bg-gray-800"
+          aria-label="Recenter on your location"
+        >
+          Recenter
+        </button>
+      ) : null}
 
       {isAdminScoped && <AdminMapLegend />}
       </div>
@@ -471,6 +508,7 @@ export default function Map({
         <NearbyAwareness
           centerLocation={mapCenterLocation}
           reports={mapProximityReports}
+          walkingMode={walkingMode}
         />
       )}
     </div>
