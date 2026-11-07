@@ -1,0 +1,4 @@
+schema_name,table_name,policy_name,permitted_roles,command,using_expression,with_check_expression,finding
+public,notification_events,allow inserts from authenticated users,{authenticated},INSERT,,true,permissive policy expression is true for a public API role
+public,sightings,Anyone can insert sightings,"{anon,authenticated}",INSERT,,true,permissive policy expression is true for a public API role
+public,submission_logs,Allow insert for all,{anon},INSERT,,true,permissive policy expression is true for a public API role

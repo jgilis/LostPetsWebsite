@@ -8,8 +8,8 @@ type Report = {
 } | null;
 
 type Sighting = {
-  latitude: number;
-  longitude: number;
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 type Props = {
@@ -18,12 +18,18 @@ type Props = {
 };
 
 export default function SightingMap({ sighting, report }: Props) {
-  const sightingLat = sighting?.latitude ?? 0;
-  const sightingLng = sighting?.longitude ?? 0;
-  console.log("SIGHTING COORDS:", sighting.latitude, sighting.longitude);
+  const hasExactSighting =
+    sighting.latitude != null &&
+    sighting.longitude != null &&
+    Number.isFinite(sighting.latitude) &&
+    Number.isFinite(sighting.longitude);
+  const sightingLat = hasExactSighting ? sighting.latitude! : null;
+  const sightingLng = hasExactSighting ? sighting.longitude! : null;
 
   const reportLat = report?.latitude;
   const reportLng = report?.longitude;
+  const centerLat = sightingLat ?? reportLat ?? 51.025;
+  const centerLng = sightingLng ?? reportLng ?? 4.477;
 
   return (
     <div
@@ -33,7 +39,7 @@ export default function SightingMap({ sighting, report }: Props) {
       }}
     >
       <MapContainer
-        center={[sightingLat, sightingLng]}
+        center={[centerLat, centerLng]}
         zoom={14}
         style={{
           height: "100%",
@@ -62,17 +68,18 @@ export default function SightingMap({ sighting, report }: Props) {
           </div>
         )}
 
-        {/* SIGHTING LOCATION (RED) */}
-        <CircleMarker
-          center={[sightingLat, sightingLng]}
-          radius={10}
-          pathOptions={{
-            color: "#ef4444",
-            fillColor: "#ef4444",
-            fillOpacity: 0.9,
-            weight: 2,
-          }}
-        />
+        {sightingLat != null && sightingLng != null && (
+          <CircleMarker
+            center={[sightingLat, sightingLng]}
+            radius={10}
+            pathOptions={{
+              color: "#ef4444",
+              fillColor: "#ef4444",
+              fillOpacity: 0.9,
+              weight: 2,
+            }}
+          />
+        )}
       </MapContainer>
     </div>
   );

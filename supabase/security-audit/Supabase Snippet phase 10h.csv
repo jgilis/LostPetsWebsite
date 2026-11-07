@@ -1,0 +1,2 @@
+bucket_id,bucket_name,file_size_limit,allowed_mime_types,finding
+report-photos,report-photos,5242880,"[""image/*""]",bucket is public

@@ -1,0 +1,25 @@
+schema_name,table_name,owner_role,finding
+auth,custom_oauth_providers,supabase_auth_admin,RLS disabled
+auth,mfa_recovery_code_sets,supabase_auth_admin,RLS disabled
+auth,mfa_recovery_codes,supabase_auth_admin,RLS disabled
+auth,oauth_authorizations,supabase_auth_admin,RLS disabled
+auth,oauth_client_states,supabase_auth_admin,RLS disabled
+auth,oauth_clients,supabase_auth_admin,RLS disabled
+auth,oauth_consents,supabase_auth_admin,RLS disabled
+auth,scim_tokens,supabase_auth_admin,RLS disabled
+auth,scim_users,supabase_auth_admin,RLS disabled
+auth,webauthn_challenges,supabase_auth_admin,RLS disabled
+auth,webauthn_credentials,supabase_auth_admin,RLS disabled
+net,_http_response,supabase_admin,RLS disabled
+net,http_request_queue,supabase_admin,RLS disabled
+realtime,messages_2026_11_05,supabase_realtime_admin,RLS disabled
+realtime,messages_2026_11_06,supabase_realtime_admin,RLS disabled
+realtime,messages_2026_11_07,supabase_realtime_admin,RLS disabled
+realtime,messages_2026_11_08,supabase_realtime_admin,RLS disabled
+realtime,messages_2026_11_09,supabase_realtime_admin,RLS disabled
+realtime,messages_2026_11_10,supabase_realtime_admin,RLS disabled
+realtime,schema_migrations,supabase_admin,RLS disabled
+realtime,subscription,supabase_realtime_admin,RLS disabled
+supabase_functions,hooks,supabase_functions_admin,RLS disabled
+supabase_functions,migrations,supabase_functions_admin,RLS disabled
+vault,secrets,supabase_admin,RLS disabled

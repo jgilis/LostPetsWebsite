@@ -1,0 +1,13 @@
+role_name,is_superuser,bypasses_rls,can_create_roles,can_create_databases,can_login,can_replicate
+anon,false,false,false,false,false,false
+authenticated,false,false,false,false,false,false
+authenticator,false,false,false,false,true,false
+dashboard_user,false,false,true,true,false,true
+pgbouncer,false,false,false,false,true,false
+postgres,false,true,true,true,true,true
+service_role,false,true,false,false,false,false
+supabase_admin,true,true,true,true,true,true
+supabase_auth_admin,false,false,true,false,true,false
+supabase_read_only_user,false,true,false,false,true,false
+supabase_realtime_admin,false,false,false,false,false,false
+supabase_storage_admin,false,false,true,false,true,false

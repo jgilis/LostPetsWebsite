@@ -1,0 +1,28 @@
+schema_name,table_name,policy_name,permissive_or_restrictive,permitted_roles,command,using_expression,with_check_expression
+public,notification_events,allow inserts from authenticated users,PERMISSIVE,{authenticated},INSERT,,true
+public,notification_events,notification_events_select_own_uid,PERMISSIVE,{authenticated},SELECT,(auth.uid() = target_user_id),
+public,notification_events,notification_events_update_own_uid,PERMISSIVE,{authenticated},UPDATE,(auth.uid() = target_user_id),(auth.uid() = target_user_id)
+public,profiles,Users can read own profile,PERMISSIVE,{authenticated},SELECT,(id = auth.uid()),
+public,push_subscriptions,push_subscriptions_delete_own,PERMISSIVE,{authenticated},DELETE,(auth.uid() = user_id),
+public,push_subscriptions,push_subscriptions_insert_own,PERMISSIVE,{authenticated},INSERT,,(auth.uid() = user_id)
+public,push_subscriptions,push_subscriptions_select_own,PERMISSIVE,{authenticated},SELECT,(auth.uid() = user_id),
+public,push_subscriptions,push_subscriptions_update_own,PERMISSIVE,{authenticated},UPDATE,(auth.uid() = user_id),(auth.uid() = user_id)
+public,reports,Authenticated users can create reports,PERMISSIVE,{authenticated},INSERT,,(auth.uid() = owner_user_id)
+public,reports,Owners can delete their reports,PERMISSIVE,{authenticated},DELETE,(auth.uid() = owner_user_id),
+public,reports,Owners can update their reports,PERMISSIVE,{authenticated},UPDATE,(auth.uid() = owner_user_id),(auth.uid() = owner_user_id)
+public,reports,Public can view active and resolved reports,PERMISSIVE,{public},SELECT,"(status = ANY (ARRAY['active'::text, 'resolved'::text]))",
+public,reports_flags,allow insert flags,PERMISSIVE,{public},INSERT,,((reason IS NOT NULL) AND (length(reason) > 3))
+public,sightings,Admins can manage sightings (new),PERMISSIVE,{authenticated},ALL,"(EXISTS ( SELECT 1
+   FROM profiles
+  WHERE ((profiles.id = auth.uid()) AND (profiles.is_admin = true))))","(EXISTS ( SELECT 1
+   FROM profiles
+  WHERE ((profiles.id = auth.uid()) AND (profiles.is_admin = true))))"
+public,sightings,Anyone can insert sightings,PERMISSIVE,"{anon,authenticated}",INSERT,,true
+public,sightings,Public can view approved sightings,PERMISSIVE,{public},SELECT,(status = 'approved'::text),
+public,sightings,public can view approved sightings,PERMISSIVE,{public},SELECT,(status = 'approved'::text),
+public,submission_logs,Allow insert for all,PERMISSIVE,{anon},INSERT,,true
+public,submission_logs,Block select for anon,PERMISSIVE,{anon},SELECT,false,
+storage,objects,Allow image uploads xo88xm_0,PERMISSIVE,{anon},INSERT,,(bucket_id = 'report-photos'::text)
+storage,objects,Allow public image read xo88xm_0,PERMISSIVE,{anon},SELECT,(bucket_id = 'report-photos'::text),
+storage,objects,Allow uploads to report-photos,PERMISSIVE,"{anon,authenticated}",INSERT,,((bucket_id = 'report-photos'::text) AND (length(name) > 5))
+storage,objects,View report photos,PERMISSIVE,"{anon,authenticated}",SELECT,(bucket_id = 'report-photos'::text),

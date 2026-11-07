@@ -1,0 +1,2 @@
+policy_name,permitted_roles,command,using_expression,with_check_expression,expression_mentions_is_admin,finding
+Users can read own profile,{authenticated},SELECT,(id = auth.uid()),,false,review whether this policy lets a non-admin read or write profiles.is_admin

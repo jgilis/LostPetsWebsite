@@ -15,3 +15,10 @@ enabled = true
 verify_jwt = false
 import_map = "./functions/send-push-on-notification/deno.json"
 entrypoint = "./functions/send-push-on-notification/index.ts"
+
+# Production sighting submissions already call this name.
+# verify_jwt must stay false: the sighting form sends no Authorization header.
+[functions.smooth-processor]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/smooth-processor/index.ts"

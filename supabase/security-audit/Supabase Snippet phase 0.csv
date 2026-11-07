@@ -1,0 +1,2 @@
+executing_role,database_name,postgres_version,row_security_setting,pgrst_db_schemas_if_set,pgrst_extra_search_path_if_set
+postgres,postgres,17.6,on,null,null

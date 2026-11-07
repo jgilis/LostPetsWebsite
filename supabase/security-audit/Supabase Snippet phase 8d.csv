@@ -1,0 +1,3 @@
+role_name,is_superuser,bypasses_rls,can_create_roles,can_login
+supabase_etl_admin,false,true,false,true
+supabase_functions_admin,false,false,true,true

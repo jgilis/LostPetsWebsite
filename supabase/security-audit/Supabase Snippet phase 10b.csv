@@ -1,0 +1,27 @@
+schema_name,table_name,owner_role,rls_forced,finding
+auth,audit_log_entries,supabase_auth_admin,false,RLS enabled with zero policies
+auth,flow_state,supabase_auth_admin,false,RLS enabled with zero policies
+auth,identities,supabase_auth_admin,false,RLS enabled with zero policies
+auth,instances,supabase_auth_admin,false,RLS enabled with zero policies
+auth,mfa_amr_claims,supabase_auth_admin,false,RLS enabled with zero policies
+auth,mfa_challenges,supabase_auth_admin,false,RLS enabled with zero policies
+auth,mfa_factors,supabase_auth_admin,false,RLS enabled with zero policies
+auth,one_time_tokens,supabase_auth_admin,false,RLS enabled with zero policies
+auth,refresh_tokens,supabase_auth_admin,false,RLS enabled with zero policies
+auth,saml_providers,supabase_auth_admin,false,RLS enabled with zero policies
+auth,saml_relay_states,supabase_auth_admin,false,RLS enabled with zero policies
+auth,schema_migrations,supabase_auth_admin,false,RLS enabled with zero policies
+auth,sessions,supabase_auth_admin,false,RLS enabled with zero policies
+auth,sso_domains,supabase_auth_admin,false,RLS enabled with zero policies
+auth,sso_providers,supabase_auth_admin,false,RLS enabled with zero policies
+auth,users,supabase_auth_admin,false,RLS enabled with zero policies
+realtime,messages,supabase_realtime_admin,false,RLS enabled with zero policies
+storage,bucket_lifecycle_states,supabase_storage_admin,false,RLS enabled with zero policies
+storage,buckets,supabase_storage_admin,false,RLS enabled with zero policies
+storage,buckets_analytics,supabase_storage_admin,false,RLS enabled with zero policies
+storage,buckets_vectors,supabase_storage_admin,false,RLS enabled with zero policies
+storage,lifecycle_abandoned_artifacts,supabase_storage_admin,false,RLS enabled with zero policies
+storage,migrations,supabase_storage_admin,false,RLS enabled with zero policies
+storage,s3_multipart_uploads,supabase_storage_admin,false,RLS enabled with zero policies
+storage,s3_multipart_uploads_parts,supabase_storage_admin,false,RLS enabled with zero policies
+storage,vector_indexes,supabase_storage_admin,false,RLS enabled with zero policies

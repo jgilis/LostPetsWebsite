@@ -1,0 +1,2 @@
+pgcrypto_installed,postgis_installed,pgjwt_installed,supabase_vault_installed
+true,false,false,true

@@ -1,0 +1,2 @@
+bucket_id,bucket_name,is_public,file_size_limit,allowed_mime_types,avif_autodetection
+report-photos,report-photos,true,5242880,"[""image/*""]",false

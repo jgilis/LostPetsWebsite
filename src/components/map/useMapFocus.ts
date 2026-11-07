@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getPublicSightingById } from "../../lib/sightings";
+import { getPublicSightingById, withExactCoordinates } from "../../lib/sightings";
 import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
 import { useRealtimeResyncRegister } from "../sync/RealtimeResyncProvider";
 
@@ -13,7 +13,13 @@ export function useMapFocus(focusSighting: string | null) {
     }
 
     const data = await getPublicSightingById(focusSighting);
-    setFocusedSighting(data);
+    if (!data) {
+      setFocusedSighting(null);
+      return;
+    }
+
+    const [withLocation] = await withExactCoordinates([data]);
+    setFocusedSighting(withLocation);
   }, [focusSighting]);
 
   useEffect(() => {
@@ -28,15 +34,16 @@ export function useMapFocus(focusSighting: string | null) {
     void loadFocusSighting();
   }, [loadFocusSighting]);
 
-  const sightingMarkers = focusedSighting
-    ? [
-        {
-          id: focusedSighting.id,
-          lat: Number(focusedSighting.latitude),
-          lng: Number(focusedSighting.longitude),
-        },
-      ]
-    : [];
+  const sightingMarkers =
+    focusedSighting?.latitude == null || focusedSighting?.longitude == null
+      ? []
+      : [
+          {
+            id: focusedSighting.id,
+            lat: focusedSighting.latitude,
+            lng: focusedSighting.longitude,
+          },
+        ];
 
   return { focusedSighting, sightingMarkers };
 }

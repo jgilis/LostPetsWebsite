@@ -17,8 +17,8 @@ type ReportRef = {
 type Sighting = {
   id: string;
   lost_report_id: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   description: string | null;
   photo_url: string | null;
   status: string;
@@ -117,7 +117,9 @@ export default function AdminSightingsPage() {
             className="rounded-lg border border-gray-700 bg-gray-900 p-4 text-gray-200"
           >
             <p className="text-sm text-gray-400">
-              {s.latitude.toFixed(5)}, {s.longitude.toFixed(5)}
+              {s.latitude != null && s.longitude != null
+                ? `${s.latitude.toFixed(5)}, ${s.longitude.toFixed(5)}`
+                : "Exact location unavailable"}
             </p>
 
             {s.reports && (
@@ -126,16 +128,18 @@ export default function AdminSightingsPage() {
                   {s.reports.animal_type}
                   {s.reports.animal_name ? ` (${s.reports.animal_name})` : ""}
                 </p>
-                <p className="text-gray-400">
-                  Distance from last known location:{" "}
-                  {getDistanceMeters(
-                    s.reports.latitude,
-                    s.reports.longitude,
-                    s.latitude,
-                    s.longitude
-                  ).toFixed(0)}
-                  m
-                </p>
+                {s.latitude != null && s.longitude != null && (
+                  <p className="text-gray-400">
+                    Distance from last known location:{" "}
+                    {getDistanceMeters(
+                      s.reports.latitude,
+                      s.reports.longitude,
+                      s.latitude,
+                      s.longitude
+                    ).toFixed(0)}
+                    m
+                  </p>
+                )}
               </div>
             )}
 
@@ -154,14 +158,16 @@ export default function AdminSightingsPage() {
               >
                 View on platform map
               </a>
-              <a
-                href={`https://www.google.com/maps?q=${s.latitude},${s.longitude}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-200"
-              >
-                Open in Google Maps
-              </a>
+              {s.latitude != null && s.longitude != null && (
+                <a
+                  href={`https://www.google.com/maps?q=${s.latitude},${s.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-gray-200"
+                >
+                  Open in Google Maps
+                </a>
+              )}
             </div>
 
             <div className="mt-4 flex flex-wrap gap-2 border-t border-gray-800 pt-3">

@@ -1,0 +1,21 @@
+schema_name,relation_name,role_name,can_insert,can_update,can_delete,can_truncate,rls_enabled,finding
+public,notification_events,anon,true,true,true,true,true,role has a write privilege; RLS may still deny the write
+public,notification_events,authenticated,true,true,true,true,true,role has a write privilege; RLS may still deny the write
+public,profiles,anon,true,true,true,true,true,role has a write privilege; RLS may still deny the write
+public,profiles,authenticated,true,true,true,true,true,role has a write privilege; RLS may still deny the write
+public,push_subscriptions,anon,true,true,true,true,true,role has a write privilege; RLS may still deny the write
+public,push_subscriptions,authenticated,true,true,true,true,true,role has a write privilege; RLS may still deny the write
+public,reports,anon,true,true,true,true,true,role has a write privilege; RLS may still deny the write
+public,reports,authenticated,true,true,true,true,true,role has a write privilege; RLS may still deny the write
+public,reports_flags,anon,true,true,true,true,true,role has a write privilege; RLS may still deny the write
+public,reports_flags,authenticated,true,true,true,true,true,role has a write privilege; RLS may still deny the write
+public,sightings,anon,true,true,true,true,true,role has a write privilege; RLS may still deny the write
+public,sightings,authenticated,true,true,true,true,true,role has a write privilege; RLS may still deny the write
+public,submission_logs,anon,true,true,true,true,true,role has a write privilege; RLS may still deny the write
+public,submission_logs,authenticated,true,true,true,true,true,role has a write privilege; RLS may still deny the write
+storage,buckets,anon,true,true,true,false,true,role has a write privilege; RLS may still deny the write
+storage,buckets,authenticated,true,true,true,false,true,role has a write privilege; RLS may still deny the write
+storage,buckets_analytics,anon,true,true,true,false,true,role has a write privilege; RLS may still deny the write
+storage,buckets_analytics,authenticated,true,true,true,false,true,role has a write privilege; RLS may still deny the write
+storage,objects,anon,true,true,true,false,true,role has a write privilege; RLS may still deny the write
+storage,objects,authenticated,true,true,true,false,true,role has a write privilege; RLS may still deny the write

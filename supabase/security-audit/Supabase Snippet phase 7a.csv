@@ -1,0 +1,15 @@
+column_name,data_type,is_nullable
+id,text,NO
+name,text,NO
+owner,uuid,YES
+created_at,timestamp with time zone,YES
+updated_at,timestamp with time zone,YES
+public,boolean,YES
+avif_autodetection,boolean,YES
+file_size_limit,bigint,YES
+allowed_mime_types,ARRAY,YES
+owner_id,text,YES
+type,USER-DEFINED,NO
+versioning_status,text,NO
+lifecycle_configuration,jsonb,YES
+lifecycle_configuration_generation,uuid,YES

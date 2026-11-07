@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { useNotifications } from "../../../src/components/notifications/NotificationsProvider";
-import { getPublicSightingById } from "../../../src/lib/sightings";
+import { getPublicSightingById, withExactCoordinates } from "../../../src/lib/sightings";
 
 const SightingMap = dynamic(() => import("../../../src/components/sightings/SightingMap"), {
   ssr: false,
@@ -19,8 +19,8 @@ type SightingDetail = {
   id: string;
   status: string;
   description?: string | null;
-  latitude: number;
-  longitude: number;
+  latitude?: number | null;
+  longitude?: number | null;
   report?: unknown;
   [key: string]: unknown;
 };
@@ -41,6 +41,22 @@ export default function SightingClient({
   useEffect(() => {
     setSighting(initialSighting);
     lastHandledEventId.current = null;
+    let cancelled = false;
+
+    void withExactCoordinates([initialSighting]).then((rows) => {
+      if (cancelled) return;
+      const exact = rows[0];
+      if (exact?.latitude == null || exact.longitude == null) return;
+      setSighting((current) => ({
+        ...current,
+        latitude: exact.latitude,
+        longitude: exact.longitude,
+      }));
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [initialSighting]);
 
   useEffect(() => {
@@ -55,10 +71,10 @@ export default function SightingClient({
 
     lastHandledEventId.current = moderationEvent.id;
 
-    void getPublicSightingById(initialSighting.id).then((fresh) => {
-      if (fresh) {
-        setSighting(fresh as SightingDetail);
-      }
+    void getPublicSightingById(initialSighting.id).then(async (fresh) => {
+      if (!fresh) return;
+      const [withLocation] = await withExactCoordinates([fresh]);
+      setSighting(withLocation as SightingDetail);
     });
   }, [events, initialSighting.id]);
 

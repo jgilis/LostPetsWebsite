@@ -1,0 +1,7 @@
+relation_name,role_name,can_select,can_insert,can_update,can_delete,rls_enabled,rls_forced
+buckets,anon,true,true,true,true,true,false
+buckets,authenticated,true,true,true,true,true,false
+buckets,service_role,true,true,true,true,true,false
+objects,anon,true,true,true,true,true,false
+objects,authenticated,true,true,true,true,true,false
+objects,service_role,true,true,true,true,true,false

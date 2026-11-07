@@ -13,6 +13,7 @@ import { flagReport } from "../../lib/flags";
 import SightingModal from "../sightings/SightingsModal";
 import {
   getApprovedSightings,
+  withExactCoordinates,
   Sighting,
 } from "../../lib/sightings";
 import PopupPhoto from "./PopupPhoto";
@@ -44,8 +45,13 @@ export default function ReportPopup({
     }
 
     const data = await getApprovedSightings(report.id);
-    setSightings(data);
-  }, [report.id, report.type]);
+    if (!canSeeExactSightings) {
+      setSightings(data);
+      return;
+    }
+
+    setSightings(await withExactCoordinates(data));
+  }, [canSeeExactSightings, report.id, report.type]);
 
   useEffect(() => {
     void loadSightings();
@@ -208,11 +214,15 @@ export default function ReportPopup({
                       fontSize: "13px",
                     }}
                   >
-                    📍{" "}
-                    <LocationDisplay
-                      latitude={s.latitude}
-                      longitude={s.longitude}
-                    />
+                    {s.latitude != null && s.longitude != null && (
+                      <>
+                        📍{" "}
+                        <LocationDisplay
+                          latitude={s.latitude}
+                          longitude={s.longitude}
+                        />
+                      </>
+                    )}
                   </div>
 
                   {s.description && (

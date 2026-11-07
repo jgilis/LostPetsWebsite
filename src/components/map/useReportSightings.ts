@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getApprovedSightings } from "../../lib/sightings";
+import { getReportSightings, withExactCoordinates } from "../../lib/sightings";
 import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
 import { useRealtimeResyncRegister } from "../sync/RealtimeResyncProvider";
 
@@ -23,13 +23,13 @@ export function useReportSightings(reportId: string | null) {
     }
 
     setLoading(true);
-    const data = await getApprovedSightings(reportId);
+    const data = await withExactCoordinates(await getReportSightings(reportId));
     setSightingMarkers(
-      data.map((s) => ({
-        id: s.id,
-        lat: Number(s.latitude),
-        lng: Number(s.longitude),
-      })),
+      data.flatMap((s) =>
+        s.latitude == null || s.longitude == null
+          ? []
+          : [{ id: s.id, lat: s.latitude, lng: s.longitude }],
+      ),
     );
     setLoading(false);
   }, [reportId]);

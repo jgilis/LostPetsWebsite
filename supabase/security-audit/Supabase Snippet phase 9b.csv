@@ -1,0 +1,3 @@
+schema_name,table_name,column_name,data_type,finding
+public,notification_events,target_user_id,uuid,no foreign key found on this column; manual review only
+public,reports,owner_user_id,uuid,no foreign key found on this column; manual review only

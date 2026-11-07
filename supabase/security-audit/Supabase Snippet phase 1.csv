@@ -1,0 +1,62 @@
+schema_name,relation_name,relation_kind,rls_enabled,rls_forced,owner_role,in_supabase_realtime_publication,api_exposure_hint
+auth,audit_log_entries,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,custom_oauth_providers,table,false,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,flow_state,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,identities,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,instances,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,mfa_amr_claims,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,mfa_challenges,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,mfa_factors,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,mfa_recovery_code_sets,table,false,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,mfa_recovery_codes,table,false,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,oauth_authorizations,table,false,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,oauth_client_states,table,false,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,oauth_clients,table,false,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,oauth_consents,table,false,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,one_time_tokens,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,refresh_tokens,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,saml_providers,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,saml_relay_states,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,schema_migrations,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,scim_tokens,table,false,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,scim_users,table,false,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,sessions,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,sso_domains,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,sso_providers,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,users,table,true,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,webauthn_challenges,table,false,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+auth,webauthn_credentials,table,false,false,supabase_auth_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+extensions,pg_stat_statements,view,false,false,postgres,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+extensions,pg_stat_statements_info,view,false,false,postgres,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+net,_http_response,table,false,false,supabase_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+net,http_request_queue,table,false,false,supabase_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+public,notification_events,table,true,false,postgres,true,privilege granted to anon or authenticated in a schema Supabase often exposes; confirm the API schema list
+public,profiles,table,true,false,postgres,false,privilege granted to anon or authenticated in a schema Supabase often exposes; confirm the API schema list
+public,push_subscriptions,table,true,false,postgres,false,privilege granted to anon or authenticated in a schema Supabase often exposes; confirm the API schema list
+public,reports,table,true,false,postgres,true,privilege granted to anon or authenticated in a schema Supabase often exposes; confirm the API schema list
+public,reports_flags,table,true,false,postgres,false,privilege granted to anon or authenticated in a schema Supabase often exposes; confirm the API schema list
+public,sightings,table,true,false,postgres,false,privilege granted to anon or authenticated in a schema Supabase often exposes; confirm the API schema list
+public,submission_logs,table,true,false,postgres,false,privilege granted to anon or authenticated in a schema Supabase often exposes; confirm the API schema list
+realtime,messages,partitioned table,true,false,supabase_realtime_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+realtime,messages_2026_11_05,table,false,false,supabase_realtime_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+realtime,messages_2026_11_06,table,false,false,supabase_realtime_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+realtime,messages_2026_11_07,table,false,false,supabase_realtime_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+realtime,messages_2026_11_08,table,false,false,supabase_realtime_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+realtime,messages_2026_11_09,table,false,false,supabase_realtime_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+realtime,messages_2026_11_10,table,false,false,supabase_realtime_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+realtime,schema_migrations,table,false,false,supabase_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+realtime,subscription,table,false,false,supabase_realtime_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+storage,bucket_lifecycle_states,table,true,false,supabase_storage_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+storage,buckets,table,true,false,supabase_storage_admin,false,privilege granted to anon or authenticated in a schema Supabase often exposes; confirm the API schema list
+storage,buckets_analytics,table,true,false,supabase_storage_admin,false,privilege granted to anon or authenticated in a schema Supabase often exposes; confirm the API schema list
+storage,buckets_vectors,table,true,false,supabase_storage_admin,false,privilege granted to anon or authenticated in a schema Supabase often exposes; confirm the API schema list
+storage,lifecycle_abandoned_artifacts,table,true,false,supabase_storage_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+storage,migrations,table,true,false,supabase_storage_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+storage,objects,table,true,false,supabase_storage_admin,false,privilege granted to anon or authenticated in a schema Supabase often exposes; confirm the API schema list
+storage,s3_multipart_uploads,table,true,false,supabase_storage_admin,false,privilege granted to anon or authenticated in a schema Supabase often exposes; confirm the API schema list
+storage,s3_multipart_uploads_parts,table,true,false,supabase_storage_admin,false,privilege granted to anon or authenticated in a schema Supabase often exposes; confirm the API schema list
+storage,vector_indexes,table,true,false,supabase_storage_admin,false,privilege granted to anon or authenticated in a schema Supabase often exposes; confirm the API schema list
+supabase_functions,hooks,table,false,false,supabase_functions_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+supabase_functions,migrations,table,false,false,supabase_functions_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+vault,decrypted_secrets,view,false,false,supabase_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
+vault,secrets,table,false,false,supabase_admin,false,"no anon/authenticated DML or select grant, or schema is not a default API schema"
