@@ -133,23 +133,30 @@ export async function withExactCoordinates<T extends { id: string }>(
 }
 
 export async function getApprovedSightings(
-  lostReportId: string
+  lostReportId?: string,
 ): Promise<Sighting[]> {
-  const { data, error } = await supabase
+  let query = supabase
     .from("sightings")
     .select(PUBLIC_SIGHTING_COLUMNS)
-    .eq("lost_report_id", lostReportId)
     .eq("status", "approved")
     .order("created_at", {
       ascending: false,
     });
+
+  if (lostReportId) {
+    query = query.eq("lost_report_id", lostReportId);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error(error);
     return [];
   }
 
-  return (data ?? []) as unknown as Sighting[];
+  return ((data ?? []) as unknown as Sighting[]).filter(
+    (sighting) => sighting.status === "approved",
+  );
 }
 
 export async function getReportSightings(

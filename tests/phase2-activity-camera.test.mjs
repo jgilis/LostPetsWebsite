@@ -8,6 +8,10 @@ const workspace = readFileSync(
   "utf8",
 );
 const feed = readFileSync("src/components/feed/ReportsFeed.tsx", "utf8");
+const activityEvents = readFileSync(
+  "src/components/feed/activityEvents.ts",
+  "utf8",
+);
 const bounds = readFileSync("src/lib/geo/reportInBounds.ts", "utf8");
 const en = readFileSync("src/i18n/en.ts", "utf8");
 const nl = readFileSync("src/i18n/nl.ts", "utf8");
@@ -23,8 +27,10 @@ test("the Discover map stays mounted when Activity or Help is open", () => {
 });
 
 test("Activity lists loaded reports in Discover bounds and Mine ignores the area", () => {
-  assert.match(feed, /filterReportsInBounds/);
+  assert.match(feed, /buildActivityEvents/);
+  assert.match(activityEvents, /filterReportsInBounds/);
   assert.match(feed, /ownershipFilter === "mine"/);
+  assert.match(feed, /ActivityToolbar/);
   assert.match(feed, /activityEmptyInArea/);
   assert.doesNotMatch(feed, /useReports\(/);
   assert.doesNotMatch(feed, /bounding.?box query/i);

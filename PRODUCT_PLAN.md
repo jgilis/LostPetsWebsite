@@ -1,6 +1,6 @@
 # Lost Pets Map — Product Plan
 
-**Status:** Working product direction. Phase 0 and Phase 1 are complete. Next work is Phase 2.  
+**Status:** Working product direction. Phase 0 and Phase 1 are complete. Phase 2 slices 1–2 are in this repository. Next is slice 3.  
 **Scope:** Next version  
 **Primary area:** Mechelen, Belgium  
 **Languages:** English, Dutch and French
@@ -309,7 +309,7 @@ Work in small, reviewable phases. Complete and test each phase before starting t
 |---|---|---|
 | 0 | Security, privacy and technical foundations | **Done.** Packages A, B and C are live. See section 15. |
 | 1 | Discover navigation and map experience | **Done.** Shell, bounds-synced reports, detail sheet, legend, desktop pass, map-first Android, Within 500 m on the report list, clickable found dots. |
-| 2 | Activity and map-area filtering | **Slice 1 in this repository.** Slices 2–4 not started. |
+| 2 | Activity and map-area filtering | **Slices 1–2 in this repository.** Slices 3–4 not started. |
 | 3 | Help, reporting and editing flows | Not started |
 | 4 | Area subscriptions and notifications | Not started |
 | 5 | Administration, expiry and cleanup | Not started |
@@ -348,6 +348,8 @@ Work and test one slice at a time. Each slice should be usable on its own.
 
 **Slice 2 — Approved sightings as Activity events**
 
+Implemented in this repository.
+
 - Mix **approved** sightings into the same list when the sighting coordinate falls inside the Discover bounds.
 - Public copy is coarse place text only. No exact coordinates. No public sighting pin on Activity or Discover.
 - Newest first among all event types already in the list.
@@ -355,6 +357,7 @@ Work and test one slice at a time. Each slice should be usable on its own.
 - Pending and rejected sightings stay hidden, as today.
 - Do not change `/sightings/[id]` exact-location visibility (separate debt). Do not send public users there as a way to see an exact point.
 - Do not change Phase 0 sighting privacy, RLS, or production database state unless a missing SELECT on approved public fields blocks this slice **and** the user asks.
+- Public `sightings` SELECT still omits latitude/longitude. The area test and coarse “Near …” line use the linked lost report’s public point. Exact sighting pins stay off Activity and Discover.
 
 **Slice 3 — 14-day reunions and event-type filter**
 
@@ -439,7 +442,7 @@ These should not silently become permanent technical or product assumptions:
 
 ## 15. Live baseline
 
-**As of 9 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover is implemented in this repository** (production is whatever Vercel last deployed from GitHub). Home is Discover / Activity / Help. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2 slice 1 is in this repository:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds). Slices 2–4 are not started. Help is still the report form. `/sightings/[id]` exact-location visibility is separate debt, not Phase 2.
+**As of 9 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover is implemented in this repository** (production is whatever Vercel last deployed from GitHub). Home is Discover / Activity / Help. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2 slices 1–2 are in this repository:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds) and mixes approved sightings into that list (coarse place only; no public sighting pin; no `/sightings/[id]` from Activity). Slices 3–4 are not started. Help is still the report form. `/sightings/[id]` exact-location visibility is separate debt, not Phase 2.
 
 ### How production is updated
 

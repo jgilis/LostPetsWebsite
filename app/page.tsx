@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import DiscoverWorkspace from "../src/components/discover/DiscoverWorkspace";
 import ReportForm from "../src/components/report/ReportForm";
 import ReportsFeed from "../src/components/feed/ReportsFeed";
-import ReportFiltersBar, {
+import {
   type AnimalFilter,
   type TypeFilter,
 } from "../src/components/report/ReportFiltersBar";
@@ -117,22 +117,12 @@ function HomePageContent() {
 
         {destination === "activity" ? (
           <div
-            className={`absolute inset-0 z-[545] overflow-y-auto bg-gray-950 px-4 py-6 pb-16 md:pb-6 ${
-              walking && !isDesktop ? "pt-[4.75rem]" : "pt-6"
+            className={`absolute inset-0 z-[545] flex flex-col overflow-hidden bg-gray-950 px-3 pb-16 md:px-4 md:pb-6 ${
+              walking && !isDesktop ? "pt-[4.75rem]" : "pt-3"
             } md:pt-12`}
           >
-            <div className="mx-auto w-full max-w-6xl">
-              <h1 className="mb-4 text-center text-2xl font-bold">
-                {t("tabActivity")}
-              </h1>
-              <ReportFiltersBar
-                typeFilter={typeFilter}
-                animalFilter={animalFilter}
-                onTypeFilterChange={setTypeFilter}
-                onAnimalFilterChange={setAnimalFilter}
-              />
+            <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col">
               <ReportsFeed
-                typeFilter={typeFilter}
                 animalFilter={animalFilter}
                 reports={discoverView.reports}
                 bounds={discoverView.bounds}

@@ -9,23 +9,24 @@ import {
 } from "@/src/lib/reportNavigation";
 import { formatReportTimestampDisplay } from "@/src/lib/reportTimestamps";
 import { isPublicFeedReport, type Report } from "@/src/lib/reports";
-import {
-  filterFeedReports,
-  type FeedLifecycleFilter,
-} from "../map/filters";
-import {
-  filterReportsInBounds,
-  type MapBoundsBox,
-} from "@/src/lib/geo/reportInBounds";
-import type { AnimalFilter, TypeFilter } from "../report/ReportFiltersBar";
+import type { MapBoundsBox } from "@/src/lib/geo/reportInBounds";
+import type { AnimalFilter } from "../report/ReportFiltersBar";
 import { truncateText } from "@/src/lib/adminReports";
 import LocationDisplay from "@/src/components/location/LocationDisplay";
 import { useCurrentUser } from "@/src/hooks/useCurrentUser";
 import { isOwner } from "@/src/lib/permissions";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import type { TranslationKey } from "@/src/i18n/types";
+import type { Sighting } from "@/src/lib/sightings";
+import ActivityToolbar from "./ActivityToolbar";
+import {
+  buildActivityEvents,
+  type ActivityEventType,
+  type ActivityOwnershipFilter,
+} from "./activityEvents";
+import { useApprovedSightings } from "./useApprovedSightings";
 
-type OwnershipFilter = "all" | "mine";
+type OwnershipFilter = ActivityOwnershipFilter;
 
 const ANIMAL_LABEL_KEYS: Record<Report["animal_type"], TranslationKey> = {
   dog: "animalDog",
@@ -46,22 +47,7 @@ const ANIMAL_PLACEHOLDER: Record<
   other: { gradient: "from-gray-800 via-slate-800 to-gray-950", symbol: "🐾" },
 };
 
-function reportSortTime(report: Report): number {
-  const raw = report.date_reported;
-  if (!raw) return 0;
-
-  const time = new Date(raw).getTime();
-  return Number.isNaN(time) ? 0 : time;
-}
-
-function sortReportsNewestFirst(reports: Report[]): Report[] {
-  return [...reports].sort(
-    (a, b) => reportSortTime(b) - reportSortTime(a),
-  );
-}
-
 type ReportsFeedProps = {
-  typeFilter: TypeFilter;
   animalFilter: AnimalFilter;
   reports: Report[];
   bounds: MapBoundsBox | null;
@@ -213,8 +199,104 @@ function ReportFeedCard({
   );
 }
 
+function SightingFeedCard({
+  sighting,
+  report,
+  onBeforeNavigate,
+}: {
+  sighting: Sighting;
+  report: Report;
+  onBeforeNavigate: () => void;
+}) {
+  const { t } = useTranslation();
+  const [photoBroken, setPhotoBroken] = useState(false);
+  const seenAt = formatReportTimestampDisplay({
+    created_at: sighting.created_at,
+  });
+  const description = sighting.description?.trim();
+  const photoUrl =
+    sighting.photo_url?.trim() || report.photo_url?.trim() || null;
+  const hasPhoto = !!photoUrl && !photoBroken;
+  const placeholder = ANIMAL_PLACEHOLDER[report.animal_type];
+  const title = report.animal_name?.trim()
+    ? report.animal_name
+    : t(ANIMAL_LABEL_KEYS[report.animal_type]);
+
+  return (
+    <Link
+      href={reportDetailHref(report.id, "feed")}
+      onClick={onBeforeNavigate}
+      className="group block w-full overflow-hidden rounded-xl border border-amber-900/40 bg-gray-900/80 text-left shadow-sm transition-colors hover:border-amber-800/60 hover:bg-gray-900 active:bg-gray-800/90"
+    >
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-900 md:aspect-[16/10] xl:aspect-[18/10]">
+        {hasPhoto ? (
+          <img
+            src={photoUrl}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover"
+            onError={() => setPhotoBroken(true)}
+          />
+        ) : (
+          <div
+            className={`flex h-full w-full flex-col items-center justify-center bg-gradient-to-br ${placeholder.gradient} px-6 text-center`}
+            aria-hidden
+          >
+            <span
+              className="text-4xl opacity-80 md:text-3xl"
+              role="presentation"
+            >
+              {placeholder.symbol}
+            </span>
+            <span className="mt-2 text-xs font-medium tracking-wide text-gray-400/90">
+              {t("feedNoPhoto")}
+            </span>
+          </div>
+        )}
+
+        <div className="absolute inset-x-0 top-0 flex flex-wrap gap-1.5 p-2.5 md:p-2">
+          <span className="rounded-full border border-amber-800/40 bg-amber-950/75 px-2 py-0.5 text-xs font-medium text-amber-100/95 backdrop-blur-sm">
+            {t("activitySighting")}
+          </span>
+        </div>
+
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent px-3 pb-3 pt-10 md:px-3 md:pb-2.5 md:pt-8">
+          <p className="text-lg font-semibold leading-tight text-white drop-shadow-sm md:text-base">
+            {title}
+          </p>
+          <p className="mt-0.5 text-sm text-gray-200/90 md:text-xs">
+            {t(ANIMAL_LABEL_KEYS[report.animal_type])} · {t("activitySighting")}
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-2 px-3.5 py-3 md:space-y-1.5 md:px-3 md:py-2.5">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-400 md:text-[11px] md:leading-snug">
+          <span>{t("activitySightingNearby")}</span>
+          <LocationDisplay
+            latitude={report.latitude}
+            longitude={report.longitude}
+          />
+          {seenAt ? (
+            <span className="text-gray-600" aria-hidden>
+              ·
+            </span>
+          ) : null}
+          {seenAt ? <time className="text-gray-500">{seenAt}</time> : null}
+        </div>
+
+        {description ? (
+          <p className="line-clamp-2 text-sm leading-relaxed text-gray-400/95 md:text-xs md:leading-snug">
+            {truncateText(description, 100)}
+          </p>
+        ) : null}
+      </div>
+    </Link>
+  );
+}
+
 export default function ReportsFeed({
-  typeFilter,
   animalFilter,
   reports,
   bounds,
@@ -223,47 +305,51 @@ export default function ReportsFeed({
   const { t } = useTranslation();
   const { user } = useCurrentUser();
   const scrollRef = useRef<HTMLUListElement>(null);
+  const { sightings, loading: sightingsLoading } = useApprovedSightings();
   const [ownershipFilter, setOwnershipFilter] =
     useState<OwnershipFilter>("all");
-  const [lifecycleFilter, setLifecycleFilter] =
-    useState<FeedLifecycleFilter>("active");
+  const [eventType, setEventType] = useState<ActivityEventType>("all");
+  const waiting = loading || sightingsLoading;
 
-  const filteredByLifecycle = useMemo(
+  const events = useMemo(
     () =>
-      filterFeedReports(reports, typeFilter, animalFilter, lifecycleFilter),
-    [reports, typeFilter, animalFilter, lifecycleFilter],
+      buildActivityEvents({
+        reports,
+        sightings,
+        bounds,
+        animalFilter,
+        eventType,
+        ownershipFilter,
+        userId: user?.id,
+      }),
+    [
+      reports,
+      sightings,
+      bounds,
+      animalFilter,
+      eventType,
+      ownershipFilter,
+      user?.id,
+    ],
   );
 
-  const sortedReports = useMemo(() => {
-    let filtered = filteredByLifecycle;
-
-    if (ownershipFilter === "mine") {
-      filtered = user?.id
-        ? filtered.filter((r) => isOwner(user.id, r.owner_user_id))
-        : [];
-    } else {
-      filtered = filterReportsInBounds(filtered, bounds);
-    }
-
-    return sortReportsNewestFirst(filtered);
-  }, [filteredByLifecycle, ownershipFilter, user?.id, bounds]);
-
   const hasAnyFeedReports = reports.some(isPublicFeedReport);
+  const hasAnyActivity = hasAnyFeedReports || sightings.length > 0;
   const showMyReportsEmpty =
     ownershipFilter === "mine" &&
-    !loading &&
-    hasAnyFeedReports &&
-    sortedReports.length === 0;
+    !waiting &&
+    hasAnyActivity &&
+    events.length === 0;
 
   const emptyLifecycleMessage =
     ownershipFilter === "mine"
-      ? lifecycleFilter === "resolved"
+      ? eventType === "reunited"
         ? t("feedEmptyResolved")
         : t("feedEmpty")
-      : filteredByLifecycle.length > 0
-        ? t("activityEmptyInArea")
-        : lifecycleFilter === "resolved"
-          ? t("feedEmptyResolved")
+      : eventType === "reunited"
+        ? t("feedEmptyResolved")
+        : hasAnyActivity
+          ? t("activityEmptyInArea")
           : t("feedEmpty");
 
   const saveScroll = () => {
@@ -273,76 +359,24 @@ export default function ReportsFeed({
   };
 
   useEffect(() => {
-    if (loading || sortedReports.length === 0) return;
+    if (waiting || events.length === 0) return;
 
     const top = readAndClearFeedScrollPosition();
     if (top == null || !scrollRef.current) return;
 
     scrollRef.current.scrollTop = top;
-  }, [loading, sortedReports.length]);
+  }, [waiting, events.length]);
 
   return (
-    <div className="flex min-h-[65vh] max-h-[65vh] flex-col overflow-hidden rounded-lg border border-gray-800/80 bg-gray-950/40">
-      <div className="flex shrink-0 flex-col gap-2 border-b border-gray-800/80 px-3 py-2.5">
-        <div
-          className="flex justify-center gap-2"
-          role="group"
-          aria-label={t("feedFilterActive")}
-        >
-          {(["active", "resolved", "all"] as const).map((lifecycle) => {
-            const isActive = lifecycleFilter === lifecycle;
-            const labelKey =
-              lifecycle === "active"
-                ? "feedFilterActive"
-                : lifecycle === "resolved"
-                  ? "feedFilterResolved"
-                  : "feedFilterAll";
-            return (
-              <button
-                key={lifecycle}
-                type="button"
-                onClick={() => setLifecycleFilter(lifecycle)}
-                className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-gray-700 text-white"
-                    : "bg-gray-900 text-gray-400 hover:text-gray-200"
-                }`}
-                aria-pressed={isActive}
-              >
-                {t(labelKey)}
-              </button>
-            );
-          })}
-        </div>
-        <div
-          className="flex justify-center gap-2"
-          role="group"
-          aria-label={t("feedOwnershipMine")}
-        >
-          {(["all", "mine"] as const).map((scope) => {
-            const isActive = ownershipFilter === scope;
-            return (
-              <button
-                key={scope}
-                type="button"
-                onClick={() => setOwnershipFilter(scope)}
-                className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-gray-700 text-white"
-                    : "bg-gray-900 text-gray-400 hover:text-gray-200"
-                }`}
-                aria-pressed={isActive}
-              >
-                {scope === "all"
-                  ? t("feedOwnershipAll")
-                  : t("feedOwnershipMine")}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-gray-800/80 bg-gray-950/40">
+      <ActivityToolbar
+        eventType={eventType}
+        onEventTypeChange={setEventType}
+        ownershipFilter={ownershipFilter}
+        onOwnershipFilterChange={setOwnershipFilter}
+      />
 
-      {loading ? (
+      {waiting ? (
         <div className="flex min-h-0 flex-1 flex-col px-2 py-3">
           <p className="mb-4 text-center text-sm text-gray-500" role="status">
             {t("feedLoading")}
@@ -351,7 +385,7 @@ export default function ReportsFeed({
             <FeedSkeleton />
           </div>
         </div>
-      ) : !hasAnyFeedReports ? (
+      ) : !hasAnyActivity ? (
         <div
           className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center"
           role="status"
@@ -374,7 +408,7 @@ export default function ReportsFeed({
               : t("feedEmptyMyReportsLogin")}
           </p>
         </div>
-      ) : sortedReports.length === 0 ? (
+      ) : events.length === 0 ? (
         <div
           className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center"
           role="status"
@@ -386,13 +420,21 @@ export default function ReportsFeed({
           ref={scrollRef}
           className="mx-auto min-h-0 w-full max-w-lg flex-1 space-y-5 overflow-y-auto overscroll-contain px-2 py-4 touch-pan-y md:max-w-xl md:space-y-4 md:py-3 xl:space-y-3.5"
         >
-          {sortedReports.map((report) => (
-            <li key={report.id}>
-              <ReportFeedCard
-                report={report}
-                onBeforeNavigate={saveScroll}
-                emphasizeOwned={ownershipFilter === "mine"}
-              />
+          {events.map((event) => (
+            <li key={`${event.kind}-${event.id}`}>
+              {event.kind === "report" ? (
+                <ReportFeedCard
+                  report={event.report}
+                  onBeforeNavigate={saveScroll}
+                  emphasizeOwned={ownershipFilter === "mine"}
+                />
+              ) : (
+                <SightingFeedCard
+                  sighting={event.sighting}
+                  report={event.report}
+                  onBeforeNavigate={saveScroll}
+                />
+              )}
             </li>
           ))}
         </ul>

@@ -2,7 +2,7 @@
 
 **This file is a 7 November 2026 inventory of commit `cdc62cf`.** It is not the live product.
 
-**Live status (9 November 2026):** Vercel hosts the site and deploys from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover is done** in this repository. Next work is Phase 2 Activity (`PRODUCT_PLAN.md` section 12, `PRODUCT_STRATEGY.md` section 7).
+**Live status (9 November 2026):** Vercel hosts the site and deploys from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover is done** in this repository. Phase 2 slices 1–2 are in this repository. Next is slice 3 (`PRODUCT_PLAN.md` section 12, `PRODUCT_STRATEGY.md` section 7).
 
 Phase 1 Discover is the home:
 
@@ -10,7 +10,7 @@ Phase 1 Discover is the home:
 - **Android / PWA is map-first:** compact top bar, one Filters button (sheet for Status/Animal), collapsed legend, Walking Mode from a map control, and one report sheet with a compact Within 500 m filter (Off / map centre / my location). There is no separate Nearby overlay.
 - **Desktop** stays map + list with Status/Animal/Within 500 m in the list header and no Walking Mode.
 - **Found reports** are species-colored DOM circle markers (`discover-found-marker`, 44 px hit target, `zIndexOffset` above lost pins) in `ReportMarker.tsx`. They are not canvas `CircleMarker` paths.
-- **Activity (Phase 2 slice 1):** the Discover map stays mounted under Activity/Help so the camera is unchanged after tab switches and after opening/closing a Discover detail sheet. The Activity list is the loaded reports inside those bounds, newest first. **Mine** ignores the area filter. No approved sightings or 14-day reunion events yet. **Help** is still the report form.
+- **Activity (Phase 2 slices 1–2):** the Discover map stays mounted under Activity/Help so the camera is unchanged after tab switches and after opening/closing a Discover detail sheet. The Activity list is loaded reports inside those bounds, mixed with **approved** sightings, newest first. Public sighting copy is coarse (“Seen nearby” plus the linked report’s “Near …” place). Exact coordinates and `/sightings/[id]` are not used. No public sighting pin on Discover. **Mine** ignores the area filter. No 14-day reunion events yet (slice 3). **Help** is still the report form.
 - `/sightings/[id]` exact-location visibility is separate debt, not Phase 2.
 
 Live baseline: `PRODUCT_PLAN.md` section 15.
