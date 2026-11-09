@@ -151,6 +151,7 @@ export const nl: Record<keyof typeof en, string> = {
   adminLoadingReports: "Meldingen laden...",
   adminNoReports: "Geen meldingen gevonden.",
   adminNoFlagged: "Geen gemarkeerde meldingen.",
+  adminFlagsLoadFailed: "Vlaggen konden niet worden geladen. Probeer opnieuw of controleer de admin-toegang.",
   adminResolve: "Afhandelen",
   adminRemove: "Verwijderen",
   adminRestore: "Herstellen",

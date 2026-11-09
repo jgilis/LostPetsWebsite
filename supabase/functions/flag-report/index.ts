@@ -137,10 +137,14 @@ serve(async (req: Request) => {
     if (count >= FLAG_THRESHOLD) {
       console.log("FLAG THRESHOLD REACHED for report:", reportId);
 
-      await supabase
+      const { error: statusError } = await supabase
         .from("reports")
         .update({ status: "flagged" })
         .eq("id", reportId);
+
+      if (statusError) {
+        console.error("FLAG STATUS UPDATE FAILED", statusError);
+      }
     }
 
         return json({ success: true }, 200, corsHeaders);

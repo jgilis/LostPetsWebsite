@@ -152,6 +152,7 @@ export const fr: Record<keyof typeof en, string> = {
   adminLoadingReports: "Chargement des signalements...",
   adminNoReports: "Aucun signalement trouvé.",
   adminNoFlagged: "Aucun signalement signalé.",
+  adminFlagsLoadFailed: "Impossible de charger les signalements. Réessayez, ou vérifiez l’accès administrateur.",
   adminResolve: "Résoudre",
   adminRemove: "Retirer",
   adminRestore: "Restaurer",

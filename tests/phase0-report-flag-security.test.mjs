@@ -58,7 +58,7 @@ test("migration keeps captcha and flag service-role writes available", () => {
   assert.match(verifyCaptcha, /SUPABASE_SERVICE_ROLE_KEY/);
   assert.match(flagReport, /functions\/v1\/flag-report/);
   assert.doesNotMatch(migration, /REVOKE INSERT ON TABLE public\.reports FROM service_role/);
-  assert.match(migration, /auth\.role\(\) = 'service_role'/);
+  assert.match(migration, /auth\.jwt\(\) ->> 'role', auth\.role\(\)/);
 });
 
 test("migration hides edit_token and flag IP hashes from API roles", () => {
@@ -151,6 +151,18 @@ test("report and flag queries use explicit columns without secrets", () => {
   assert.doesNotMatch(verifyCaptcha, /edit_link/);
   assert.doesNotMatch(flagFunction, /\.select\(["'`]?\*/);
   assert.match(flagFunction, /\.select\("id"/);
+});
+
+test("admin flags queue is driven by flag rows, not only flagged status", () => {
+  const fetchFn = reports.slice(reports.indexOf("export async function getFlaggedReportsWithFlags"));
+  assert.match(fetchFn, /\.from\("reports_flags"\)/);
+  assert.match(fetchFn, /\.select\(FLAG_ADMIN_SELECT\)/);
+  assert.doesNotMatch(fetchFn, /\.eq\("status", "flagged"\)/);
+  assert.match(fetchFn, /flagsError/);
+  assert.match(fetchFn, /reportsError/);
+  assert.match(fetchFn, /\.in\("id", reportIds\)/);
+  assert.doesNotMatch(fetchFn, /ip_hash/);
+  assert.doesNotMatch(fetchFn, /\.select\("\*"\)/);
 });
 
 test("package A does not weaken sighting security", () => {

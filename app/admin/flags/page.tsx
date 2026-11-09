@@ -10,15 +10,8 @@ import {
   getFlaggedReportsWithFlags,
   updateReportStatus,
 } from "../../../src/lib/reports";
-import type { ReportStatus } from "../../../src/lib/reports";
+import type { AdminFlagRow, ReportStatus } from "../../../src/lib/reports";
 import { useTranslation } from "@/src/i18n/I18nProvider";
-
-type FlagRow = {
-  id: string;
-  report_id: string;
-  reason: string | null;
-  created_at: string;
-};
 
 type EnrichedFlag = AdminReport & {
   count: number;
@@ -32,13 +25,26 @@ export default function AdminFlagsPage() {
   const { loading: adminLoading, isAdmin } = useAdmin();
   const [flags, setFlags] = useState<EnrichedFlag[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const fetchFlags = useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
 
-    const { reports, flags: flagRows } = await getFlaggedReportsWithFlags();
+    const {
+      reports,
+      flags: flagRows,
+      error,
+    } = await getFlaggedReportsWithFlags();
 
-    const flagMap = new Map<string, FlagRow[]>();
+    if (error) {
+      setLoadError(error);
+      setFlags([]);
+      setLoading(false);
+      return;
+    }
+
+    const flagMap = new Map<string, AdminFlagRow[]>();
 
     (flagRows || []).forEach((f) => {
       if (!flagMap.has(f.report_id)) {
@@ -47,23 +53,29 @@ export default function AdminFlagsPage() {
       flagMap.get(f.report_id)!.push(f);
     });
 
-    const enriched: EnrichedFlag[] = (reports || []).map((r) => {
-      const related = flagMap.get(r.id) || [];
+    const enriched: EnrichedFlag[] = (reports || [])
+      .filter((r) => r.status === "active" || r.status === "flagged")
+      .map((r) => {
+        const related = flagMap.get(r.id) || [];
 
-      const reasons = related
-        .map((f) =>
-          typeof f.reason === "string" ? f.reason.trim() : null,
-        )
-        .filter((reason): reason is string => reason !== null && reason.length > 0);
+        const reasons = related
+          .map((f) =>
+            typeof f.reason === "string" ? f.reason.trim() : null,
+          )
+          .filter((reason): reason is string => reason !== null && reason.length > 0);
 
-      return {
-        ...(r as AdminReport),
-        count: related.length,
-        reasons,
-        latestReasons: reasons.slice(0, 5),
-        lastFlagged: related[0]?.created_at || "",
-      };
-    });
+        return {
+          ...(r as AdminReport),
+          count: related.length,
+          reasons,
+          latestReasons: reasons.slice(0, 5),
+          lastFlagged: related[0]?.created_at || "",
+        };
+      });
+
+    enriched.sort(
+      (a, b) => Date.parse(b.lastFlagged || "") - Date.parse(a.lastFlagged || ""),
+    );
 
     setFlags(enriched);
     setLoading(false);
@@ -82,14 +94,14 @@ export default function AdminFlagsPage() {
       const ok = await updateReportStatus(reportId, status);
       if (!ok) return false;
 
-      if (status === "flagged") {
+      if (status === "resolved" || status === "removed" || status === "expired") {
+        setFlags((prev) => prev.filter((report) => report.id !== reportId));
+      } else {
         setFlags((prev) =>
           prev.map((report) =>
             report.id === reportId ? { ...report, status } : report,
           ),
         );
-      } else {
-        setFlags((prev) => prev.filter((report) => report.id !== reportId));
       }
 
       return true;
@@ -111,7 +123,11 @@ export default function AdminFlagsPage() {
     <div className="mx-auto max-w-3xl px-6 py-8">
       <AdminHeader title={t("adminFlaggedReports")} showBackLink />
 
-      {flags.length === 0 && (
+      {loadError && (
+        <p className="mb-4 text-red-300">{t("adminFlagsLoadFailed")}</p>
+      )}
+
+      {!loadError && flags.length === 0 && (
         <p className="text-gray-400">{t("adminNoFlagged")}</p>
       )}
 

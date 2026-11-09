@@ -149,6 +149,7 @@ export const en = {
   adminLoadingReports: "Loading reports...",
   adminNoReports: "No reports found.",
   adminNoFlagged: "No flagged reports.",
+  adminFlagsLoadFailed: "Could not load flags. Try again, or check admin access.",
   adminResolve: "Resolve",
   adminRemove: "Remove",
   adminRestore: "Restore",

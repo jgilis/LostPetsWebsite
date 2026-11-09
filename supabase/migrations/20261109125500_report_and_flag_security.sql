@@ -80,7 +80,7 @@ SECURITY INVOKER
 SET search_path = public
 AS $$
 BEGIN
-  IF auth.role() = 'service_role' THEN
+  IF COALESCE(auth.jwt() ->> 'role', auth.role(), '') = 'service_role' THEN
     IF TG_OP = 'INSERT' THEN
       NEW.status := 'active';
     END IF;

@@ -76,6 +76,13 @@ export const REPORT_ADMIN_SELECT = `
 
 export const FLAG_ADMIN_SELECT = "id, report_id, reason, created_at";
 
+export type AdminFlagRow = {
+  id: string;
+  report_id: string;
+  reason: string | null;
+  created_at: string;
+};
+
 export function normalizeReportRow(r: ReportRow): Report {
   const now = new Date();
   const expiresAt = r.expires_at ? new Date(r.expires_at) : null;
@@ -153,17 +160,40 @@ export async function getAllReports() {
 // ADMIN ONLY (temporary bridge layer)
 
 export async function getFlaggedReportsWithFlags() {
-  const { data: reports } = await supabase
-    .from("reports")
-    .select(REPORT_ADMIN_SELECT)
-    .eq("status", "flagged");
-
-  const { data: flags } = await supabase
+  const { data: flags, error: flagsError } = await supabase
     .from("reports_flags")
     .select(FLAG_ADMIN_SELECT)
     .order("created_at", { ascending: false });
 
-  return { reports: reports || [], flags: flags || [] };
+  if (flagsError) {
+    console.error("getFlaggedReportsWithFlags flags error:", flagsError);
+    return { reports: [], flags: [], error: flagsError.message };
+  }
+
+  const flagRows = (flags || []) as AdminFlagRow[];
+  const reportIds = [
+    ...new Set(
+      flagRows
+        .map((flag) => flag.report_id)
+        .filter((id): id is string => typeof id === "string" && id.length > 0),
+    ),
+  ];
+
+  if (reportIds.length === 0) {
+    return { reports: [], flags: flagRows };
+  }
+
+  const { data: reports, error: reportsError } = await supabase
+    .from("reports")
+    .select(REPORT_ADMIN_SELECT)
+    .in("id", reportIds);
+
+  if (reportsError) {
+    console.error("getFlaggedReportsWithFlags reports error:", reportsError);
+    return { reports: [], flags: flagRows, error: reportsError.message };
+  }
+
+  return { reports: reports || [], flags: flagRows };
 }
 
 export async function updateReportStatus(
