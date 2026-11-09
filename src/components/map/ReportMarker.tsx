@@ -5,13 +5,24 @@ import {
   CircleMarker,
   Popup,
 } from "react-leaflet";
-import type { Layer } from "leaflet";
+import type { DivIcon, Layer } from "leaflet";
 
 import type { Report } from "../report/useReports";
 import ReportPopup from "./ReportPopup";
-import { memo, useCallback, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { isOwner } from "../../lib/permissions";
+
+function createFoundIcon(color: string, selected: boolean): DivIcon {
+  const L = require("leaflet");
+  return new L.DivIcon({
+    className: `discover-found-marker${selected ? " is-selected" : ""}`,
+    html: `<span class="discover-found-dot" style="background:${color}"></span>`,
+    iconSize: [44, 44],
+    iconAnchor: [22, 22],
+    popupAnchor: [0, -12],
+  });
+}
 
 type Props = {
   report: Report;
@@ -104,37 +115,24 @@ export default memo(function ReportMarker({
     </Popup>
   ) : null;
 
+  const foundIcon = useMemo(
+    () => createFoundIcon(color, selected),
+    [color, selected],
+  );
+
   if (report.type === "found") {
     return (
-      <>
-        {selectedRing}
-        <CircleMarker
-          ref={setLayerRef}
-          center={center}
-          radius={14}
-          eventHandlers={{ click: handleSelect }}
-          pathOptions={{
-            fillOpacity: 0,
-            opacity: 0,
-            weight: 0,
-            stroke: false,
-          }}
-        >
-          {popup}
-        </CircleMarker>
-        <CircleMarker
-          center={center}
-          radius={8}
-          interactive={false}
-          pathOptions={{
-            color,
-            fillColor: color,
-            fillOpacity: 0.9,
-            weight: 2,
-            interactive: false,
-          }}
-        />
-      </>
+      <Marker
+        ref={setLayerRef}
+        position={center}
+        icon={foundIcon}
+        zIndexOffset={1000}
+        title={`Found ${report.animal_type}`}
+        alt={`Found ${report.animal_type}`}
+        eventHandlers={{ click: handleSelect }}
+      >
+        {popup}
+      </Marker>
     );
   }
 

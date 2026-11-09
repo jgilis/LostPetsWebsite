@@ -68,10 +68,24 @@ function MapClickCloser({
         wasDraggedRef.current = false;
       }, 100);
     },
-    click(map) {
+    click(event) {
       if (wasDraggedRef.current) return;
 
-      map.target.closePopup();
+      if (event.propagatedFrom && event.propagatedFrom !== event.target) {
+        return;
+      }
+
+      const target = event.originalEvent?.target;
+      if (
+        target instanceof Element &&
+        target.closest(
+          ".leaflet-interactive, .leaflet-marker-icon, .leaflet-marker-shadow",
+        )
+      ) {
+        return;
+      }
+
+      event.target.closePopup();
       onBackgroundClick?.();
     },
   });

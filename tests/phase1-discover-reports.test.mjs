@@ -51,6 +51,16 @@ test("cards and markers stay synchronized; Discover details stay on the map", ()
   assert.match(workspace, /DiscoverDetailSheet/);
 });
 
+test("found dots keep a hittable target and do not treat the tap as a map background click", () => {
+  assert.match(marker, /report\.type === "found"/);
+  assert.match(marker, /discover-found-marker/);
+  assert.match(marker, /DivIcon/);
+  assert.match(marker, /iconSize: \[44, 44\]/);
+  assert.match(marker, /zIndexOffset=\{1000\}/);
+  assert.match(map, /leaflet-marker-icon/);
+  assert.match(map, /onBackgroundClick/);
+});
+
 test("Walking Mode sorts in-view cards by distance", () => {
   assert.match(sort, /getDistanceMeters/);
   assert.match(workspace, /sortOrigin/);
