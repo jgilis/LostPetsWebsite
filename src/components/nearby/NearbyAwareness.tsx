@@ -15,14 +15,12 @@ import {
 import type { UseWalkingModeResult } from "@/src/hooks/useWalkingMode";
 import { track } from "@/src/lib/analytics/analytics";
 import ProximityEventRow from "./ProximityEventRow";
-import { useTranslation } from "@/src/i18n/I18nProvider";
 
 type NearbyAwarenessProps = {
   centerLocation: GeoPoint | null;
   reports: Report[];
   radiusMeters?: number;
   walkingMode: UseWalkingModeResult;
-  overlay?: boolean;
 };
 
 function NearbyAwareness({
@@ -30,15 +28,12 @@ function NearbyAwareness({
   reports,
   radiusMeters = DEFAULT_NEARBY_RADIUS_METERS,
   walkingMode,
-  overlay = false,
 }: NearbyAwarenessProps) {
-  const { t } = useTranslation();
   const lastMapCenterRef = useRef<GeoPoint | null>(
     centerLocation ? stabilizeProximityCenter(centerLocation) : null,
   );
   const [refreshToken, setRefreshToken] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [panelOpen, setPanelOpen] = useState(false);
   const lastNearbyTrackedRef = useRef<string | null>(null);
 
   const {
@@ -123,7 +118,7 @@ function NearbyAwareness({
   const showEmpty = canShowResults && !!awarenessCenter && nearby.length === 0;
 
   useEffect(() => {
-    if (!showList || !awarenessCenter || !panelOpen) return;
+    if (!showList || !awarenessCenter) return;
 
     const reportIds = nearby
       .map((event) => event.report.id)
@@ -138,17 +133,15 @@ function NearbyAwareness({
     track("nearby_viewed", {
       count: nearby.length,
     });
-  }, [showList, awarenessCenter, nearby, panelOpen]);
+  }, [showList, awarenessCenter, nearby]);
 
   if (!stabilizedMapCenter && !lastMapCenterRef.current && !livePosition) {
     return null;
   }
 
-  const panel = (
+  return (
     <section
-      className={`nearby-awareness-panel rounded-lg border border-gray-700/80 bg-gray-900/90 px-3 py-2 ${
-        overlay ? "discover-nearby-overlay" : "mt-3"
-      }`}
+      className="nearby-awareness-panel mt-3 rounded-lg border border-gray-700/80 bg-gray-900/90 px-3 py-2"
       aria-label="Nearby awareness"
     >
       <div className="flex flex-wrap items-center gap-2">
@@ -163,65 +156,31 @@ function NearbyAwareness({
         >
           Refresh nearby
         </button>
-        {overlay ? (
-          <button
-            type="button"
-            onClick={() => setPanelOpen(false)}
-            className="ml-auto min-h-11 px-2 text-xs text-gray-300"
-          >
-            {t("discoverDetailClose")}
-          </button>
-        ) : null}
       </div>
 
-      {panelOpen || !overlay ? (
-        <>
-          <p className="mt-2 text-sm text-gray-400" role="status">
-            {systemStatusMessage}
-          </p>
+      <p className="mt-2 text-sm text-gray-400" role="status">
+        {systemStatusMessage}
+      </p>
 
-          {isWalkingModeEnabled && hasActiveUserLocation ? (
-            <p className="mt-1 text-xs text-gray-500">
-              Session: {sessionStats.elapsedLabel} ·{" "}
-              {formatProximityDistance(sessionStats.distanceMeters)} walked
-            </p>
-          ) : null}
+      {isWalkingModeEnabled && hasActiveUserLocation ? (
+        <p className="mt-1 text-xs text-gray-500">
+          Session: {sessionStats.elapsedLabel} ·{" "}
+          {formatProximityDistance(sessionStats.distanceMeters)} walked
+        </p>
+      ) : null}
 
-          {showEmpty ? (
-            <p className="mt-2 text-sm text-gray-500">No nearby reports</p>
-          ) : null}
+      {showEmpty ? (
+        <p className="mt-2 text-sm text-gray-500">No nearby reports</p>
+      ) : null}
 
-          {showList ? (
-            <ul className="mt-2 space-y-1.5">
-              {nearby.map((event) => (
-                <ProximityEventRow key={event.report.id} event={event} />
-              ))}
-            </ul>
-          ) : null}
-        </>
+      {showList ? (
+        <ul className="mt-2 space-y-1.5">
+          {nearby.map((event) => (
+            <ProximityEventRow key={event.report.id} event={event} />
+          ))}
+        </ul>
       ) : null}
     </section>
-  );
-
-  if (!overlay) {
-    return panel;
-  }
-
-  return (
-    <>
-      <button
-        type="button"
-        className="discover-map-tool-btn md:hidden"
-        aria-expanded={panelOpen}
-        aria-controls="discover-nearby-panel"
-        onClick={() => setPanelOpen((open) => !open)}
-      >
-        {t("discoverNearby")}
-      </button>
-      {panelOpen ? (
-        <div id="discover-nearby-panel">{panel}</div>
-      ) : null}
-    </>
   );
 }
 

@@ -596,12 +596,6 @@ export default function Map({
           </div>
           {fillContainer ? (
             <div className="pointer-events-auto flex flex-col items-end gap-2 md:hidden">
-              <NearbyAwareness
-                overlay
-                centerLocation={mapCenterLocation}
-                reports={mapProximityReports}
-                walkingMode={walkingMode}
-              />
               <button
                 type="button"
                 className="discover-map-tool-btn"

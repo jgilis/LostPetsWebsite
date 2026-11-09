@@ -325,7 +325,8 @@ Detail: `PRODUCT_STRATEGY.md` sections 5 (information architecture), 6 (Discover
 - Default visible chrome: compact top bar (Filters button, icon Account and Notifications), a narrow collapsed report-sheet handle with count, and Discover / Activity / Help.
 - Status and Animal filters stay available but open in a bottom sheet. Show an active-filter summary on the Filters button. Closing the sheet keeps the selection. Do not leave two chip rows on the map.
 - Map legend starts collapsed as a small control; tap to reveal, tap again to close.
-- Nearby and Walking Mode stay on Android. Nearby opens from a compact map control, not a permanent overlay. Walking Mode starts from a map control; once active, show GPS/follow and distance plus a clear Exit action. Do not show inactive Walking Mode copy on the default map. Foreground location only.
+- Walking Mode stays on Android from a map control; once active, show GPS/follow and distance plus a clear Exit action. Do not show inactive Walking Mode copy on the default map. Foreground location only.
+- Nearby is not a second overlay. A compact Within 500 m control on the report sheet filters the same cards (Off = in-view bounds, Map centre, My location). Reuse loaded reports and the existing 500 m logic.
 - A draggable bottom sheet of **report cards**, with three natural positions: collapsed (default), partially expanded, fully expanded. Drag or tap the handle to move between them.
 - Moving the map updates the cards to the reports in the visible bounds.
 - Selecting a card highlights its marker. Tapping a marker selects and scrolls/highlights the matching card, then opens a dedicated **detail sheet** over Discover. Detail takes priority over the list. Do not navigate away from the map.
@@ -342,7 +343,7 @@ Detail: `PRODUCT_STRATEGY.md` sections 5 (information architecture), 6 (Discover
 
 - Existing species filters, lost/found filters, clusters, Mechelen bounds and map colours.
 - Compact map legend (pin = lost, dot = found, colours = species), collapsed by default on Android, placed so it does not obstruct the map or report controls.
-- Nearby as the existing 500 m feature on Discover. On Android it is on-demand; on desktop it is compact Within 500 m in the list header. No text search.
+- Nearby as the existing 500 m filter on the Discover report list. Android: compact Within 500 m on the sheet. Desktop: Within 500 m in the list header. No second overlay. No text search.
 - Walking Mode as a first-class Discover mode on phone / PWA: foreground location only, reports prioritised by distance, **normal navigation remains visible**, and a clear prominent **Exit Walking Mode** control. Hidden on desktop. Not part of Activity.
 - Existing visual styling. No redesign in Phase 1.
 - Map camera when switching destinations. Discover owns center, zoom and filters.
@@ -398,7 +399,7 @@ These should not silently become permanent technical or product assumptions:
 7. ~~Marker tap detail surface.~~ **Decided.** Select and scroll/highlight the matching card, then open a dedicated detail sheet over Discover. Do not navigate away from the map.
 8. ~~Walking Mode chrome.~~ **Decided.** Keep Discover / Activity / Help visible. On Android, start Walking Mode from a compact map control; once active, show GPS/follow and distance and a clear Exit control. Hide Walking Mode on desktop.
 9. ~~Legend.~~ **Decided.** Compact map legend; collapsed by default on Android so it does not obstruct the map.
-10. ~~Android Discover crowding.~~ **Decided.** Map-first phone chrome: on-demand Filters, legend, Nearby and Walking Mode; collapsed report sheet by default. Do not change the desktop Discover layout for this.
+10. ~~Android Discover crowding.~~ **Decided.** Map-first phone chrome: on-demand Filters, legend and Walking Mode; collapsed report sheet by default. Nearby is a Within 500 m filter on that sheet, not a second overlay. Do not change the desktop Discover layout for this.
 
 ### Outstanding technical debt (not Phase 1)
 

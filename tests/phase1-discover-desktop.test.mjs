@@ -23,17 +23,13 @@ const css = readFileSync("app/globals.css", "utf8");
 const bounds = readFileSync("src/lib/geo/reportInBounds.ts", "utf8");
 const en = readFileSync("src/i18n/en.ts", "utf8");
 
-test("desktop Discover hides Walking Mode and the Nearby overlay", () => {
+test("desktop Discover hides Walking Mode and does not use a Nearby overlay", () => {
   assert.match(home, /useDesktopLayout/);
   assert.match(home, /stopWalkingMode/);
   assert.match(home, /walking && !isDesktop/);
-  assert.match(nearby, /discover-nearby-overlay/);
-  assert.match(nearby, /discover-map-tool-btn md:hidden/);
-  assert.match(
-    css,
-    /@media \(min-width: 768px\)[\s\S]*\.discover-nearby-overlay \{\s*display: none;/,
-  );
+  assert.doesNotMatch(nearby, /discover-nearby-overlay/);
   assert.doesNotMatch(nearby, /Walking mode off/);
+  assert.match(css, /@media \(min-width: 768px\)[\s\S]*--discover-sheet-height: 0px;/);
 });
 
 test("desktop Discover uses compact Status, Animal, and Within 500 m menus in the list header", () => {

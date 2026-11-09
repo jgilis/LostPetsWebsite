@@ -20,6 +20,8 @@ import {
   isBrowserGeolocationAvailable,
 } from "@/src/lib/platform/browserGeolocation";
 import type { GeoPoint } from "@/src/lib/geo/isWithinRadius";
+import type { ProximityEvent } from "@/src/lib/geo/types";
+import { track } from "@/src/lib/analytics/analytics";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import type {
   AnimalFilter,
@@ -29,6 +31,7 @@ import DiscoverReportCard from "./DiscoverReportCard";
 import DiscoverDesktopToolbar, {
   type NearbySource,
 } from "./DiscoverDesktopToolbar";
+import DiscoverSheetNearbyControl from "./DiscoverSheetNearbyControl";
 
 export type DiscoverSheetSnap = "collapsed" | "partial" | "expanded";
 
@@ -80,12 +83,14 @@ function DiscoverReportList({
   onSelect,
   emptyLabel,
   ready,
+  proximityById,
 }: {
   reports: Report[];
   selectedReportId: string | null;
   onSelect: (id: string) => void;
   emptyLabel: string;
   ready: boolean;
+  proximityById?: Map<string, ProximityEvent>;
 }) {
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -115,6 +120,7 @@ function DiscoverReportList({
           report={report}
           selected={report.id === selectedReportId}
           onSelect={onSelect}
+          proximity={proximityById?.get(report.id) ?? null}
         />
       ))}
     </div>
@@ -155,20 +161,46 @@ export default function DiscoverReportsPane({
         ? mapCenter
         : null;
 
+  const nearbyEvents = useMemo(() => {
+    if (!nearbyOrigin) return null;
+    return getNearbyReports(
+      filteredReports,
+      nearbyOrigin,
+      DEFAULT_NEARBY_RADIUS_METERS,
+    );
+  }, [filteredReports, nearbyOrigin]);
+
   const reports = useMemo(() => {
-    if (nearbyOrigin) {
-      return getNearbyReports(
-        filteredReports,
-        nearbyOrigin,
-        DEFAULT_NEARBY_RADIUS_METERS,
-      ).map((event) => event.report);
+    if (nearbyEvents) {
+      return nearbyEvents.map((event) => event.report);
     }
 
     return sortDiscoverReports(
       filterReportsInBounds(filteredReports, bounds),
       sortOrigin,
     );
-  }, [filteredReports, bounds, sortOrigin, nearbyOrigin]);
+  }, [filteredReports, bounds, sortOrigin, nearbyEvents]);
+
+  const proximityById = useMemo(() => {
+    if (!nearbyEvents) return undefined;
+    return new Map(nearbyEvents.map((event) => [event.report.id, event]));
+  }, [nearbyEvents]);
+
+  const lastNearbyTrackedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!nearbyOrigin || !nearbyEvents) {
+      lastNearbyTrackedRef.current = null;
+      return;
+    }
+    const reportIds = nearbyEvents
+      .map((event) => event.report.id)
+      .sort()
+      .join(",");
+    const signature = `${nearbyOrigin.lat},${nearbyOrigin.lng}:${reportIds}`;
+    if (lastNearbyTrackedRef.current === signature) return;
+    lastNearbyTrackedRef.current = signature;
+    track("nearby_viewed", { count: nearbyEvents.length });
+  }, [nearbyOrigin, nearbyEvents]);
 
   const handleNearbySourceChange = (next: NearbySource) => {
     setNearbyError(null);
@@ -299,6 +331,7 @@ export default function DiscoverReportsPane({
             onSelect={onSelect}
             emptyLabel={emptyLabel}
             ready={listReady}
+            proximityById={proximityById}
           />
         </div>
       </aside>
@@ -308,31 +341,44 @@ export default function DiscoverReportsPane({
         className="discover-report-sheet absolute inset-x-0 bottom-0 z-[520] flex flex-col overflow-hidden rounded-t-xl border-t border-gray-800 bg-gray-950 md:hidden"
         style={{ height: sheetHeight }}
       >
-        <button
-          type="button"
-          className="flex min-h-[44px] w-full shrink-0 touch-none flex-col items-center justify-center px-3 py-2"
-          aria-label={t("discoverSheetHandle")}
-          aria-expanded={snap !== "collapsed"}
-          onPointerDown={onHandlePointerDown}
-          onPointerMove={onHandlePointerMove}
-          onPointerUp={onHandlePointerUp}
-          onPointerCancel={onHandlePointerUp}
-          onClick={onHandleClick}
-        >
-          <span className="mb-2 block h-1 w-10 rounded-full bg-gray-600" />
-          <span className="text-xs font-medium text-gray-300">
-            {label}
-            {reports.length > 0 ? ` · ${reports.length}` : ""}
-          </span>
-        </button>
+        <div className="relative flex shrink-0 items-center gap-1 pr-2">
+          <button
+            type="button"
+            className="flex min-h-[44px] min-w-0 flex-1 touch-none flex-col items-center justify-center px-3 py-2"
+            aria-label={t("discoverSheetHandle")}
+            aria-expanded={snap !== "collapsed"}
+            onPointerDown={onHandlePointerDown}
+            onPointerMove={onHandlePointerMove}
+            onPointerUp={onHandlePointerUp}
+            onPointerCancel={onHandlePointerUp}
+            onClick={onHandleClick}
+          >
+            <span className="mb-2 block h-1 w-10 rounded-full bg-gray-600" />
+            <span className="truncate text-xs font-medium text-gray-300">
+              {label}
+              {reports.length > 0 ? ` · ${reports.length}` : ""}
+            </span>
+          </button>
+          <DiscoverSheetNearbyControl
+            nearbySource={nearbySource}
+            onNearbySourceChange={handleNearbySourceChange}
+            nearbyError={nearbyError}
+          />
+        </div>
+        {nearbyError && snap !== "collapsed" ? (
+          <p className="px-3 pb-1 text-xs text-amber-200" role="status">
+            {nearbyError}
+          </p>
+        ) : null}
         {snap !== "collapsed" || dragHeight != null ? (
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-b-xl">
             <DiscoverReportList
               reports={reports}
               selectedReportId={selectedReportId}
               onSelect={onSelect}
               emptyLabel={emptyLabel}
               ready={listReady}
+              proximityById={proximityById}
             />
           </div>
         ) : null}

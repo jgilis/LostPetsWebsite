@@ -16,8 +16,12 @@ const legend = readFileSync(
   "utf8",
 );
 const map = readFileSync("src/components/map/Map.tsx", "utf8");
-const nearby = readFileSync(
-  "src/components/nearby/NearbyAwareness.tsx",
+const nearbyControl = readFileSync(
+  "src/components/discover/DiscoverSheetNearbyControl.tsx",
+  "utf8",
+);
+const card = readFileSync(
+  "src/components/discover/DiscoverReportCard.tsx",
   "utf8",
 );
 const walkingExit = readFileSync(
@@ -70,15 +74,19 @@ test("map legend starts collapsed on phone and stays a small control", () => {
   assert.match(map, /md:hidden/);
 });
 
-test("Nearby and Walking Mode stay available from compact map controls", () => {
-  assert.match(map, /NearbyAwareness/);
+test("Android Nearby lives in the report sheet as Within 500 m, not a map overlay", () => {
+  assert.match(pane, /DiscoverSheetNearbyControl/);
+  assert.match(nearbyControl, /discoverWithin500m/);
+  assert.match(nearbyControl, /discoverNearbyOff/);
+  assert.match(nearbyControl, /discoverNearbyMapCentre/);
+  assert.match(nearbyControl, /discoverNearbyMyLocation/);
+  assert.match(pane, /getNearbyReports/);
+  assert.match(card, /proximity/);
+  assert.match(card, /Very close/);
+  assert.doesNotMatch(map, /overlay/);
   assert.match(map, /discoverWalking/);
-  assert.match(nearby, /discoverNearby/);
-  assert.match(nearby, /panelOpen/);
   assert.match(walkingExit, /statusLabel/);
   assert.match(walkingExit, /walkingModeExit/);
   assert.match(home, /WalkingModeExitBar/);
-  assert.doesNotMatch(nearby, /Walking mode off/);
-  assert.match(en, /discoverNearby: "Nearby"/);
   assert.match(en, /discoverWalking: "Walk"/);
 });

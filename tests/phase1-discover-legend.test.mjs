@@ -46,7 +46,6 @@ test("legend sits on the map without covering zoom, nearby, or the report sheet"
   assert.match(legend, /max-w-\[min\(11\.75rem,calc\(100%-3\.5rem\)\)\]/);
   assert.doesNotMatch(legend, /bottom-/);
   assert.doesNotMatch(legend, /left-/);
-  assert.match(css, /\.discover-nearby-overlay \{/);
   assert.match(css, /\.walking-recenter-btn \{/);
 });
 

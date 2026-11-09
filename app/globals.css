@@ -263,17 +263,6 @@ body.walking-mode-active .nearby-awareness-panel {
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
 }
 
-.discover-nearby-overlay {
-  position: fixed;
-  left: 0.5rem;
-  right: 3.75rem;
-  bottom: calc(4rem + env(safe-area-inset-bottom) + var(--discover-sheet-height, 4.5rem) + 0.5rem);
-  z-index: 500;
-  margin-top: 0;
-  max-height: min(28dvh, 12rem);
-  overflow-y: auto;
-}
-
 .walking-recenter-btn {
   bottom: calc(0.75rem + var(--discover-sheet-height, 0px));
 }
@@ -285,9 +274,5 @@ body.walking-mode-active .nearby-awareness-panel {
 
   .walking-recenter-btn {
     bottom: 0.75rem;
-  }
-
-  .discover-nearby-overlay {
-    display: none;
   }
 }
