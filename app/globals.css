@@ -299,4 +299,10 @@ body.walking-mode-active .nearby-awareness-panel {
   .walking-recenter-btn {
     bottom: 0.75rem;
   }
+
+  .discover-map-legend:not([open]),
+  .discover-map-legend:not([open]) summary {
+    width: max-content;
+    min-width: max-content;
+  }
 }

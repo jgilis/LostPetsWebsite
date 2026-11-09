@@ -47,6 +47,8 @@ test("legend sits on the map without covering zoom, nearby, or the report sheet"
   assert.doesNotMatch(legend, /preventDefault/);
   assert.doesNotMatch(legend, /open=\{isDesktop \? true : mobileOpen\}/);
   assert.match(legend, /max-w-\[min\(11\.75rem,calc\(100%-3\.5rem\)\)\]/);
+  assert.match(legend, /overflow-hidden/);
+  assert.match(css, /discover-map-legend:not\(\[open\]\).*min-width:\s*max-content/s);
   assert.doesNotMatch(legend, /bottom-/);
   assert.doesNotMatch(legend, /left-/);
   assert.match(css, /\.walking-recenter-btn \{/);

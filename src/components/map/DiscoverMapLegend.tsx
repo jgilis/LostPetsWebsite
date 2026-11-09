@@ -28,9 +28,9 @@ export default function DiscoverMapLegend() {
   return (
     <details
       ref={detailsRef}
-      className="discover-map-legend pointer-events-auto min-h-11 min-w-11 w-max max-w-[min(11.75rem,calc(100%-3.5rem))] rounded-lg border border-gray-700/80 bg-gray-900/90 text-[11px] leading-snug text-gray-200 shadow"
+      className="discover-map-legend pointer-events-auto min-h-11 min-w-11 w-max max-w-[min(11.75rem,calc(100%-3.5rem))] overflow-hidden rounded-lg border border-gray-700/80 bg-gray-900/90 text-[11px] leading-snug text-gray-200 shadow"
     >
-      <summary className="flex h-11 min-w-11 cursor-pointer list-none items-center justify-center px-2 font-semibold md:min-h-[44px] md:justify-start md:px-3 [&::-webkit-details-marker]:hidden">
+      <summary className="flex h-11 min-w-11 cursor-pointer list-none items-center justify-center px-2 font-semibold whitespace-nowrap md:min-h-[44px] md:justify-start md:px-3 [&::-webkit-details-marker]:hidden">
         <span
           className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-400 text-[11px] font-bold md:hidden"
           aria-label={label}
