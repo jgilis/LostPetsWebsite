@@ -40,6 +40,7 @@ export const en = {
   feedEmpty: "No reports match your filters.",
   feedEmptyArea: "No reports yet in this area",
   feedEmptyHint: "Be the first to report a lost or found pet",
+  activityEmptyInArea: "Nothing in this area.",
   feedOwnershipAll: "All",
   feedOwnershipMine: "My reports",
   feedEmptyMyReports: "You have no active reports.",

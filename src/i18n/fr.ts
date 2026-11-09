@@ -42,6 +42,7 @@ export const fr: Record<keyof typeof en, string> = {
   feedEmpty: "Aucun signalement pour ces filtres.",
   feedEmptyArea: "Pas encore de signalements dans cette zone",
   feedEmptyHint: "Soyez le premier à signaler un animal perdu ou trouvé",
+  activityEmptyInArea: "Rien dans cette zone.",
   feedOwnershipAll: "Tous",
   feedOwnershipMine: "Mes signalements",
   feedEmptyMyReports: "Vous n'avez aucun signalement actif.",

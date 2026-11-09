@@ -1,6 +1,6 @@
 # Lost Pets Map — Product Plan
 
-**Status:** Working product direction. Phase 0 is complete. Next work is Phase 1.  
+**Status:** Working product direction. Phase 0 and Phase 1 are complete. Next work is Phase 2.  
 **Scope:** Next version  
 **Primary area:** Mechelen, Belgium  
 **Languages:** English, Dutch and French
@@ -9,7 +9,8 @@
 
 | Need | Place |
 |---|---|
-| What to build next | This file, section 12 |
+| What to build next | This file, section 12 (Phase 2 slices) |
+| Activity behaviour | `PRODUCT_STRATEGY.md` sections 5, 7 and 14 |
 | Discover behaviour, layout, sheets | `PRODUCT_STRATEGY.md` sections 5, 6 and 14 |
 | What is true in production | This file, section 15 |
 | Full next-version spec | `PRODUCT_STRATEGY.md` |
@@ -275,7 +276,7 @@ English, Dutch and French should be supported throughout the main application, n
 
 Accessibility requirements include clear labels, keyboard support, visible focus states and touch targets of at least 44 px.
 
-**Phase 1 visual direction:** keep the existing dark styling. Do not redesign colours, type, or chrome as part of Discover. A later warm/light exploration is not Phase 1.
+**Phase 1 and Phase 2 visual direction:** keep the existing dark styling. Do not redesign colours, type, or chrome. A later warm/light exploration is not this work.
 
 ## 11. Technical direction
 
@@ -307,65 +308,96 @@ Work in small, reviewable phases. Complete and test each phase before starting t
 | Phase | Focus | Status |
 |---|---|---|
 | 0 | Security, privacy and technical foundations | **Done.** Packages A, B and C are live. See section 15. |
-| 1 | Discover navigation and map experience | **In progress.** Shell, reports, detail, legend, desktop pass, and map-first Android presentation. |
-| 2 | Activity and map-area filtering | Not started |
+| 1 | Discover navigation and map experience | **Done.** Shell, bounds-synced reports, detail sheet, legend, desktop pass, map-first Android, Within 500 m on the report list, clickable found dots. |
+| 2 | Activity and map-area filtering | **Slice 1 in this repository.** Slices 2–4 not started. |
 | 3 | Help, reporting and editing flows | Not started |
 | 4 | Area subscriptions and notifications | Not started |
 | 5 | Administration, expiry and cleanup | Not started |
 
-### What to build next — Phase 1 Discover shell
+### Phase 1 Discover — delivered
 
-This is a new shell around the existing map, not a new map engine. Reuse `Map.tsx`, `useReports`, filters, Nearby and Walking Mode. Do not add tables, change production security, or start Phases 2–5.
+A new shell around the existing map, not a new map engine. Reused `Map.tsx`, `useReports`, filters, Nearby and Walking Mode. No new tables. No production security change.
 
-Detail: `PRODUCT_STRATEGY.md` sections 5 (information architecture), 6 (Discover) and 14 (build order).
+- Home is Discover / Activity / Help. Discover owns center, zoom and filters.
+- Mobile / PWA is map-first: compact top bar, Filters sheet, collapsed legend, Walking Mode from a map control, collapsed report sheet with Within 500 m (Off / map centre / my location). No Nearby overlay.
+- Desktop is map + list, with Status / Animal / Within 500 m in the list header. Walking Mode is hidden.
+- Report cards follow visible bounds. Marker or card select opens a detail sheet over Discover. Do not go to `/report/[id]`.
+- Found reports are species-colored DOM circle markers (44 px hit target), stacked above lost pins. They are not canvas `CircleMarker` paths.
+- Activity and Help are still the old feed and report form. That is Phase 2 and Phase 3.
 
-**Mobile (Android / PWA, map-first)**
+Detail that was built: `PRODUCT_STRATEGY.md` sections 5 and 6.
 
-- Full-screen map as the primary Discover screen. The map stays visible behind the sheet and occupies as much of the phone screen as possible when secondary panels are closed.
-- Default visible chrome: compact top bar (Filters button, icon Account and Notifications), a narrow collapsed report-sheet handle with count, and Discover / Activity / Help.
-- Status and Animal filters stay available but open in a bottom sheet. Show an active-filter summary on the Filters button. Closing the sheet keeps the selection. Do not leave two chip rows on the map.
-- Map legend starts collapsed as a small control; tap to reveal, tap again to close.
-- Walking Mode stays on Android from a map control; once active, show GPS/follow and distance plus a clear Exit action. Do not show inactive Walking Mode copy on the default map. Foreground location only.
-- Nearby is not a second overlay. A compact Within 500 m control on the report sheet filters the same cards (Off = in-view bounds, Map centre, My location). Reuse loaded reports and the existing 500 m logic.
-- A draggable bottom sheet of **report cards**, with three natural positions: collapsed (default), partially expanded, fully expanded. Drag or tap the handle to move between them.
-- Moving the map updates the cards to the reports in the visible bounds.
-- Selecting a card highlights its marker. Tapping a marker selects and scrolls/highlights the matching card, then opens a dedicated **detail sheet** over Discover. Detail takes priority over the list. Do not navigate away from the map.
-- Narrow-screen chrome: bottom bar for Discover / Activity / Help stays visible, including in Walking Mode. Account and Notifications are unobtrusive icons, not destinations. Keep map controls, legend, report sheet and bottom nav from overlapping.
+### What to build next — Phase 2 Activity in the camera
 
-**Desktop**
+Activity becomes a chronological list of **public facts in the Discover camera**, not a second copy of every report and not a social feed. Reuse loaded reports, Discover bounds (`reportInBounds`), species/lost-found filters, and the Phase 1 detail sheet. Do not add an activity table, PostGIS, or production schema unless inspection shows a real blocker and the user asks.
 
-- Map and a scrollable report list side by side.
-- Moving the map updates the list to the visible bounds.
-- Selecting a card and selecting a marker stay synchronized.
-- Wide-screen chrome: slim top bar, no bottom bar.
+Detail: `PRODUCT_STRATEGY.md` sections 5 (camera travels), 7 (Activity) and 14 (build order).
+
+Work and test one slice at a time. Each slice should be usable on its own.
+
+**Slice 1 — Activity follows the Discover camera (reports only)**
+
+- Persist Discover camera at the home shell: bounds, center, zoom, species filter, lost/found filter. Switching Discover ↔ Activity ↔ Help must not reset it. Switching repeatedly, including after opening and closing a Discover detail sheet, must keep the **same** Leaflet camera (center and zoom), not a reconstructed default. Keep the map mounted rather than unmounting `DiscoverWorkspace`.
+- Replace the global `ReportsFeed` dump as the default. List **active lost and active found reports inside those bounds**, newest first.
+- Reuse `filterReportsInBounds` / `reportInBounds`. Do not add a server bounding-box query.
+- **Mine** stays and **ignores the area filter**. Owners are looking for their records, not the camera.
+- Empty state: nothing in this area. The map camera stays where it was.
+- Keep the existing feed cards as far as possible. Keep species and lost/found filters from Discover.
+- Do not add sightings, reunion events, or a new event-type filter yet.
+- Do not change Discover’s map-first Android chrome except to share camera state.
+
+**Slice 2 — Approved sightings as Activity events**
+
+- Mix **approved** sightings into the same list when the sighting coordinate falls inside the Discover bounds.
+- Public copy is coarse place text only. No exact coordinates. No public sighting pin on Activity or Discover.
+- Newest first among all event types already in the list.
+- Inspect how approved sightings are already read. Reuse that path. Refetch when an approval lands. Do not build a separate activity table.
+- Pending and rejected sightings stay hidden, as today.
+- Do not change `/sightings/[id]` exact-location visibility (separate debt). Do not send public users there as a way to see an exact point.
+- Do not change Phase 0 sighting privacy, RLS, or production database state unless a missing SELECT on approved public fields blocks this slice **and** the user asks.
+
+**Slice 3 — 14-day reunions and event-type filter**
+
+- Add **reunited** events: `reports` with `status = resolved` whose coordinate is inside the bounds, only for **14 days** after resolve. Then they leave Activity. The report detail URL can still open from an old link.
+- Default Activity is the mixed area feed (missing, found, approved sightings, recent reunions). Drop “All lifecycle” as the default dump. Active / Reunited / All as today’s feed default is not the Phase 2 default.
+- A filter may isolate Missing, Found, Sightings, Reunited.
+- Mine still ignores the area filter and can still show the owner’s own resolved reports.
+- Hidden, as today: `flagged`, `removed`, `expired`, pending sightings, rejected sightings.
+
+**Slice 4 — Open on Discover**
+
+- Tap an Activity event: Discover opens, the camera focuses that report (`/?focus=` already exists), and the Phase 1 detail sheet opens. Do not navigate to `/report/[id]` for this gesture.
+- Mobile: Activity is a list with a clear way back to the map. The map may stay mounted and hidden; do not lose camera state.
+- Desktop: keep the map visible if it can stay mounted (Activity as a list beside the map). If that is too large for this slice, persist camera and restore Discover on tap — do not remount a reset map.
+- No like, comment, or share-to-followers. A system share of the report URL is fine.
 
 **Keep**
 
-- Existing species filters, lost/found filters, clusters, Mechelen bounds and map colours.
-- Compact map legend (pin = lost, dot = found, colours = species), collapsed by default on Android, placed so it does not obstruct the map or report controls.
-- Nearby as the existing 500 m filter on the Discover report list. Android: compact Within 500 m on the sheet. Desktop: Within 500 m in the list header. No second overlay. No text search.
-- Walking Mode as a first-class Discover mode on phone / PWA: foreground location only, reports prioritised by distance, **normal navigation remains visible**, and a clear prominent **Exit Walking Mode** control. Hidden on desktop. Not part of Activity.
-- Existing visual styling. No redesign in Phase 1.
-- Map camera when switching destinations. Discover owns center, zoom and filters.
-- Current Feed and Report screens behind Activity and Help until Phases 2 and 3.
+- Discover as the map-first home from Phase 1. The Discover list stays **reports only**. Do not put Activity events into the Discover sheet.
+- Nearby (Within 500 m) and Walking Mode on Discover. They are not Activity features.
+- Mine on Activity.
+- Existing dark styling, species colours, lost pin vs found dot, Mechelen bounds, PWA, en/nl/fr.
+- Map camera when switching destinations. Discover owns center, zoom and filters; Activity reads them.
+- Current Help / report form until Phase 3.
+- Public browse without an account.
 
 **Do not**
 
-- Show an Activity event feed (sightings, reunions) in the Discover list. That is Phase 2.
+- Add `activity` / event tables, PostGIS, or a native rewrite.
+- Change Phase 0 security, RLS, captcha submit, sighting privacy, or production database state unless the user asks.
+- Show exact sighting coordinates on Activity. Do not fix `/sightings/[id]` in this phase.
 - Rebuild Help, photo/location edit, or 7-day reopen (Phase 3).
-- Add database tables, area subscriptions, or admin audit work.
-- Change Phase 0 security, RLS, captcha submit, sighting privacy, or production database state.
-- Navigate away from Discover to `/report/[id]` on marker or card select.
+- Add area subscriptions, push for lost-in-area, or admin audit work (Phases 4–5).
+- Move Walking Mode or Nearby into Activity.
 - Redesign colours, type, or chrome.
-- Fix `/sightings/[id]` exact-location visibility (separate debt).
+- Unmount Discover in a way that forgets the camera.
 
-**Out of this phase:** Activity scoped to map bounds and reunion events (2); Help as three tasks, photo/location edit, 7-day reopen (3); area subscriptions (4); moderation audit, expiry job, duplicate hints (5).
+**Out of this phase:** Help as three tasks, photo/location edit, 7-day reopen (3); area subscriptions (4); moderation audit, expiry job, duplicate hints (5); `/sightings/[id]` exact-location visibility (separate debt).
 
 ### Later phases
 
 | Phase | Build |
 |---|---|
-| 2 | Activity lists events inside the Discover camera. Add approved sightings and 14-day reunions. Keep Mine. |
 | 3 | Help as three tasks (lost, found, seen). Real edit of description, photo and pin. Reopen a resolved report within 7 days. |
 | 4 | Area subscriptions and lost-report alerts on the existing notification/push pipeline. |
 | 5 | Admin queue polish, `moderation_actions` audit trail, expiry job, duplicate hints. |
@@ -394,20 +426,20 @@ These should not silently become permanent technical or product assumptions:
 2. Confirm that area alerts initially cover new missing-animal reports only.
 3. ~~Confirm that sightings remain possible without an account.~~ **Confirmed.** Logged-out submit was production-tested. The form still posts with no Authorization header.
 4. Confirm that ordinary reports become public without administrator pre-approval.
-5. Confirm the 14-day visibility period for reunions.
-6. ~~Confirm the final visual direction.~~ **Phase 1: keep the existing styling.** A later redesign is out of this phase.
+5. ~~Confirm the 14-day visibility period for reunions.~~ **Phase 2: 14 days.** Then the reunion leaves Activity. The detail page can remain.
+6. ~~Confirm the final visual direction.~~ **Phase 1 and Phase 2: keep the existing styling.** A later redesign is out of this work.
 7. ~~Marker tap detail surface.~~ **Decided.** Select and scroll/highlight the matching card, then open a dedicated detail sheet over Discover. Do not navigate away from the map.
 8. ~~Walking Mode chrome.~~ **Decided.** Keep Discover / Activity / Help visible. On Android, start Walking Mode from a compact map control; once active, show GPS/follow and distance and a clear Exit control. Hide Walking Mode on desktop.
 9. ~~Legend.~~ **Decided.** Compact map legend; collapsed by default on Android so it does not obstruct the map.
 10. ~~Android Discover crowding.~~ **Decided.** Map-first phone chrome: on-demand Filters, legend and Walking Mode; collapsed report sheet by default. Nearby is a Within 500 m filter on that sheet, not a second overlay. Do not change the desktop Discover layout for this.
 
-### Outstanding technical debt (not Phase 1)
+### Outstanding technical debt (not Phase 2)
 
-- `/sightings/[id]` can still show an exact location to whoever can load the row. Fix visibility (owner/admin only, or the same coarse public treatment as Discover) as a separate privacy task. Do not bundle it into Discover and do not change production for it in Phase 1.
+- `/sightings/[id]` can still show an exact location to whoever can load the row. Fix visibility (owner/admin only, or the same coarse public treatment as Discover) as a separate privacy task. Do not bundle it into Activity and do not change production for it in Phase 2.
 
 ## 15. Live baseline
 
-**As of 9 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. The live home is still Map / Feed / Report tabs. Phase 1 Discover is specified in section 12 and is not built yet: bounds-synced report cards, detail sheet over the map, compact legend, Walking Mode with nav still visible. Existing styling. `/sightings/[id]` exact-location visibility is separate debt, not Phase 1.
+**As of 9 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover is implemented in this repository** (production is whatever Vercel last deployed from GitHub). Home is Discover / Activity / Help. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2 slice 1 is in this repository:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds). Slices 2–4 are not started. Help is still the report form. `/sightings/[id]` exact-location visibility is separate debt, not Phase 2.
 
 ### How production is updated
 

@@ -46,7 +46,8 @@ test("successful submit refreshes map and feed without treating errors as succes
   assert.match(reportForm, /setMessageType\("success"\)/);
   assert.match(homePage, /onReportCreated=\{handleReportCreated\}/);
   assert.match(homePage, /refreshKey=\{refreshKey\}/);
-  assert.match(feed, /refreshKey/);
+  assert.match(homePage, /reports=\{discoverView.reports\}/);
+  assert.doesNotMatch(feed, /useReports\(/);
   assert.match(useReports, /refreshKey/);
   assert.match(map, /refreshKey/);
   assert.match(reportForm, /setMessageType\("error"\)/);

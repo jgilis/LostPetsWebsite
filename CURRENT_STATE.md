@@ -2,7 +2,18 @@
 
 **This file is a 7 November 2026 inventory of commit `cdc62cf`.** It is not the live product.
 
-**Live status (9 November 2026):** Vercel hosts the site and deploys from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. Phase 1 Discover is the home: full-screen map; bounds-synced report cards (mobile sheet / desktop list); marker tap highlights the card and opens a detail sheet over the map. **Android / PWA Discover is map-first:** compact top bar, one Filters button (sheet for Status/Animal), collapsed legend, Walking Mode from a map control, and one report sheet with a compact Within 500 m filter (Off / map centre / my location). There is no separate Nearby overlay. Desktop Discover stays map + list with Status/Animal/Within 500 m in the list header and no Walking Mode. Activity and Help are unchanged. `/sightings/[id]` exact-location visibility is separate debt, not Phase 1. Spec: `PRODUCT_PLAN.md` section 12 and `PRODUCT_STRATEGY.md` sections 5–6. Live baseline: `PRODUCT_PLAN.md` section 15.
+**Live status (9 November 2026):** Vercel hosts the site and deploys from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover is done** in this repository. Next work is Phase 2 Activity (`PRODUCT_PLAN.md` section 12, `PRODUCT_STRATEGY.md` section 7).
+
+Phase 1 Discover is the home:
+
+- Full-screen map; bounds-synced report cards (mobile sheet / desktop list). Marker or card tap highlights the card and opens a detail sheet over the map. It does not go to `/report/[id]`.
+- **Android / PWA is map-first:** compact top bar, one Filters button (sheet for Status/Animal), collapsed legend, Walking Mode from a map control, and one report sheet with a compact Within 500 m filter (Off / map centre / my location). There is no separate Nearby overlay.
+- **Desktop** stays map + list with Status/Animal/Within 500 m in the list header and no Walking Mode.
+- **Found reports** are species-colored DOM circle markers (`discover-found-marker`, 44 px hit target, `zIndexOffset` above lost pins) in `ReportMarker.tsx`. They are not canvas `CircleMarker` paths.
+- **Activity (Phase 2 slice 1):** the Discover map stays mounted under Activity/Help so the camera is unchanged after tab switches and after opening/closing a Discover detail sheet. The Activity list is the loaded reports inside those bounds, newest first. **Mine** ignores the area filter. No approved sightings or 14-day reunion events yet. **Help** is still the report form.
+- `/sightings/[id]` exact-location visibility is separate debt, not Phase 2.
+
+Live baseline: `PRODUCT_PLAN.md` section 15.
 
 Do not use the sections below as the current hosting, Edge Function, or privacy story. They describe the pre-security tree.
 

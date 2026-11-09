@@ -42,6 +42,7 @@ export const nl: Record<keyof typeof en, string> = {
   feedEmpty: "Geen meldingen voor deze filters.",
   feedEmptyArea: "Nog geen meldingen in dit gebied",
   feedEmptyHint: "Wees de eerste die een vermist of gevonden huisdier meldt",
+  activityEmptyInArea: "Niets in dit gebied.",
   feedOwnershipAll: "Alle",
   feedOwnershipMine: "Mijn meldingen",
   feedEmptyMyReports: "Je hebt geen actieve meldingen.",

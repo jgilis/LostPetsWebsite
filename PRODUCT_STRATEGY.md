@@ -1,6 +1,6 @@
 # Lost Pets Map — next-version product specification
 
-**Status:** product specification. Phase 0 is complete. Phase 1 is next. Phases 2–5 have not started.  
+**Status:** product specification. Phase 0 and Phase 1 are complete. Phase 2 is next. Phases 3–5 have not started.  
 **Baseline:** live product as of 9 November 2026, hosted on Vercel from GitHub `jgilis/LostPetsWebsite`, Supabase project `dmubikdkyusadzqngapy`. `CURRENT_STATE.md` remains a 7 November inventory of the pre-security commit and is not the live baseline.  
 **This document is the product direction.** What to build next is `PRODUCT_PLAN.md` section 12. What is true in production is `PRODUCT_PLAN.md` section 15. Where this spec and that status disagree on facts about the running system, the plan wins.
 
@@ -159,7 +159,7 @@ Same routes, same components.
 | | Narrow (phone, installed PWA) | Wide (desktop) |
 | --- | --- | --- |
 | Discover | Map-first full-screen map. Default chrome is a compact top bar (Filters button, icon Account and Notifications), a collapsed report-sheet handle with count and a compact Within 500 m control, and Discover / Activity / Help. Status and Animal filters, the map legend, and Walking Mode stay available on demand. The report sheet is the only report list. The sheet snaps collapsed / partial / full. Panning the map updates the cards to the visible bounds. | Map and a scrollable report list side by side. Status, Animal, and Within 500 m live in the list header. Walking Mode is hidden. Panning the map updates the list to the visible bounds. Card and marker selection stay in sync. |
-| Activity | Existing feed until Phase 2. Then: list of events in the Discover camera, with a way back to the map | Existing feed until Phase 2. Then: event list; map can remain |
+| Activity | Existing global feed until Phase 2. Then: list of events in the Discover camera, with a way back to the map | Existing global feed until Phase 2. Then: event list; map can remain |
 | Help | Existing report form until Phase 3 | Existing report form until Phase 3 |
 | Navigation | Bottom bar: Discover, Activity, Help. Account icon at the top of the map | Same three as a slim top bar, so the map keeps the vertical space. No bottom bar |
 | Admin | Separate `/admin` stack, linked from the account sheet only if `is_admin` | Same |
@@ -494,12 +494,14 @@ Each phase is usable on its own. None of them replaces Leaflet, Supabase, or the
 **Done.** Live baseline: `PRODUCT_PLAN.md` section 15.
 
 **Phase 1 — Discover shell.**  
-**Next.** Checklist: `PRODUCT_PLAN.md` section 12. Behaviour and layout: this file, sections 5 and 6.
+**Done.** Checklist that was built: `PRODUCT_PLAN.md` section 12 (Phase 1 delivered). Behaviour and layout: this file, sections 5 and 6.
 
-Full-screen map. Android / PWA: map-first default (compact top bar, on-demand Filters / legend / Walking Mode, collapsed report-sheet handle with Within 500 m on the same list). Mobile sheet still has three snap positions, map visible behind it. Desktop: map and report list side by side; Booking-style Status/Animal and Within 500 m in the list header; Walking Mode hidden. List follows visible bounds. Card select highlights the marker. Marker tap scrolls/highlights the card and opens a detail sheet over Discover — do not leave the map. Compact legend, not covering controls. Walking Mode stays on Discover for phone: foreground GPS, sort by distance, **nav stays visible**, prominent Exit Walking Mode. Keep existing visual styling. Reuse `Map.tsx` and existing report cards. Activity and Help stay as the current feed and report form until Phases 2 and 3. No new tables, no production database or security changes. `/sightings/[id]` exact-location visibility is separate debt.
+Full-screen map. Android / PWA: map-first default (compact top bar, on-demand Filters / legend / Walking Mode, collapsed report-sheet handle with Within 500 m on the same list). Mobile sheet still has three snap positions, map visible behind it. Desktop: map and report list side by side; Booking-style Status/Animal and Within 500 m in the list header; Walking Mode hidden. List follows visible bounds. Card select highlights the marker. Marker tap scrolls/highlights the card and opens a detail sheet over Discover — do not leave the map. Compact legend, not covering controls. Walking Mode stays on Discover for phone: foreground GPS, sort by distance, **nav stays visible**, prominent Exit Walking Mode. Found reports are clickable DOM circle markers. Keep existing visual styling. Reuse `Map.tsx` and existing report cards. Help stays as the current report form until Phase 3. No new tables, no production database or security changes. `/sightings/[id]` exact-location visibility is separate debt.
 
 **Phase 2 — Activity in the camera.**  
-Extend the feed query to the map bounds and add approved sightings and reunions. Keep “Mine.”
+**Next.** Slices: `PRODUCT_PLAN.md` section 12. Behaviour: this file, section 7.
+
+Activity lists public facts inside the Discover camera, newest first: active lost, active found, approved sightings (coarse place only), reunions for 14 days. Keep Mine (ignores the area filter). Persist camera when switching destinations. Tap an event to focus that report on Discover and open the detail sheet — do not go to `/report/[id]`. Mobile: list with a way back to the map. Desktop: map can remain. Reuse loaded reports and existing bounds helpers. No activity table, no PostGIS, no production schema/security change unless the user asks. Do not put Activity events into the Discover report sheet. Do not move Nearby or Walking Mode. Do not fix `/sightings/[id]`.
 
 **Phase 3 — Help as three tasks.**  
 Restructure the report tab and sighting modal into one flow. Real edit of description, photo, and pin. Pending sighting confirmation without `alert`.
@@ -561,4 +563,4 @@ Do not track walking paths. Do not add a social graph metric.
 9. **Phase 1 legend.** Compact, must not obstruct map or report controls.
 10. **Phase 1 visual direction.** Keep the existing styling. No redesign.
 
-Phase 0 is complete. Next work is Phase 1 (`PRODUCT_PLAN.md` section 12). `/sightings/[id]` exact-location visibility is separate debt.
+Phase 0 and Phase 1 are complete. Next work is Phase 2 (`PRODUCT_PLAN.md` section 12). `/sightings/[id]` exact-location visibility is separate debt.

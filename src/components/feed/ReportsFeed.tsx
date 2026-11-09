@@ -8,12 +8,15 @@ import {
   saveFeedScrollPosition,
 } from "@/src/lib/reportNavigation";
 import { formatReportTimestampDisplay } from "@/src/lib/reportTimestamps";
-import { useReports, type Report } from "../report/useReports";
+import { isPublicFeedReport, type Report } from "@/src/lib/reports";
 import {
   filterFeedReports,
   type FeedLifecycleFilter,
 } from "../map/filters";
-import { isPublicFeedReport } from "@/src/lib/reports";
+import {
+  filterReportsInBounds,
+  type MapBoundsBox,
+} from "@/src/lib/geo/reportInBounds";
 import type { AnimalFilter, TypeFilter } from "../report/ReportFiltersBar";
 import { truncateText } from "@/src/lib/adminReports";
 import LocationDisplay from "@/src/components/location/LocationDisplay";
@@ -60,7 +63,9 @@ function sortReportsNewestFirst(reports: Report[]): Report[] {
 type ReportsFeedProps = {
   typeFilter: TypeFilter;
   animalFilter: AnimalFilter;
-  refreshKey?: number;
+  reports: Report[];
+  bounds: MapBoundsBox | null;
+  loading?: boolean;
 };
 
 function FeedSkeleton() {
@@ -211,9 +216,10 @@ function ReportFeedCard({
 export default function ReportsFeed({
   typeFilter,
   animalFilter,
-  refreshKey = 0,
+  reports,
+  bounds,
+  loading = false,
 }: ReportsFeedProps) {
-  const { reports, loading } = useReports({ refreshKey });
   const { t } = useTranslation();
   const { user } = useCurrentUser();
   const scrollRef = useRef<HTMLUListElement>(null);
@@ -222,29 +228,25 @@ export default function ReportsFeed({
   const [lifecycleFilter, setLifecycleFilter] =
     useState<FeedLifecycleFilter>("active");
 
-  const sortedReports = useMemo(() => {
-    let filtered = filterFeedReports(
-      reports,
-      typeFilter,
-      animalFilter,
-      lifecycleFilter,
-    );
+  const filteredByLifecycle = useMemo(
+    () =>
+      filterFeedReports(reports, typeFilter, animalFilter, lifecycleFilter),
+    [reports, typeFilter, animalFilter, lifecycleFilter],
+  );
 
-    if (ownershipFilter === "mine" && user?.id) {
-      filtered = filtered.filter((r) =>
-        isOwner(user.id, r.owner_user_id),
-      );
+  const sortedReports = useMemo(() => {
+    let filtered = filteredByLifecycle;
+
+    if (ownershipFilter === "mine") {
+      filtered = user?.id
+        ? filtered.filter((r) => isOwner(user.id, r.owner_user_id))
+        : [];
+    } else {
+      filtered = filterReportsInBounds(filtered, bounds);
     }
 
     return sortReportsNewestFirst(filtered);
-  }, [
-    reports,
-    typeFilter,
-    animalFilter,
-    lifecycleFilter,
-    ownershipFilter,
-    user?.id,
-  ]);
+  }, [filteredByLifecycle, ownershipFilter, user?.id, bounds]);
 
   const hasAnyFeedReports = reports.some(isPublicFeedReport);
   const showMyReportsEmpty =
@@ -254,9 +256,15 @@ export default function ReportsFeed({
     sortedReports.length === 0;
 
   const emptyLifecycleMessage =
-    lifecycleFilter === "resolved"
-      ? t("feedEmptyResolved")
-      : t("feedEmpty");
+    ownershipFilter === "mine"
+      ? lifecycleFilter === "resolved"
+        ? t("feedEmptyResolved")
+        : t("feedEmpty")
+      : filteredByLifecycle.length > 0
+        ? t("activityEmptyInArea")
+        : lifecycleFilter === "resolved"
+          ? t("feedEmptyResolved")
+          : t("feedEmpty");
 
   const saveScroll = () => {
     if (scrollRef.current) {

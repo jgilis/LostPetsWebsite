@@ -19,6 +19,7 @@ type DiscoverWorkspaceProps = {
   onTypeFilterChange: (value: TypeFilter) => void;
   onAnimalFilterChange: (value: AnimalFilter) => void;
   walkingMode: UseWalkingModeResult;
+  onViewChange?: (view: DiscoverViewState) => void;
 };
 
 export default function DiscoverWorkspace({
@@ -28,6 +29,7 @@ export default function DiscoverWorkspace({
   onTypeFilterChange,
   onAnimalFilterChange,
   walkingMode,
+  onViewChange,
 }: DiscoverWorkspaceProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -58,9 +60,13 @@ export default function DiscoverWorkspace({
     setDetailOpen(true);
   }, [focusId]);
 
-  const handleDiscoverViewChange = useCallback((next: DiscoverViewState) => {
-    setView(next);
-  }, []);
+  const handleDiscoverViewChange = useCallback(
+    (next: DiscoverViewState) => {
+      setView(next);
+      onViewChange?.(next);
+    },
+    [onViewChange],
+  );
 
   const handleSelect = useCallback((id: string) => {
     setSelectedReportId(id);
