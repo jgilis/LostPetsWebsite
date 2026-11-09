@@ -93,7 +93,9 @@ serve(async (req: Request) => {
           owner_user_id: user.id,
         },
       ])
-      .select()
+      .select(
+        "id, type, animal_type, animal_name, description, latitude, longitude, contact_info, photo_url, status, expires_at, owner_user_id, created_at, date_reported",
+      )
       .single();
 
     if (error) {
@@ -103,7 +105,6 @@ serve(async (req: Request) => {
     return json({
       success: true,
       report: data,
-      edit_link: `${Deno.env.get("PUBLIC_BASE_URL")}/edit?token=${editToken}`,
     });
 
   } catch (err) {

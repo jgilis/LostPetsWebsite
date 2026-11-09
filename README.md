@@ -2,6 +2,8 @@
 
 Community map for **lost** and **found** pet reports in the Mechelen area. This repo is the Next.js frontend; data lives in **Supabase** (Postgres + Auth + Realtime + Edge Functions).
 
+The live site is hosted on **Vercel**, which deploys from this GitHub repository. Database changes are applied in the Supabase SQL Editor. Edge Functions are deployed with the Supabase CLI. There is no complete migration history that can rebuild production.
+
 **Audience:** beta testers and contributors — not polished end-user docs yet.
 
 ## Stack
@@ -69,8 +71,8 @@ src/components/      # UI (map, report form, admin, sightings, auth, PWA)
 src/lib/             # Supabase helpers, reports, sightings, bounds, push
 src/hooks/           # useAdmin, useReports, realtime resilience, etc.
 supabase/
-  functions/         # verify-captcha, send-push-on-notification
-  migrations/        # SQL migrations (apply in Supabase dashboard/CLI)
+  functions/         # verify-captcha, smooth-processor, flag-report, send-push-on-notification
+  migrations/        # Forward SQL only; production history is incomplete. Apply in the SQL Editor, not db push
 public/              # PWA manifest, service worker, Leaflet assets
 docs/                # Internal notes (e.g. RLS audit)
 ```

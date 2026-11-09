@@ -6,6 +6,10 @@ const migration = readFileSync(
   "supabase/migrations/20261107180000_sighting_and_notification_security.sql",
   "utf8",
 );
+const adminExecuteGrant = readFileSync(
+  "supabase/migrations/20261109114100_grant_is_current_user_admin_execute.sql",
+  "utf8",
+);
 const sightings = readFileSync("src/lib/sightings.ts", "utf8");
 const submitSighting = readFileSync(
   "supabase/functions/smooth-processor/index.ts",
@@ -68,8 +72,25 @@ test("migration hides exact sighting coordinates from API roles", () => {
   );
   assert.match(
     migration,
+    /GRANT EXECUTE ON FUNCTION public\.is_current_user_admin\(\) TO authenticated/,
+  );
+  assert.match(
+    migration,
     /GRANT EXECUTE ON FUNCTION public\.sighting_exact_coordinates\(uuid\[\]\) TO authenticated/,
   );
+});
+
+test("authenticated can execute the invoker admin helper", () => {
+  assert.match(
+    migration,
+    /CREATE OR REPLACE FUNCTION public\.is_current_user_admin\(\)[\s\S]*SECURITY INVOKER/,
+  );
+  assert.match(
+    adminExecuteGrant,
+    /GRANT EXECUTE ON FUNCTION public\.is_current_user_admin\(\) TO authenticated/,
+  );
+  assert.match(adminExecuteGrant, /REVOKE ALL ON FUNCTION public\.is_current_user_admin\(\) FROM PUBLIC, anon/);
+  assert.doesNotMatch(adminExecuteGrant, /SECURITY DEFINER/);
 });
 
 test("migration creates the approval notification on the server", () => {

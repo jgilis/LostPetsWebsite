@@ -186,6 +186,10 @@ REVOKE ALL ON FUNCTION public.is_current_user_admin() FROM PUBLIC, anon, authent
 REVOKE ALL ON FUNCTION public.enforce_sighting_write() FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.notify_report_owner_on_sighting_approval() FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.sighting_exact_coordinates(uuid[]) FROM PUBLIC, anon;
+-- The BEFORE trigger runs as the signed-in user and calls this helper.
+-- EXECUTE does not bypass RLS: the function stays SECURITY INVOKER and
+-- only reads profiles.id = auth.uid().
+GRANT EXECUTE ON FUNCTION public.is_current_user_admin() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.sighting_exact_coordinates(uuid[]) TO authenticated;
 
 NOTIFY pgrst, 'reload schema';

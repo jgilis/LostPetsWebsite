@@ -59,7 +59,7 @@ serve(async (req: Request) => {
 
     const { count: rlCount, error: rlError } = await supabase
       .from("reports_flags")
-      .select("*", { count: "exact", head: true })
+      .select("id", { count: "exact", head: true })
       .eq("ip_hash", ipHash)
       .gte("created_at", since);
 
@@ -100,7 +100,7 @@ serve(async (req: Request) => {
       },
     ]); */
 
-    const { data: inserted, error } = await supabase
+    const { error } = await supabase
       .from("reports_flags")
       .insert([
         {
@@ -109,7 +109,7 @@ serve(async (req: Request) => {
           ip_hash: ipHash,
         },
       ])
-      .select();
+      .select("id");
 
     console.log("ABUSE_EVENT", {
       reportId,

@@ -285,22 +285,20 @@ Do not:
 - Add unnecessary infrastructure.
 - Introduce social features or background tracking.
 
-The current hosting assumption is Vercel; verify it before relying on it.
+The live website is hosted on **Vercel**. Vercel deploys automatically from the GitHub repository. That hosting fact is confirmed by a successful production deployment of the Phase 0 frontend.
 
 ## 12. Development priorities
 
-Work in small, reviewable phases.
+Work in small, reviewable phases. Do not start Phase 1 until remaining Phase 0 work is done.
 
-| Phase | Focus |
-|---|---|
-| 0 | Security, privacy and technical foundations |
-| 1 | Discover navigation and map experience |
-| 2 | Activity and map-area filtering |
-| 3 | Help, reporting and editing flows |
-| 4 | Area subscriptions and notifications |
-| 5 | Administration, expiry and cleanup |
-
-Phase 0 is particularly important. Before redesigning the interface, verify database permissions, sighting privacy, report ownership, photo handling and server-side abuse protection.
+| Phase | Focus | Status |
+|---|---|---|
+| 0 | Security, privacy and technical foundations | In progress. Sighting and notification security is in production and verified. Other trust items remain. |
+| 1 | Discover navigation and map experience | Not started |
+| 2 | Activity and map-area filtering | Not started |
+| 3 | Help, reporting and editing flows | Not started |
+| 4 | Area subscriptions and notifications | Not started |
+| 5 | Administration, expiry and cleanup | Not started |
 
 Each phase should be completed and tested before moving on.
 
@@ -324,18 +322,42 @@ Unless we deliberately change the product direction, do not build:
 
 These should not silently become permanent technical or product assumptions:
 
-1. Confirm Vercel as the hosting platform.
+1. ~~Confirm Vercel as the hosting platform.~~ **Confirmed.** Vercel deploys the GitHub repository. The live site was checked after the Phase 0 frontend went Ready.
 2. Confirm that area alerts initially cover new missing-animal reports only.
-3. Confirm that sightings remain possible without an account.
+3. Confirm that sightings remain possible without an account. The form still posts with no Authorization header. Logged-out submission was not independently recorded in the latest production tests.
 4. Confirm that ordinary reports become public without administrator pre-approval.
 5. Confirm the 14-day visibility period for reunions.
 6. Confirm the final visual direction.
 
 ## 15. Current implementation baseline
 
-The existing Mechelen beta on `main` at commit `cdc62cf` is the starting point for this project.
+**As of 9 November 2026.** The live product is the Mechelen beta. Application code is on GitHub at `jgilis/LostPetsWebsite`, currently `main` commit `cd8eedd` (`security updates`). Vercel deploys that repository. The next version remains an evolution of this application, not a rebuild.
 
-The next version is an evolution of the existing application, not a rebuild.
+### How production is updated
+
+| Piece | How it is changed | Status |
+|---|---|---|
+| Next.js app | Push to GitHub; Vercel deploys automatically | Phase 0 frontend is live |
+| `smooth-processor` | `npx supabase functions deploy smooth-processor --project-ref dmubikdkyusadzqngapy --no-verify-jwt` | Deployed |
+| Database | SQL pasted in the production SQL Editor | `20261107180000_sighting_and_notification_security.sql` applied, then the `is_current_user_admin` EXECUTE grant |
+| Other Edge Functions | CLI deploy when explicitly done | `verify-captcha`, `flag-report`, and `send-push-on-notification` were not redeployed in this round |
+
+There is no verified automatic Supabase–GitHub integration. Production does not have a trustworthy `schema_migrations` history for the full schema. The database cannot be rebuilt from this repository. Do not run `supabase db push`.
+
+The EXECUTE grant that fixed admin approval is live in production. The follow-up file `supabase/migrations/20261109114100_grant_is_current_user_admin_execute.sql` exists locally and may not yet be on GitHub.
+
+### Production-tested sighting workflow
+
+Tested on 9 November 2026 from `http://localhost:3000` against production Supabase, after the SQL and the EXECUTE grant:
+
+- A sighting was submitted and appeared in `/admin/sightings` as Pending.
+- Pending sightings were not publicly visible.
+- An administrator approved the sighting after the permission fix.
+- The lost-report owner received the in-app sighting notification and can see the sighting.
+- An administrator can see the sighting details.
+- Other users see only “This animal has recently been sighted nearby.” They do not see exact sighting details or location.
+
+That path is **production-tested**. It does **not** by itself prove logged-out anonymous submission or Web Push delivery.
 
 ### Already implemented — preserve
 
@@ -343,52 +365,64 @@ The next version is an evolution of the existing application, not a rebuild.
 - Public browsing without account registration.
 - Signed-in report creation and ownership.
 - Ordinary reports published without administrator pre-approval.
-- Sighting approval and rejection workflows.
+- Sighting approval and rejection, now enforced in the database for sighting status.
 - Existing visitor, signed-in user and administrator roles.
 - Leaflet map, markers, clusters, species colours and Mechelen bounds.
 - Nearby list and foreground-only Walking Mode.
 - Report statuses and 120-day expiry timestamps.
-- Owner notifications and existing Web Push functionality.
+- Owner in-app notifications when a sighting is approved; Web Push pipeline still exists.
 - Installable PWA and English, Dutch and French support.
-- Administrator visibility of out-of-area reports.
+- Administrator visibility of out-of-area reports in the admin UI.
 
-### Partially implemented — improve
+### Phase 0 reassessment
+
+Compared with the current application, the applied production SQL, and the last live policy audit of `reports` (the sighting migration did not change report or storage policies).
+
+| Item | Status |
+|---|---|
+| Unrestricted client sighting inserts | **Completed and verified.** Open insert policy dropped. New rows are forced to `pending`. |
+| Public exact sighting coordinates | **Completed and verified.** Table `SELECT` on coordinates revoked; public queries omit them; other users see the coarse message. |
+| Owner and admin exact coordinates | **Completed and verified.** `sighting_exact_coordinates` plus the tested owner/admin UI. |
+| Approved-only public sighting queries | **Completed and verified.** |
+| Admin-only sighting approve/reject | **Completed and verified** after granting `EXECUTE` on `is_current_user_admin()` to `authenticated`. The helper remains `SECURITY INVOKER`. |
+| Server-side owner notification on approval | **Completed and verified** as an in-app notification. |
+| Remove client `notification_events` inserts | **Implemented.** Production SQL revoked the open insert. Direct-insert attacks were not re-tested. |
+| `smooth-processor` source and deploy | **Completed and verified.** Source is `supabase/functions/smooth-processor/index.ts`. Deployed with `--no-verify-jwt`. |
+| Hosting | **Completed and verified.** Vercel, from GitHub. |
+| Report owner UPDATE/DELETE RLS | **Implemented but not yet verified.** Live audit: owners may update and delete their own reports. Not re-tested in this round. |
+| Direct authenticated `reports` INSERT | **Requires investigation / still open.** Live audit allowed insert when `owner_user_id = auth.uid()`, which bypasses captcha. Not changed by the sighting SQL. |
+| Admin access to reports | **Not implemented** in RLS. Admin pages still use the user JWT. There is no admin policy on `reports`, so flagged, removed and expired rows are not readable that way. |
+| Admin access to flags | **Not implemented** in RLS. `reports_flags` has insert only; no SELECT for administrators. `/admin/flags` cannot be trusted until that changes. |
+| Server-side report location offset | **Not implemented.** `applyLocationOffset` still runs in the browser. `verify-captcha` stores the coordinates it is given. |
+| Photo type, size, EXIF, cleanup | **Partially implemented.** Bucket allows `image/*` up to 5 MB. The form uses `accept="image/*"`. No EXIF stripping. Report delete does not delete the storage object. Storage RLS remains loose. |
+| Required report type and species | **Partially implemented.** The form defaults to empty placeholders. There is no `required` check and `verify-captcha` does not validate the values. |
+| Stop writing `edit_token` | **Not implemented.** `verify-captcha` still writes `edit_token` and returns `/edit?token=`. The edit page uses `?id=` and `owner_user_id`. |
+| Call `onReportCreated` | **Not implemented.** Home passes the callback; `ReportForm` never calls it. |
+| Privacy policy accuracy | **Partially implemented.** Public sighting copy is closer to reality. The page still claims hashed IPs for report submit (`verify-captcha` does not hash IP) and optional public contact details (the form sends an empty string). |
+| `flag-report` in the repository | **Implemented but not yet verified.** Source is in `supabase/functions/flag-report/`. This round did not redeploy it. |
+| Anonymous sighting submit | **Implemented but not yet verified.** The form still posts without an Authorization header. The recorded tests do not state that the tester was signed out. |
+| Web Push on sighting approval | **Implemented but not yet verified.** The webhook and `send-push-on-notification` remain. The recorded tests confirmed the in-app notification only. |
+
+### Remaining Phase 0 work before Phase 1
+
+- Admin RLS (or a trusted server path) for reports and flags.
+- Move report location offset into `verify-captcha`.
+- Tighten photo upload, strip EXIF, delete objects when a report is deleted.
+- Validate type and species on the server.
+- Stop writing `edit_token`.
+- Invoke `onReportCreated` after a successful report.
+- Align privacy copy with what is actually stored.
+- Decide whether authenticated clients may insert `reports` directly.
+- Independently verify logged-out sighting submit and Web Push if those remain product promises.
+
+### Later product work (unchanged)
 
 - Main navigation and map persistence.
-- Activity feed and local filtering.
-- Sighting submission and moderation interface.
-- Report editing and reopening.
-- Report and photo deletion.
-- Expiry processing.
-- Flagging interface.
-- Magic-link draft preservation.
-- Translations across all screens.
-- Consistent interface components and styling.
-
-### Not implemented — build
-
-- Discover / Activity / Help navigation.
-- Map camera shared across sections.
-- Activity events for approved sightings.
-- Fourteen-day reunion visibility.
+- Discover / Activity / Help.
+- Activity events for approved sightings and 14-day reunions.
 - Full report editing and seven-day reopening.
-- Area subscriptions and missing-animal alerts.
-- Moderation audit trail.
-- Server-enforced location privacy.
-- Duplicate hints.
-- Reliable storage cleanup.
-
-### Critical verification items
-
-Before building the new navigation, verify:
-
-- Supabase RLS policies for reports, sightings, profiles and administrator actions.
-- Server-side enforcement of report location offsets.
-- Public access restrictions for exact sighting coordinates.
-- Explicit approved-status filtering in public sighting queries.
-- The actual behavior and source code of `smooth-processor` and `flag-report`.
-- Server-side photo validation, privacy and deletion.
-- Actual hosting provider; Vercel is not yet verified.
+- Area subscriptions.
+- Moderation audit trail, expiry job, duplicate hints.
 
 ### Implementation rule
 

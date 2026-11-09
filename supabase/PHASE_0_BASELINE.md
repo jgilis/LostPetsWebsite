@@ -1,6 +1,10 @@
 # Phase 0 migration baseline
 
-Inspection only. The live database was not queried, linked, or changed for this note. Policy facts come from the SQL Editor export in `supabase/security-audit/`. Repository facts come from the files on `main`.
+**Update (9 November 2026):** `20261107180000_sighting_and_notification_security.sql` was applied in the production SQL Editor. The `is_current_user_admin` EXECUTE grant was applied the same way after an approval 42501. `smooth-processor` was deployed with the CLI. Application code is on GitHub and Vercel. This is still **not** a complete migration history. Production cannot be rebuilt from the repository. Do not run `supabase db push`. Current status: `PRODUCT_PLAN.md` section 15.
+
+The rest of this note is the 7 November inspection, before that SQL ran.
+
+Inspection only at the time of writing. The live database was not queried, linked, or changed for this note. Policy facts come from the SQL Editor export in `supabase/security-audit/`. Repository facts come from the files on `main` at that date.
 
 ## Verdict
 

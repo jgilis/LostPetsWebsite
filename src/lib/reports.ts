@@ -57,6 +57,25 @@ export const REPORT_PUBLIC_SELECT = `
   date_reported
 `;
 
+// Columns remaining after edit_token is revoked from the Data API.
+export const REPORT_ADMIN_SELECT = `
+  id,
+  type,
+  animal_type,
+  animal_name,
+  description,
+  latitude,
+  longitude,
+  photo_url,
+  status,
+  date_reported,
+  expires_at,
+  owner_user_id,
+  created_at
+`;
+
+export const FLAG_ADMIN_SELECT = "id, report_id, reason, created_at";
+
 export function normalizeReportRow(r: ReportRow): Report {
   const now = new Date();
   const expiresAt = r.expires_at ? new Date(r.expires_at) : null;
@@ -120,19 +139,7 @@ export async function getReportById(id: string): Promise<Report | null> {
 export async function getAllReports() {
   const { data, error } = await supabase
     .from("reports")
-    .select(`
-      id,
-      type,
-      animal_type,
-      animal_name,
-      description,
-      latitude,
-      longitude,
-      photo_url,
-      status,
-      date_reported,
-      expires_at
-    `)
+    .select(REPORT_ADMIN_SELECT)
     .order("date_reported", { ascending: false });
 
   if (error) {
@@ -148,12 +155,12 @@ export async function getAllReports() {
 export async function getFlaggedReportsWithFlags() {
   const { data: reports } = await supabase
     .from("reports")
-    .select("*")
+    .select(REPORT_ADMIN_SELECT)
     .eq("status", "flagged");
 
   const { data: flags } = await supabase
     .from("reports_flags")
-    .select("*")
+    .select(FLAG_ADMIN_SELECT)
     .order("created_at", { ascending: false });
 
   return { reports: reports || [], flags: flags || [] };

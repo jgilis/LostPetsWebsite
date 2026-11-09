@@ -1,10 +1,10 @@
 # Lost Pets Map — next-version product specification
 
-**Status:** planning document. No implementation.  
-**Baseline:** `CURRENT_STATE.md` on `main` at `cdc62cf` (3 June 2026). Where this spec and older docs disagree, the inventory wins.  
-**Your prompt stopped mid-sentence in the moderation section.** The moderation, UX, and roadmap sections below finish that brief from the principles you did state. Nothing here invents a moderator role.
+**Status:** product specification. Phase 0 is in progress; sighting and notification security is in production. Phases 1–5 have not started.  
+**Baseline:** live product as of 9 November 2026, GitHub `main` at `cd8eedd`, hosted on Vercel, Supabase project `dmubikdkyusadzqngapy`. `CURRENT_STATE.md` remains a 7 November inventory of the pre-security commit and is not the live baseline.  
+**This document is the product direction.** Implementation status lives in `PRODUCT_PLAN.md` section 15. Where this spec and that status disagree on facts about the running system, the plan wins.
 
-**Assumptions you asked for, even where the repo cannot prove them:** keep Next.js 16, React 19, TypeScript, Tailwind 4, Leaflet, Supercluster, Supabase, Web Push, one codebase for the desktop site and the Android PWA, and Vercel as the host. The inventory could not confirm Vercel from the repository. This spec treats it as the host anyway.
+**Stack, unchanged:** Next.js 16, React 19, TypeScript, Tailwind 4, Leaflet, Supercluster, Supabase, Web Push, one codebase for the desktop site and the Android PWA, Vercel as the host. Vercel is confirmed by a successful production deployment from GitHub.
 
 ---
 
@@ -56,8 +56,8 @@ Do not merge them into one “pin” type. A found report is how an unidentified
 | Leaflet map, Mechelen bounds, species colors, lost pin vs found dot, supercluster | Make the map the shell of the app, not a tab inside a page | `edit_token` and `/edit?token=` (the editor already uses the Auth user id) |
 | Magic-link accounts and `owner_user_id` = Auth user id | Bottom navigation on small screens; the map stays mounted | `contact_info` (always empty). Do not bring the field back |
 | Report form, hCaptcha, photo bucket, client location offset, “Near …” labels | Sheets instead of `alert` / `prompt` | `react-leaflet-cluster` (unused) |
-| Sighting linked to a lost report; GPS or map pick | Area-scoped activity, including approved sightings and reunions | Push copy for rejected/updated sightings (nothing inserts those types) |
-| Owner notification on approved sighting; Web Push pipeline | Area subscriptions as a new notification type on the same pipeline | Anonymous Supabase users (section 5) |
+| Sighting linked to a lost report; GPS or map pick; pending until admin approval | Area-scoped activity, including approved sightings and reunions | Push copy for rejected/updated sightings (nothing inserts those types) |
+| Owner notification on approved sighting (now a database trigger); Web Push pipeline | Area subscriptions as a new notification type on the same pipeline | Anonymous Supabase users (section 5) |
 | `profiles.is_admin` as the only privilege | Admin home becomes a queue, same flag, no new role | A moderator role, user admin, public profiles |
 | Nearby 500 m list and foreground Walking Mode | Keep them as tools on Discover, not as a separate product | Background geofencing and a movement history |
 | en / nl / fr for the main chrome | Extend those three languages to Help, sightings, and admin | A fourth language |
@@ -82,7 +82,7 @@ There are two account categories. Administrators moderate. There is no moderator
 | Review flags, hide, resolve, approve or reject sightings | No | No | Yes |
 | Manage other people’s accounts | No | No | No, and do not add it in this version |
 
-Enforcement stays in Postgres RLS and Edge Functions, not in the React redirect. The current admin gate is only `useAdmin` in the browser. That is a known gap in the inventory. The redesign does not add screens until those writes are actually limited to `is_admin`.
+Enforcement stays in Postgres RLS and Edge Functions, not in the React redirect. Sighting approve/reject is now enforced in the database. Report and flag moderation still depend on `useAdmin` in the browser; there is no admin RLS policy on `reports` or `reports_flags`. The redesign does not add screens until those remaining writes are actually limited to `is_admin`.
 
 There is still no in-app screen to grant `is_admin`. Keep granting it in Supabase. An in-app user directory is a social-admin tool this product does not need.
 
@@ -122,7 +122,7 @@ Supabase anonymous sign-in creates a real `auth.users` row with no email. The JW
 
 ### What to do instead for low-friction help
 
-Sightings stay available without an account. Abuse control moves server-side in `smooth-processor`: captcha or a lightweight challenge, a cooldown, and an IP hash that is never shown in the UI. The privacy page already claims the hash. The app code does not implement it. Implementing the claim is the work, not adding anonymous users.
+Sightings stay available without an account. Abuse control for sightings is in `smooth-processor`: a cooldown and an IP hash that is never shown in the UI. The privacy page still over-claims the same hash for report submits; `verify-captcha` does not hash IP. Do not add anonymous Supabase users.
 
 ---
 
@@ -325,7 +325,7 @@ Sightings are not offset in storage, because the owner needs the real point. Pre
 
 - Public map and Activity: no sighting pin. Text only.
 - Owner of that lost report, and administrators: exact pin.
-- `/sightings/[id]` follows the same rule. Today it does not.
+- `/sightings/[id]` follows the same rule. That visibility split is in production and was tested.
 
 ### Area subscriptions
 
@@ -349,7 +349,7 @@ Matching:
 
 Owner sighting-approved push stays exactly as it is.
 
-Delivery remains: insert `notification_events` → webhook → Edge Function → Web Push. In-app unread count and mark-read stay. The webhook is still not in the repo. Area alerts are not “done” until that webhook is real for both event types. Foreground only. No GPS in the push path.
+Delivery remains: insert `notification_events` → webhook → Edge Function → Web Push. In-app unread count and mark-read stay. The webhook definition is not versioned as a migration; it exists in production. Area alerts are not “done” until that webhook is real for both event types. Foreground only. No GPS in the push path.
 
 Preferences live in the account sheet: master push switch (already built), list of zones, delete zone. No quiet hours in this version.
 
@@ -386,7 +386,7 @@ Preferences live in the account sheet: master push switch (already built), list 
 5. No public edit. The submitter can withdraw a **pending** sighting only if we stored their user id. Anonymous submissions cannot be withdrawn. That is an acceptable consequence of not requiring login. Say so in the pending confirmation.
 6. Do not build a conversation on the sighting.
 
-`getApprovedSightings` must filter `status = approved`. The function name already says that. The query does not.
+`getApprovedSightings` filters `status = approved` and does not select exact coordinates. Exact pins are loaded only through `sighting_exact_coordinates` for the report owner or an administrator.
 
 ---
 
@@ -482,7 +482,11 @@ Same UI installed or not. Install stays a quiet control, not a banner on first p
 Each phase is usable on its own. None of them replaces Leaflet, Supabase, or the report/sighting model.
 
 **Phase 0 — make the current promises true.**  
-Required before new UX. Confirm RLS so only owners update or delete their reports and only `is_admin` moderates. Filter approved sightings in the query. Stop public exact pins on `/sightings/[id]`. Server-side location offset. Photo type, size, and EXIF. Require type and species. Call `onReportCreated`. Delete or honor `edit_token` (honor is unnecessary; delete the write). Align privacy copy with reality. Bring `smooth-processor` and `flag-report` into the repo so moderation is not a guess.
+Required before new UX. Do not start Phase 1 yet.
+
+Done in production and tested: pending-only sighting inserts, admin-only sighting status changes, public queries without exact coordinates, owner/admin coordinates through `sighting_exact_coordinates`, server-side `sighting_approved` notifications, `smooth-processor` in the repo and deployed, Vercel hosting.
+
+Still required in Phase 0: admin RLS (or a trusted path) for reports and flags; server-side report location offset; photo type/size/EXIF and storage cleanup; server-side type and species checks; stop writing `edit_token`; call `onReportCreated`; align privacy copy; decide whether clients may insert `reports` directly. `flag-report` source is in the repo; it was not redeployed in this round. Full status table: `PRODUCT_PLAN.md` section 15.
 
 **Phase 1 — Discover shell.**  
 Full-bleed map, bottom bar on narrow screens, top bar on wide, report sheet instead of the popup, legend, shared camera state. Reuse `Map.tsx`, filters, Nearby, Walking Mode.
@@ -539,11 +543,11 @@ Do not track walking paths. Do not add a social graph metric.
 
 ## 17. Decisions to confirm before build
 
-1. **Vercel** is the host. The repo does not prove it. Confirm the project that is actually deployed is this commit’s Supabase ref.
+1. **Vercel** is the host. **Confirmed.** Vercel deploys `jgilis/LostPetsWebsite` to the live site. The deployed app uses Supabase project `dmubikdkyusadzqngapy`.
 2. **Area alerts fire only for new lost reports** in the first subscription release. Found reports are a later opt-in.
-3. **Sightings stay usable without an account.** Withdrawal of a pending sighting is therefore impossible for those submissions.
+3. **Sightings stay usable without an account.** Withdrawal of a pending sighting is therefore impossible for those submissions. Logged-out submit is implemented in the client and was not separately recorded in the latest tests.
 4. **Ordinary reports stay public immediately.** Only out-of-area pins, failed media, and flags interrupt that.
 5. **Reunion events stay on Activity for 14 days**, then leave the list. The detail page can remain.
 6. **No anonymous auth** in this version.
 
-If those six are accepted, Phase 0 can start without another product pass.
+Phase 0 has started. Remaining Phase 0 work does not need another product pass. It still must finish before Phase 1.

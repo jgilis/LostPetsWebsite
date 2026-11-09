@@ -1,11 +1,17 @@
 # Lost Pets Map — current product and functionality inventory
 
-**Inspection date:** 7 November 2026  
-**Branch:** `main` (tracks `origin/main`)  
-**Commit:** `cdc62cf7da5ed29653b36a38f29eea22ca6d7314` — `cdc62cf`, 3 June 2026, “patch gps walk”  
-**Working tree:** application code matches that commit. Untracked audit notes (`PROJECT_AUDIT.md`, and this file) are not part of the product.
+**This file is a 7 November 2026 inventory of commit `cdc62cf`.** It is not the live product.
 
-This inventory is based on the current frontend, the two checked-in Edge Functions, and the two checked-in SQL migrations. It does not assume a control works because a button exists.
+**Live status (9 November 2026):** GitHub `main` is `cd8eedd`. Vercel hosts the site and deploys from that repository. Supabase project `dmubikdkyusadzqngapy`. Sighting and notification security SQL was applied in the production SQL Editor. `smooth-processor` was deployed with `--no-verify-jwt`. The sighting submit → pending → admin approve → owner notification → public “sighted nearby” path was production-tested. Remaining Phase 0 work and the deployment model are in `PRODUCT_PLAN.md` section 15.
+
+Do not use the sections below as the current hosting, Edge Function, or sighting-privacy story. They describe the pre-security tree.
+
+---
+
+**Original inspection date:** 7 November 2026  
+**Original commit:** `cdc62cf7da5ed29653b36a38f29eea22ca6d7314` — `cdc62cf`, 3 June 2026, “patch gps walk”
+
+This inventory was based on the frontend, the two then-checked-in Edge Functions, and the two then-checked-in SQL migrations. It does not assume a control works because a button exists.
 
 **Status words used below**
 
