@@ -29,7 +29,7 @@ export default function DiscoverDestinationNav({
   return (
     <nav
       aria-label={t("discoverNavLabel")}
-      className="discover-nav fixed inset-x-0 bottom-0 z-[550] border-t border-gray-800 bg-gray-950 md:bottom-auto md:top-0 md:border-t-0 md:border-b"
+      className="discover-nav fixed inset-x-0 bottom-0 z-[550] border-t border-gray-800 bg-gray-950 pb-[env(safe-area-inset-bottom)] md:bottom-auto md:top-0 md:border-t-0 md:border-b md:pb-0"
     >
       <div className="mx-auto flex max-w-6xl">
         {DESTINATIONS.map(({ id, label }) => {

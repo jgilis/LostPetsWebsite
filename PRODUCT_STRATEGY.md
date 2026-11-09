@@ -158,13 +158,13 @@ Same routes, same components.
 
 | | Narrow (phone, installed PWA) | Wide (desktop) |
 | --- | --- | --- |
-| Discover | Full-screen map. Draggable bottom sheet of report cards in three positions (collapsed, half, full). Map stays visible behind the sheet. Panning the map updates the cards to the visible bounds. | Map and a scrollable report list side by side. Panning the map updates the list to the visible bounds. Card and marker selection stay in sync. |
+| Discover | Map-first full-screen map. Default chrome is a compact top bar (Filters button, icon Account and Notifications), a collapsed report-sheet handle with count, and Discover / Activity / Help. Status and Animal filters, the map legend, Nearby, and Walking Mode stay available on demand. The report sheet snaps collapsed / partial / full. Panning the map updates the cards to the visible bounds. | Map and a scrollable report list side by side. Status, Animal, and Within 500 m live in the list header. Walking Mode is hidden. Panning the map updates the list to the visible bounds. Card and marker selection stay in sync. |
 | Activity | Existing feed until Phase 2. Then: list of events in the Discover camera, with a way back to the map | Existing feed until Phase 2. Then: event list; map can remain |
 | Help | Existing report form until Phase 3 | Existing report form until Phase 3 |
 | Navigation | Bottom bar: Discover, Activity, Help. Account icon at the top of the map | Same three as a slim top bar, so the map keeps the vertical space. No bottom bar |
 | Admin | Separate `/admin` stack, linked from the account sheet only if `is_admin` | Same |
 
-Walking Mode is a first-class Discover mode, not a fourth tab and not part of Activity. Foreground location only. Reports in the sheet/list are prioritised by distance. Keep the normal Discover / Activity / Help navigation visible. Provide a clear, prominent Exit Walking Mode control. Recenter stays. Nearby remains the existing 500 m feature on Discover; it is not the report-card sheet.
+Walking Mode is a first-class Discover mode on phone / PWA, not a fourth tab and not part of Activity. Foreground location only. Reports in the sheet/list are prioritised by distance. Keep the normal Discover / Activity / Help navigation visible. On Android, Walking Mode starts from a compact map control; once active, show GPS/follow and distance with a clear Exit control. Do not show inactive Walking Mode copy on the default map. Hide Walking Mode on desktop. Recenter stays. Nearby remains the existing 500 m feature on Discover; it is not the report-card sheet. On Android it opens from a compact map control instead of a permanently visible overlay. Desktop keeps a compact Within 500 m control in the list header.
 
 There is no hamburger full of features. If a control does not serve look, notice, or help, it goes in the account sheet (language, push, zones, sign-in, sign-out, about, privacy, terms).
 
@@ -189,7 +189,7 @@ Operational today and still correct:
 
 ### What changes
 
-**Mobile: map plus a draggable report-card sheet.** The primary Discover screen is a full-screen map. A bottom sheet lists report cards and snaps to three positions: collapsed, partially expanded, fully expanded. The map remains visible behind it. Do not use the Leaflet popup as the way to browse reports.
+**Mobile: map-first, with secondary controls on demand.** The primary Discover screen is a full-screen map. Default visible chrome is a compact top bar (one Filters button plus icon Account and Notifications), a narrow collapsed report-sheet handle with the report count, and the Discover / Activity / Help bar. Status and Animal filters open in a bottom sheet; closing it keeps the selection. The map legend starts as a small control and expands only when tapped. Nearby and Walking Mode stay available from compact map controls; Nearby information and active Walking GPS/distance appear only when requested or while Walking Mode is on. The report sheet snaps to collapsed, partial, and full height; selecting a report still opens the existing detail sheet, which takes priority over the list. Do not leave two filter-chip rows, an expanded legend, or a large Nearby overlay permanently on the map. Do not use the Leaflet popup as the way to browse reports.
 
 **Desktop: map and list side by side.** A scrollable report list sits next to the map. There is no “selected report or Nearby” rail that replaces the list.
 
@@ -197,13 +197,15 @@ Operational today and still correct:
 
 **Cards and markers stay synchronized.** Selecting a card highlights its marker. Tapping a marker selects and scrolls/highlights the matching card, then opens a dedicated **detail sheet over Discover**. Do not navigate to `/report/[id]` or leave the map. Cluster tap still zooms, as today.
 
-**Walking Mode stays on Discover.** Foreground GPS only. Prioritise the in-view reports by distance. Keep the normal navigation visible. Provide a clear, prominent Exit Walking Mode control. Do not move Walking Mode into Activity. Do not hide the Discover / Activity / Help bar.
+**Walking Mode stays on Discover (phone / PWA).** Foreground GPS only. Prioritise the in-view reports by distance. Keep the normal navigation visible. Provide a clear, prominent Exit Walking Mode control. Do not move Walking Mode into Activity. Do not hide the Discover / Activity / Help bar. Hide Walking Mode on desktop.
 
-**Nearby stays on Discover.** Keep the existing 500 m feature (very-close under 75 m, session-only “seen”). It is not the report-card sheet. Do not persist “seen” across sessions. Do not turn it into push.
+**Nearby stays on Discover.** Keep the existing 500 m feature (very-close under 75 m, session-only “seen”). It is not the report-card sheet. On Android, open it from a compact map control rather than a permanent overlay. Desktop uses compact Within 500 m in the list header. Do not persist “seen” across sessions. Do not turn it into push.
 
 **No text search in Phase 1.** Filters and the map are enough.
 
-**Legend.** Keep a compact map legend: pin = lost, dot = found, colours = species. Place it so it does not obstruct the map or report controls. Keep existing filter chips.
+**Legend.** Keep a compact map legend: pin = lost, dot = found, colours = species. On Android it starts collapsed as a small map control. On desktop it can stay open in the list/map chrome. Place it so it does not obstruct the map or report controls.
+
+**Filters.** Same Status and Animal options, including rodent. Android: one Filters button with an active-filter summary; options live in a sheet. Desktop: Status and Animal menus in the list header. Do not keep two always-visible chip rows on the phone map.
 
 **Visual styling.** Phase 1 keeps the current dark UI. No colour, type, or chrome redesign.
 
@@ -455,8 +457,8 @@ Species colors stay (dog blue, cat amber, bird violet, rodent red, other neutral
 
 | Piece | Plan |
 | --- | --- |
-| Map chrome | Dark scrim, same chips as filters, not white pills |
-| Discover list | Narrow: draggable bottom sheet of report cards, three snap positions, map visible behind it. Wide: scrollable list beside the map |
+| Map chrome | Dark scrim. Android: compact Filters button and small map tools, not two always-visible chip rows. Desktop: Status/Animal menus in the list header |
+| Discover list | Narrow: collapsed-by-default draggable bottom sheet of report cards, three snap positions, map visible behind it. Wide: scrollable list beside the map |
 | Report detail | Dedicated sheet over Discover after card or marker selection. Map stays. Do not navigate away |
 | Other sheets | Account (and later Help/sighting) can use a sheet. Do not merge them into the Discover report-card list |
 | Primary button | One style. Blue is already the action color |
@@ -494,7 +496,7 @@ Each phase is usable on its own. None of them replaces Leaflet, Supabase, or the
 **Phase 1 — Discover shell.**  
 **Next.** Checklist: `PRODUCT_PLAN.md` section 12. Behaviour and layout: this file, sections 5 and 6.
 
-Full-screen map. Mobile: three-position draggable sheet of report cards, map visible behind it. Desktop: map and report list side by side. List follows visible bounds. Card select highlights the marker. Marker tap scrolls/highlights the card and opens a detail sheet over Discover — do not leave the map. Compact legend, not covering controls. Walking Mode stays on Discover: foreground GPS, sort by distance, **nav stays visible**, prominent Exit Walking Mode. Keep existing visual styling. Reuse `Map.tsx` and existing report cards. Activity and Help stay as the current feed and report form until Phases 2 and 3. No new tables, no production database or security changes. `/sightings/[id]` exact-location visibility is separate debt.
+Full-screen map. Android / PWA: map-first default (compact top bar, on-demand Filters / legend / Nearby / Walking Mode, collapsed report-sheet handle). Mobile sheet still has three snap positions, map visible behind it. Desktop: map and report list side by side; Booking-style Status/Animal and Within 500 m in the list header; Walking Mode hidden. List follows visible bounds. Card select highlights the marker. Marker tap scrolls/highlights the card and opens a detail sheet over Discover — do not leave the map. Compact legend, not covering controls. Walking Mode stays on Discover for phone: foreground GPS, sort by distance, **nav stays visible**, prominent Exit Walking Mode. Keep existing visual styling. Reuse `Map.tsx` and existing report cards. Activity and Help stay as the current feed and report form until Phases 2 and 3. No new tables, no production database or security changes. `/sightings/[id]` exact-location visibility is separate debt.
 
 **Phase 2 — Activity in the camera.**  
 Extend the feed query to the map bounds and add approved sightings and reunions. Keep “Mine.”

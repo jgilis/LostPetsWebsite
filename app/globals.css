@@ -240,14 +240,34 @@ body.walking-mode-active .nearby-awareness-panel {
 }
 
 .discover-map-stage {
-  --discover-sheet-height: 42dvh;
+  --discover-sheet-height: 72px;
+}
+
+.discover-map-legend:not([open]) .discover-map-legend-body {
+  display: none;
+}
+
+.discover-map-tool-btn {
+  display: inline-flex;
+  min-height: 44px;
+  min-width: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(55 65 81 / 0.8);
+  background: rgb(17 24 39 / 0.92);
+  padding: 0 0.65rem;
+  font-size: 11px;
+  font-weight: 600;
+  color: #e5e7eb;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
 }
 
 .discover-nearby-overlay {
-  position: absolute;
+  position: fixed;
   left: 0.5rem;
-  right: 5.5rem;
-  bottom: calc(var(--discover-sheet-height, 4.5rem) + 0.5rem);
+  right: 3.75rem;
+  bottom: calc(4rem + env(safe-area-inset-bottom) + var(--discover-sheet-height, 4.5rem) + 0.5rem);
   z-index: 500;
   margin-top: 0;
   max-height: min(28dvh, 12rem);

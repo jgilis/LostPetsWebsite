@@ -27,12 +27,13 @@ test("desktop Discover hides Walking Mode and the Nearby overlay", () => {
   assert.match(home, /useDesktopLayout/);
   assert.match(home, /stopWalkingMode/);
   assert.match(home, /walking && !isDesktop/);
-  assert.match(nearby, /discover-nearby-overlay md:hidden/);
+  assert.match(nearby, /discover-nearby-overlay/);
+  assert.match(nearby, /discover-map-tool-btn md:hidden/);
   assert.match(
     css,
     /@media \(min-width: 768px\)[\s\S]*\.discover-nearby-overlay \{\s*display: none;/,
   );
-  assert.match(nearby, /Walking mode off/);
+  assert.doesNotMatch(nearby, /Walking mode off/);
 });
 
 test("desktop Discover uses compact Status, Animal, and Within 500 m menus in the list header", () => {
@@ -60,7 +61,8 @@ test("Within 500 m reuses loaded reports around the map centre or a chosen locat
   assert.doesNotMatch(pane, /useReports/);
 });
 
-test("mobile filter chips stay but are quieter, and rodent remains a filter", () => {
+test("mobile filters stay quieter in a sheet, and rodent remains a filter", () => {
+  assert.match(home, /DiscoverMobileFilters/);
   assert.match(filters, /filterRodent/);
   assert.match(filters, /rounded-full border px-2.5 py-1 text-xs/);
   assert.doesNotMatch(filters, /toUpperCase/);

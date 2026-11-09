@@ -24,9 +24,11 @@ export default function SessionControls() {
     return (
       <a
         href="/login"
-        className="text-gray-400 underline hover:text-gray-200"
+        className="inline-flex h-11 min-w-11 items-center justify-center text-gray-400 hover:text-gray-200 md:h-auto md:min-w-0 md:underline"
+        aria-label={t("navAccount")}
       >
-        {t("navAccount")}
+        <AccountIcon />
+        <span className="hidden md:inline">{t("navAccount")}</span>
       </a>
     );
   }
@@ -35,10 +37,14 @@ export default function SessionControls() {
 
   return (
     <details className="group relative text-left">
-      <summary className="cursor-pointer list-none text-gray-400 underline hover:text-gray-200 [&::-webkit-details-marker]:hidden">
-        {t("navAccount")}
+      <summary
+        className="inline-flex h-11 min-w-11 cursor-pointer list-none items-center justify-center text-gray-400 hover:text-gray-200 md:h-auto md:min-w-0 md:underline [&::-webkit-details-marker]:hidden"
+        aria-label={t("navAccount")}
+      >
+        <AccountIcon />
+        <span className="hidden md:inline">{t("navAccount")}</span>
       </summary>
-      <div className="absolute bottom-full left-1/2 z-10 mb-2 min-w-[12rem] max-w-[16rem] -translate-x-1/2 rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-left shadow-lg">
+      <div className="absolute top-full right-0 z-10 mt-2 min-w-[12rem] max-w-[16rem] rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-left shadow-lg md:left-1/2 md:right-auto md:-translate-x-1/2">
         <p className="mb-2 truncate text-xs text-gray-400" title={email}>
           {email}
         </p>
@@ -52,5 +58,24 @@ export default function SessionControls() {
         </button>
       </div>
     </details>
+  );
+}
+
+function AccountIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden
+      className="h-5 w-5 md:hidden"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm7 8a7 7 0 0 0-14 0"
+      />
+    </svg>
   );
 }

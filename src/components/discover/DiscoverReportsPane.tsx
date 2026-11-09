@@ -134,7 +134,7 @@ export default function DiscoverReportsPane({
 }: DiscoverReportsPaneProps) {
   const { t } = useTranslation();
   const sheetRef = useRef<HTMLDivElement>(null);
-  const [snap, setSnap] = useState<DiscoverSheetSnap>("partial");
+  const [snap, setSnap] = useState<DiscoverSheetSnap>("collapsed");
   const [dragHeight, setDragHeight] = useState<number | null>(null);
   const [nearbySource, setNearbySource] = useState<NearbySource>("off");
   const [deviceOrigin, setDeviceOrigin] = useState<GeoPoint | null>(null);

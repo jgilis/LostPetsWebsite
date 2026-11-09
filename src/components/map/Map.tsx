@@ -580,24 +580,55 @@ export default function Map({
         <button
           type="button"
           onClick={handleRecenter}
-          className="walking-recenter-btn absolute right-3 z-[500] rounded-md bg-gray-900/90 px-3 py-2 text-xs font-medium text-gray-100 shadow ring-1 ring-gray-600 hover:bg-gray-800"
+          className="walking-recenter-btn absolute right-3 z-[500] min-h-11 rounded-md bg-gray-900/90 px-3 py-2 text-xs font-medium text-gray-100 shadow ring-1 ring-gray-600 hover:bg-gray-800"
           aria-label="Recenter on your location"
         >
           Recenter
         </button>
       ) : null}
 
-      {isAdminScoped ? <AdminMapLegend /> : <DiscoverMapLegend />}
+      {isAdminScoped ? (
+        <AdminMapLegend />
+      ) : (
+        <div className="discover-map-tool-stack pointer-events-none absolute top-2 right-2 z-[510] flex flex-col items-end gap-2">
+          <div className="pointer-events-auto">
+            <DiscoverMapLegend />
+          </div>
+          {fillContainer ? (
+            <div className="pointer-events-auto flex flex-col items-end gap-2 md:hidden">
+              <NearbyAwareness
+                overlay
+                centerLocation={mapCenterLocation}
+                reports={mapProximityReports}
+                walkingMode={walkingMode}
+              />
+              <button
+                type="button"
+                className="discover-map-tool-btn"
+                aria-pressed={walkingMode.isWalkingModeEnabled}
+                onClick={() => {
+                  if (walkingMode.isWalkingModeEnabled) {
+                    walkingMode.stopWalkingMode();
+                  } else {
+                    walkingMode.startWalkingMode();
+                  }
+                }}
+              >
+                {t("discoverWalking")}
+              </button>
+            </div>
+          ) : null}
+        </div>
+      )}
       </div>
 
-      {!isAdminScoped && (
+      {!isAdminScoped && !fillContainer ? (
         <NearbyAwareness
-          overlay={fillContainer}
           centerLocation={mapCenterLocation}
           reports={mapProximityReports}
           walkingMode={walkingMode}
         />
-      )}
+      ) : null}
     </div>
   );
 }

@@ -17,7 +17,8 @@ const circles = readFileSync("src/components/map/CirclesLayer.tsx", "utf8");
 
 test("Discover shows a compact public legend and keeps the admin legend separate", () => {
   assert.match(map, /DiscoverMapLegend/);
-  assert.match(map, /isAdminScoped \? <AdminMapLegend \/> : <DiscoverMapLegend \/>/);
+  assert.match(map, /AdminMapLegend/);
+  assert.match(map, /discover-map-tool-stack/);
   assert.match(adminLegend, /Original report/);
   assert.match(legend, /mapLegendLabel/);
   assert.match(legend, /filterLost/);
@@ -40,7 +41,8 @@ test("legend explains pin, dot, species colours, and approximate area", () => {
 
 test("legend sits on the map without covering zoom, nearby, or the report sheet", () => {
   assert.match(legend, /discover-map-legend/);
-  assert.match(legend, /absolute top-2 right-2 z-\[510\]/);
+  assert.match(map, /absolute top-2 right-2 z-\[510\]/);
+  assert.match(legend, /open=\{isDesktop \? true : mobileOpen\}/);
   assert.match(legend, /max-w-\[min\(11\.75rem,calc\(100%-3\.5rem\)\)\]/);
   assert.doesNotMatch(legend, /bottom-/);
   assert.doesNotMatch(legend, /left-/);

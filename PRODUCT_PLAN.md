@@ -62,7 +62,7 @@ The map-first experience. Opening the site lands here.
 
 Users can:
 - Explore missing and found animals on a full-screen (mobile) or split (desktop) map.
-- Filter by animal species and report type.
+- Filter by animal species and report type (on Android, from a Filters sheet rather than always-visible chip rows).
 - Browse the reports that fall inside the current map bounds, as cards synchronized with markers.
 - Select a map marker or a report card: the matching card is highlighted, and details open in a sheet on top of Discover. The map is not left.
 - Use Nearby (500 m) and Walking Mode on Discover.
@@ -307,7 +307,7 @@ Work in small, reviewable phases. Complete and test each phase before starting t
 | Phase | Focus | Status |
 |---|---|---|
 | 0 | Security, privacy and technical foundations | **Done.** Packages A, B and C are live. See section 15. |
-| 1 | Discover navigation and map experience | **Next.** Not started. |
+| 1 | Discover navigation and map experience | **In progress.** Shell, reports, detail, legend, desktop pass, and map-first Android presentation. |
 | 2 | Activity and map-area filtering | Not started |
 | 3 | Help, reporting and editing flows | Not started |
 | 4 | Area subscriptions and notifications | Not started |
@@ -319,13 +319,17 @@ This is a new shell around the existing map, not a new map engine. Reuse `Map.ts
 
 Detail: `PRODUCT_STRATEGY.md` sections 5 (information architecture), 6 (Discover) and 14 (build order).
 
-**Mobile**
+**Mobile (Android / PWA, map-first)**
 
-- Full-screen map as the primary Discover screen. The map stays visible behind the sheet.
-- A draggable bottom sheet of **report cards**, with three natural positions: collapsed, partially expanded, fully expanded.
+- Full-screen map as the primary Discover screen. The map stays visible behind the sheet and occupies as much of the phone screen as possible when secondary panels are closed.
+- Default visible chrome: compact top bar (Filters button, icon Account and Notifications), a narrow collapsed report-sheet handle with count, and Discover / Activity / Help.
+- Status and Animal filters stay available but open in a bottom sheet. Show an active-filter summary on the Filters button. Closing the sheet keeps the selection. Do not leave two chip rows on the map.
+- Map legend starts collapsed as a small control; tap to reveal, tap again to close.
+- Nearby and Walking Mode stay on Android. Nearby opens from a compact map control, not a permanent overlay. Walking Mode starts from a map control; once active, show GPS/follow and distance plus a clear Exit action. Do not show inactive Walking Mode copy on the default map. Foreground location only.
+- A draggable bottom sheet of **report cards**, with three natural positions: collapsed (default), partially expanded, fully expanded. Drag or tap the handle to move between them.
 - Moving the map updates the cards to the reports in the visible bounds.
-- Selecting a card highlights its marker. Tapping a marker selects and scrolls/highlights the matching card, then opens a dedicated **detail sheet** over Discover. Do not navigate away from the map.
-- Narrow-screen chrome: bottom bar for Discover / Activity / Help stays visible, including in Walking Mode. Account is a corner control, not a destination.
+- Selecting a card highlights its marker. Tapping a marker selects and scrolls/highlights the matching card, then opens a dedicated **detail sheet** over Discover. Detail takes priority over the list. Do not navigate away from the map.
+- Narrow-screen chrome: bottom bar for Discover / Activity / Help stays visible, including in Walking Mode. Account and Notifications are unobtrusive icons, not destinations. Keep map controls, legend, report sheet and bottom nav from overlapping.
 
 **Desktop**
 
@@ -337,9 +341,9 @@ Detail: `PRODUCT_STRATEGY.md` sections 5 (information architecture), 6 (Discover
 **Keep**
 
 - Existing species filters, lost/found filters, clusters, Mechelen bounds and map colours.
-- Compact map legend (pin = lost, dot = found, colours = species), placed so it does not obstruct the map or report controls.
-- Nearby as the existing 500 m feature on Discover. No text search.
-- Walking Mode as a first-class Discover mode: foreground location only, reports prioritised by distance, **normal navigation remains visible**, and a clear prominent **Exit Walking Mode** control. Not part of Activity.
+- Compact map legend (pin = lost, dot = found, colours = species), collapsed by default on Android, placed so it does not obstruct the map or report controls.
+- Nearby as the existing 500 m feature on Discover. On Android it is on-demand; on desktop it is compact Within 500 m in the list header. No text search.
+- Walking Mode as a first-class Discover mode on phone / PWA: foreground location only, reports prioritised by distance, **normal navigation remains visible**, and a clear prominent **Exit Walking Mode** control. Hidden on desktop. Not part of Activity.
 - Existing visual styling. No redesign in Phase 1.
 - Map camera when switching destinations. Discover owns center, zoom and filters.
 - Current Feed and Report screens behind Activity and Help until Phases 2 and 3.
@@ -392,8 +396,9 @@ These should not silently become permanent technical or product assumptions:
 5. Confirm the 14-day visibility period for reunions.
 6. ~~Confirm the final visual direction.~~ **Phase 1: keep the existing styling.** A later redesign is out of this phase.
 7. ~~Marker tap detail surface.~~ **Decided.** Select and scroll/highlight the matching card, then open a dedicated detail sheet over Discover. Do not navigate away from the map.
-8. ~~Walking Mode chrome.~~ **Decided.** Keep Discover / Activity / Help visible. Provide a clear, prominent Exit Walking Mode control.
-9. ~~Legend.~~ **Decided.** Keep a compact map legend if it does not obstruct the map or report controls.
+8. ~~Walking Mode chrome.~~ **Decided.** Keep Discover / Activity / Help visible. On Android, start Walking Mode from a compact map control; once active, show GPS/follow and distance and a clear Exit control. Hide Walking Mode on desktop.
+9. ~~Legend.~~ **Decided.** Compact map legend; collapsed by default on Android so it does not obstruct the map.
+10. ~~Android Discover crowding.~~ **Decided.** Map-first phone chrome: on-demand Filters, legend, Nearby and Walking Mode; collapsed report sheet by default. Do not change the desktop Discover layout for this.
 
 ### Outstanding technical debt (not Phase 1)
 

@@ -13,8 +13,10 @@ import DiscoverDestinationNav from "../src/components/layout/DiscoverDestination
 import WalkingModeExitBar from "../src/components/layout/WalkingModeExitBar";
 import SessionControls from "../src/components/auth/SessionControls";
 import NotificationNavLink from "../src/components/notifications/NotificationNavLink";
+import DiscoverMobileFilters from "../src/components/discover/DiscoverMobileFilters";
 import { useWalkingMode } from "../src/hooks/useWalkingMode";
 import { useDesktopLayout } from "../src/hooks/useDesktopLayout";
+import { formatProximityDistance } from "../src/lib/geo/formatProximityDistance";
 import {
   homeDestinationHref,
   parseHomeDestination,
@@ -27,6 +29,7 @@ function HomePageContent() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [animalFilter, setAnimalFilter] = useState<AnimalFilter>("all");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const walkingMode = useWalkingMode();
   const isDesktop = useDesktopLayout();
   const { t } = useTranslation();
@@ -68,6 +71,13 @@ function HomePageContent() {
       <WalkingModeExitBar
         visible={walking && !isDesktop}
         onExit={walkingMode.stopWalkingMode}
+        statusLabel={
+          walking && walkingMode.hasActiveUserLocation
+            ? `${walkingMode.sessionStats.elapsedLabel} · ${formatProximityDistance(walkingMode.sessionStats.distanceMeters)}`
+            : walking
+              ? t("discoverWalkingWaiting")
+              : null
+        }
       />
 
       <div
@@ -75,21 +85,26 @@ function HomePageContent() {
           showDiscover
             ? "max-w-none min-h-0"
             : "max-w-6xl px-4 py-6"
-        } ${walking && !isDesktop ? "pt-12" : "pt-0"} md:pt-12 pb-16 md:pb-0`}
+        } ${walking && !isDesktop ? "pt-[4.75rem]" : "pt-0"} md:pt-12 pb-16 md:pb-0`}
       >
         {showDiscover ? (
         <div className="relative flex min-h-0 flex-1 flex-col">
-          <div className="flex shrink-0 items-center justify-end gap-3 px-3 py-2 text-xs md:px-4">
-            <NotificationNavLink />
-            <SessionControls />
-          </div>
-          <div className="shrink-0 px-2 md:hidden">
-            <ReportFiltersBar
-              typeFilter={typeFilter}
-              animalFilter={animalFilter}
-              onTypeFilterChange={setTypeFilter}
-              onAnimalFilterChange={setAnimalFilter}
-            />
+          <div className="flex shrink-0 items-center gap-2 px-2 py-1 pt-[max(0.25rem,env(safe-area-inset-top))] md:justify-end md:px-4 md:py-2 md:pt-2">
+            <div className="md:hidden">
+              <DiscoverMobileFilters
+                typeFilter={typeFilter}
+                animalFilter={animalFilter}
+                onTypeFilterChange={setTypeFilter}
+                onAnimalFilterChange={setAnimalFilter}
+                open={filtersOpen}
+                onOpen={() => setFiltersOpen(true)}
+                onClose={() => setFiltersOpen(false)}
+              />
+            </div>
+            <div className="ml-auto flex items-center gap-1 md:gap-3">
+              <NotificationNavLink />
+              <SessionControls />
+            </div>
           </div>
           <DiscoverWorkspace
             refreshKey={refreshKey}

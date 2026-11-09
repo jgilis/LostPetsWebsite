@@ -5,18 +5,20 @@ import { useTranslation } from "@/src/i18n/I18nProvider";
 type WalkingModeExitBarProps = {
   visible: boolean;
   onExit: () => void;
+  statusLabel?: string | null;
 };
 
 export default function WalkingModeExitBar({
   visible,
   onExit,
+  statusLabel,
 }: WalkingModeExitBarProps) {
   const { t } = useTranslation();
 
   if (!visible) return null;
 
   return (
-    <div className="walking-mode-exit-bar fixed inset-x-0 top-0 z-[560] border-b border-amber-700/80 bg-gray-900 md:hidden">
+    <div className="walking-mode-exit-bar fixed inset-x-0 top-0 z-[560] border-b border-amber-700/80 bg-gray-900 pt-[env(safe-area-inset-top)] md:hidden">
       <button
         type="button"
         onClick={onExit}
@@ -24,6 +26,11 @@ export default function WalkingModeExitBar({
       >
         {t("walkingModeExit")}
       </button>
+      {statusLabel ? (
+        <p className="px-4 pb-2 text-center text-xs text-amber-100/80" role="status">
+          {statusLabel}
+        </p>
+      ) : null}
     </div>
   );
 }
