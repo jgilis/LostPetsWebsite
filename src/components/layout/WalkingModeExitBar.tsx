@@ -16,7 +16,7 @@ export default function WalkingModeExitBar({
   if (!visible) return null;
 
   return (
-    <div className="walking-mode-exit-bar fixed inset-x-0 top-0 z-[560] border-b border-amber-700/80 bg-gray-900 md:top-12">
+    <div className="walking-mode-exit-bar fixed inset-x-0 top-0 z-[560] border-b border-amber-700/80 bg-gray-900 md:hidden">
       <button
         type="button"
         onClick={onExit}

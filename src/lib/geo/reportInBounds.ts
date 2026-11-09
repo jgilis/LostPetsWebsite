@@ -21,3 +21,14 @@ export function filterReportsInBounds<
   if (!bounds) return [];
   return reports.filter((report) => reportInBounds(report, bounds));
 }
+
+export function centerFromBounds(
+  bounds: MapBoundsBox | null,
+): { lat: number; lng: number } | null {
+  if (!bounds) return null;
+  const [west, south, east, north] = bounds;
+  return {
+    lat: (south + north) / 2,
+    lng: (west + east) / 2,
+  };
+}

@@ -35,6 +35,7 @@ test("legacy tab query values still map to destinations", () => {
 test("walking mode keeps destination nav and exposes a prominent exit", () => {
   assert.match(walkingExit, /walkingModeExit/);
   assert.match(home, /WalkingModeExitBar/);
+  assert.match(walkingExit, /md:hidden/);
   assert.doesNotMatch(css, /walking-mode-active \.discover-nav/);
   assert.doesNotMatch(css, /walking-mode-active \.home-chrome/);
   assert.match(css, /discover-fullbleed footer/);

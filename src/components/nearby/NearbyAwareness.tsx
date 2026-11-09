@@ -154,7 +154,7 @@ function NearbyAwareness({
   return (
     <section
       className={`nearby-awareness-panel rounded-lg border border-gray-700/80 bg-gray-900/40 px-3 py-2 ${
-        overlay ? "discover-nearby-overlay" : "mt-3"
+        overlay ? "discover-nearby-overlay md:hidden" : "mt-3"
       }`}
       aria-label="Nearby awareness"
     >

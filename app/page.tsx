@@ -14,6 +14,7 @@ import WalkingModeExitBar from "../src/components/layout/WalkingModeExitBar";
 import SessionControls from "../src/components/auth/SessionControls";
 import NotificationNavLink from "../src/components/notifications/NotificationNavLink";
 import { useWalkingMode } from "../src/hooks/useWalkingMode";
+import { useDesktopLayout } from "../src/hooks/useDesktopLayout";
 import {
   homeDestinationHref,
   parseHomeDestination,
@@ -27,6 +28,7 @@ function HomePageContent() {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [animalFilter, setAnimalFilter] = useState<AnimalFilter>("all");
   const walkingMode = useWalkingMode();
+  const isDesktop = useDesktopLayout();
   const { t } = useTranslation();
   const destination = parseHomeDestination(
     searchParams.get("tab"),
@@ -40,6 +42,12 @@ function HomePageContent() {
     );
     return () => document.body.classList.remove("discover-fullbleed");
   }, [destination]);
+
+  useEffect(() => {
+    if (isDesktop && walkingMode.isWalkingModeEnabled) {
+      walkingMode.stopWalkingMode();
+    }
+  }, [isDesktop, walkingMode.isWalkingModeEnabled, walkingMode.stopWalkingMode]);
 
   const handleReportCreated = () => {
     setRefreshKey((k) => k + 1);
@@ -58,7 +66,7 @@ function HomePageContent() {
     >
       <DiscoverDestinationNav destination={destination} />
       <WalkingModeExitBar
-        visible={walking}
+        visible={walking && !isDesktop}
         onExit={walkingMode.stopWalkingMode}
       />
 
@@ -67,7 +75,7 @@ function HomePageContent() {
           showDiscover
             ? "max-w-none min-h-0"
             : "max-w-6xl px-4 py-6"
-        } ${walking ? "pt-12 md:pt-24" : "pt-0 md:pt-12"} pb-16 md:pb-0`}
+        } ${walking && !isDesktop ? "pt-12" : "pt-0"} md:pt-12 pb-16 md:pb-0`}
       >
         {showDiscover ? (
         <div className="relative flex min-h-0 flex-1 flex-col">
@@ -75,7 +83,7 @@ function HomePageContent() {
             <NotificationNavLink />
             <SessionControls />
           </div>
-          <div className="shrink-0 px-2 md:px-4">
+          <div className="shrink-0 px-2 md:hidden">
             <ReportFiltersBar
               typeFilter={typeFilter}
               animalFilter={animalFilter}

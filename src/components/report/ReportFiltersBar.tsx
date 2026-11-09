@@ -50,12 +50,12 @@ export default function ReportFiltersBar({
     <div
       className={
         sticky
-          ? "report-filters-bar sticky top-0 z-[400] flex w-full min-w-0 max-w-full flex-col gap-2.5 bg-gray-950 pt-1.5"
-          : "report-filters-bar flex w-full min-w-0 max-w-full flex-col gap-2.5"
+          ? "report-filters-bar sticky top-0 z-[400] flex w-full min-w-0 max-w-full flex-col gap-1.5 bg-gray-950 pt-1"
+          : "report-filters-bar flex w-full min-w-0 max-w-full flex-col gap-1.5"
       }
     >
-      <div className="flex w-full min-w-0 justify-center overflow-x-hidden py-1">
-        <div className="flex w-max max-w-full min-w-0 flex-nowrap gap-2 overflow-x-auto overscroll-x-contain px-2 py-1 touch-pan-x [-webkit-overflow-scrolling:touch]">
+      <div className="flex w-full min-w-0 justify-center overflow-x-hidden py-0.5">
+        <div className="flex w-max max-w-full min-w-0 flex-nowrap gap-1.5 overflow-x-auto overscroll-x-contain px-2 py-1 touch-pan-x [-webkit-overflow-scrolling:touch]">
         {(["all", "dog", "cat", "bird", "rodent", "other"] as const).map((a) => {
           const isActive = animalFilter === a;
           const color =
@@ -66,23 +66,21 @@ export default function ReportFiltersBar({
               key={a}
               type="button"
               onClick={() => onAnimalFilterChange(a)}
-              className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border-4 font-medium leading-normal"
+              className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-medium leading-normal"
               style={{
-                padding: "5px 10px",
                 borderColor: color,
-                backgroundColor: isActive ? color : "#ffffff",
-                color: isActive ? "#ffffff" : "#000000",
-                boxShadow: "0 0 0 2px #ffffff",
+                backgroundColor: isActive ? color : "transparent",
+                color: isActive ? "#ffffff" : "#e5e7eb",
               }}
             >
-              {t(ANIMAL_FILTER_LABELS[a]).toUpperCase()}
+              {t(ANIMAL_FILTER_LABELS[a])}
             </button>
           );
         })}
         </div>
       </div>
 
-      <div className="report-type-filters flex justify-center gap-2 pb-2.5">
+      <div className="report-type-filters flex justify-center gap-1.5 pb-1.5">
         {(["all", "lost", "found"] as const).map((typeKey) => {
           const isActive = typeFilter === typeKey;
 
@@ -91,15 +89,13 @@ export default function ReportFiltersBar({
               key={typeKey}
               type="button"
               onClick={() => onTypeFilterChange(typeKey)}
-              className="inline-flex items-center whitespace-nowrap rounded-full border-4 border-black font-medium leading-normal"
+              className="inline-flex items-center whitespace-nowrap rounded-full border border-gray-500 px-2.5 py-1 text-xs font-medium leading-normal"
               style={{
-                padding: "6px 10px",
-                backgroundColor: isActive ? "#000000" : "#ffffff",
-                color: isActive ? "#ffffff" : "#000000",
-                boxShadow: "0 0 0 2px #ffffff",
+                backgroundColor: isActive ? "#e5e7eb" : "transparent",
+                color: isActive ? "#111827" : "#e5e7eb",
               }}
             >
-              {t(TYPE_FILTER_LABELS[typeKey]).toUpperCase()}
+              {t(TYPE_FILTER_LABELS[typeKey])}
             </button>
           );
         })}

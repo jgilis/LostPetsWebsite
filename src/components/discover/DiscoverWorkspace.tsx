@@ -118,6 +118,10 @@ export default function DiscoverWorkspace({
             selectedReportId={selectedReportId}
             onSelect={handleSelect}
             sortOrigin={sortOrigin}
+            typeFilter={typeFilter}
+            animalFilter={animalFilter}
+            onTypeFilterChange={onTypeFilterChange}
+            onAnimalFilterChange={onAnimalFilterChange}
           />
           {detailOpen && detailReport ? (
             <DiscoverDetailSheet
