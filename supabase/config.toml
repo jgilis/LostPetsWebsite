@@ -10,6 +10,14 @@ entrypoint = "./functions/verify-captcha/index.ts"
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/verify-captcha/*.html" ]
 
+# New submission contract. Deploy this before the matching frontend.
+# Leave verify-captcha in place until the old frontend is gone.
+[functions.verify-captcha-v2]
+enabled = true
+verify_jwt = true
+import_map = "./functions/verify-captcha-v2/deno.json"
+entrypoint = "./functions/verify-captcha-v2/index.ts"
+
 [functions.send-push-on-notification]
 enabled = true
 verify_jwt = false

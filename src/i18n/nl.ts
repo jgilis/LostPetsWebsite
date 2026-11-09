@@ -99,6 +99,11 @@ export const nl: Record<keyof typeof en, string> = {
   reportErrorDescription: "Geef een korte beschrijving.",
   reportErrorLocation: "Kies een locatie.",
   reportErrorAuth: "Je moet ingelogd zijn om een melding in te dienen. Inloggen is gratis.",
+  reportErrorType: "Kies vermist of gevonden.",
+  reportErrorAnimalType: "Kies een soort dier.",
+  reportErrorPhotoTooLarge: "De foto is te groot. Kies een kleinere afbeelding.",
+  reportErrorPhotoInvalid:
+    "Deze foto kon niet worden verwerkt. Gebruik een JPEG-, PNG- of WebP-bestand.",
   reportErrorPhoto: "Foto uploaden mislukt:",
   reportErrorServer: "Serverfout (ongeldig antwoord)",
   reportErrorFailed: "Verzoek mislukt",

@@ -3,11 +3,20 @@
 import { useState } from "react";
 import { supabase } from "../../lib/supabase";
 import LocationPicker from "./LocationPicker";
-import { applyLocationOffset } from "../../lib/location";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import { track } from "@/src/lib/analytics/analytics";
+import {
+  blobToBase64,
+  PhotoPreparationError,
+  prepareReportPhoto,
+} from "../../lib/prepareReportPhoto";
+import {
+  isAnimalType,
+  isReportType,
+  MIN_DESCRIPTION_LENGTH,
+} from "../../lib/reportValidation";
 
 interface ReportFormProps {
   onReportCreated?: () => void;
@@ -77,7 +86,19 @@ export default function ReportForm({
       return;
     }
 
-    if (!description || description.trim().length < 5) {
+    if (!isReportType(type)) {
+      setMessage(t("reportErrorType"));
+      setMessageType("error");
+      return;
+    }
+
+    if (!isAnimalType(animalType)) {
+      setMessage(t("reportErrorAnimalType"));
+      setMessageType("error");
+      return;
+    }
+
+    if (!description || description.trim().length < MIN_DESCRIPTION_LENGTH) {
       setMessage(t("reportErrorDescription"));
       setMessageType("error");
       return;
@@ -94,34 +115,26 @@ export default function ReportForm({
     setMessageType("info");
 
     try {
-      let photo_url: string | null = null;
+      let photoBase64: string | undefined;
 
       if (photo) {
-        const fileExt = photo.name.split(".").pop();
-        const fileName = `${crypto.randomUUID()}.${fileExt}`;
-
-        const { error } = await supabase.storage
-          .from("report-photos")
-          .upload(fileName, photo, {
-            cacheControl: "3600",
-            upsert: true,
-          });
-
-        if (error) {
-          setMessage(`${t("reportErrorPhoto")} ${error.message}`);
+        try {
+          const prepared = await prepareReportPhoto(photo);
+          photoBase64 = await blobToBase64(prepared);
+        } catch (photoError) {
+          const code =
+            photoError instanceof PhotoPreparationError
+              ? photoError.code
+              : "invalid-type";
+          setMessage(
+            code === "too-large"
+              ? t("reportErrorPhotoTooLarge")
+              : t("reportErrorPhotoInvalid"),
+          );
           setMessageType("error");
           return;
         }
-
-        const { data } = supabase.storage
-          .from("report-photos")
-          .getPublicUrl(fileName);
-
-        photo_url = data.publicUrl ?? null;
       }
-
-      const { latitude: safeLat, longitude: safeLng } =
-        applyLocationOffset(latitude, longitude);
 
       const { data: userData, error: authError } = await supabase.auth.getUser();
       if (authError || !userData.user) {
@@ -142,20 +155,20 @@ export default function ReportForm({
 
       const payload = {
         token: captchaToken,
+        contract: "v2",
         report: {
           type,
           animal_type: animalType,
           animal_name: animalName ?? "",
           description: description ?? "",
-          latitude: safeLat,
-          longitude: safeLng,
-          contact_info: "",
-          photo_url,
+          latitude,
+          longitude,
         },
+        ...(photoBase64 ? { photo_base64: photoBase64 } : {}),
       };
 
       const res = await fetch(
-        "https://dmubikdkyusadzqngapy.supabase.co/functions/v1/verify-captcha",
+        "https://dmubikdkyusadzqngapy.supabase.co/functions/v1/verify-captcha-v2",
         {
           method: "POST",
           headers: {
@@ -206,8 +219,7 @@ export default function ReportForm({
       });
 
       setSubmittedReportId(result.report?.id ?? null);
-      //setMessage("Report submitted successfully! Redirecting to map...");
-      //setMessageType("success");
+      onReportCreated?.();
 
       // reset form safely
       setType("lost");
@@ -219,7 +231,7 @@ export default function ReportForm({
       setLongitude(4.4756);
       setConsent(false);
 
-    } catch (err) {
+    } catch {
       setMessage(t("reportErrorGeneric"));
       setMessageType("error");
     } finally {

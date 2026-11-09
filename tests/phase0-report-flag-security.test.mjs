@@ -29,6 +29,7 @@ const querySources = [
   "app/edit/EditContent.tsx",
   "app/report/[id]/ReportDetailClient.tsx",
   "supabase/functions/verify-captcha/index.ts",
+  "supabase/functions/verify-captcha-v2/index.ts",
   "supabase/functions/flag-report/index.ts",
   "supabase/functions/smooth-processor/index.ts",
 ].map((path) => ({ path, source: readFileSync(path, "utf8") }));

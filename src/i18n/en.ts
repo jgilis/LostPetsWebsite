@@ -97,6 +97,11 @@ export const en = {
   reportErrorDescription: "Please provide a short description.",
   reportErrorLocation: "Please select a location.",
   reportErrorAuth: "You must be logged in to submit a report. Logging in is free.",
+  reportErrorType: "Please select lost or found.",
+  reportErrorAnimalType: "Please select an animal type.",
+  reportErrorPhotoTooLarge: "Photo is too large. Please choose a smaller image.",
+  reportErrorPhotoInvalid:
+    "That photo could not be processed. Please use a JPEG, PNG, or WebP image.",
   reportErrorPhoto: "Photo upload failed:",
   reportErrorServer: "Server error (invalid response)",
   reportErrorFailed: "Request failed",

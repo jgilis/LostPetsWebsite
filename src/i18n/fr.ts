@@ -100,6 +100,11 @@ export const fr: Record<keyof typeof en, string> = {
   reportErrorDescription: "Veuillez fournir une courte description.",
   reportErrorLocation: "Veuillez choisir un emplacement.",
   reportErrorAuth: "Vous devez être connecté pour soumettre un signalement. La connexion est gratuite.",
+  reportErrorType: "Veuillez choisir perdu ou trouvé.",
+  reportErrorAnimalType: "Veuillez choisir un type d'animal.",
+  reportErrorPhotoTooLarge: "La photo est trop lourde. Choisissez une image plus petite.",
+  reportErrorPhotoInvalid:
+    "Cette photo n'a pas pu être traitée. Utilisez une image JPEG, PNG ou WebP.",
   reportErrorPhoto: "Échec du téléversement de la photo :",
   reportErrorServer: "Erreur serveur (réponse invalide)",
   reportErrorFailed: "Échec de la requête",
