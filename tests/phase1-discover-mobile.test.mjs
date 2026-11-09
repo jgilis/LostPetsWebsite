@@ -69,7 +69,9 @@ test("report sheet defaults to a collapsed handle and count", () => {
 });
 
 test("map legend starts collapsed on phone and stays a small control", () => {
-  assert.match(legend, /open=\{isDesktop \? true : mobileOpen\}/);
+  assert.match(legend, /detailsRef/);
+  assert.doesNotMatch(legend, /open=\{isDesktop \? true : mobileOpen\}/);
+  assert.doesNotMatch(legend, /preventDefault/);
   assert.match(map, /discover-map-tool-stack/);
   assert.match(map, /md:hidden/);
 });

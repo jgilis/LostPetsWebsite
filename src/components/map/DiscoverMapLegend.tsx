@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, type MouseEvent, type SyntheticEvent } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import type { TranslationKey } from "@/src/i18n/types";
-import { useDesktopLayout } from "@/src/hooks/useDesktopLayout";
+import { DESKTOP_LAYOUT_QUERY } from "@/src/hooks/useDesktopLayout";
 
 const SPECIES: { key: TranslationKey; color: string }[] = [
   { key: "filterDog", color: "#3b82f6" },
@@ -15,30 +15,22 @@ const SPECIES: { key: TranslationKey; color: string }[] = [
 
 export default function DiscoverMapLegend() {
   const { t } = useTranslation();
-  const isDesktop = useDesktopLayout();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const detailsRef = useRef<HTMLDetailsElement>(null);
   const label = t("mapLegendLabel");
 
-  const onToggle = (event: SyntheticEvent<HTMLDetailsElement>) => {
-    if (isDesktop) return;
-    setMobileOpen(event.currentTarget.open);
-  };
-
-  const onSummaryClick = (event: MouseEvent<HTMLElement>) => {
-    if (!isDesktop) return;
-    event.preventDefault();
-  };
+  useEffect(() => {
+    const legend = detailsRef.current;
+    if (legend && window.matchMedia(DESKTOP_LAYOUT_QUERY).matches) {
+      legend.open = true;
+    }
+  }, []);
 
   return (
     <details
+      ref={detailsRef}
       className="discover-map-legend pointer-events-auto min-h-11 min-w-11 w-max max-w-[min(11.75rem,calc(100%-3.5rem))] rounded-lg border border-gray-700/80 bg-gray-900/90 text-[11px] leading-snug text-gray-200 shadow"
-      open={isDesktop ? true : mobileOpen}
-      onToggle={onToggle}
     >
-      <summary
-        className="flex h-11 min-w-11 cursor-pointer list-none items-center justify-center px-2 font-semibold md:min-h-[44px] md:justify-start md:px-3 [&::-webkit-details-marker]:hidden"
-        onClick={onSummaryClick}
-      >
+      <summary className="flex h-11 min-w-11 cursor-pointer list-none items-center justify-center px-2 font-semibold md:min-h-[44px] md:justify-start md:px-3 [&::-webkit-details-marker]:hidden">
         <span
           className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-400 text-[11px] font-bold md:hidden"
           aria-label={label}

@@ -42,7 +42,10 @@ test("legend explains pin, dot, species colours, and approximate area", () => {
 test("legend sits on the map without covering zoom, nearby, or the report sheet", () => {
   assert.match(legend, /discover-map-legend/);
   assert.match(map, /absolute top-2 right-2 z-\[510\]/);
-  assert.match(legend, /open=\{isDesktop \? true : mobileOpen\}/);
+  assert.match(legend, /detailsRef/);
+  assert.match(legend, /legend\.open = true/);
+  assert.doesNotMatch(legend, /preventDefault/);
+  assert.doesNotMatch(legend, /open=\{isDesktop \? true : mobileOpen\}/);
   assert.match(legend, /max-w-\[min\(11\.75rem,calc\(100%-3\.5rem\)\)\]/);
   assert.doesNotMatch(legend, /bottom-/);
   assert.doesNotMatch(legend, /left-/);
