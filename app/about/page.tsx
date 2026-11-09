@@ -33,8 +33,8 @@ export default function AboutPage() {
           report</strong> requires email magic-link login (no password)
         </li>
         <li>
-          Report location is chosen on the map; coordinates are stored with a
-          small offset for privacy
+          Report location is chosen on the map; the stored pin is slightly
+          offset. Optional photos are re-encoded and served from a public URL
         </li>
         <li>
           <strong>Sightings</strong> (“I saw this animal”) use optional GPS

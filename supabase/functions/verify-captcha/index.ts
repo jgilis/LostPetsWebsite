@@ -71,8 +71,6 @@ serve(async (req: Request) => {
       return json({ success: false, error: "Authentication required" }, 401);
     }
 
-    const editToken = crypto.randomUUID();
-
     // 🧾 3. Insert report
     const { data, error } = await supabase
       .from("reports")
@@ -87,7 +85,6 @@ serve(async (req: Request) => {
           contact_info: report.contact_info,
           photo_url: report.photo_url || null,
           status: "active",
-          edit_token: editToken,
           date_reported: new Date().toISOString(),
           expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30 * 4).toISOString(),
           owner_user_id: user.id,

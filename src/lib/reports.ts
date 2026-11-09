@@ -1,4 +1,9 @@
 import { supabase } from "./supabase";
+import {
+  MAX_ANIMAL_NAME_LENGTH,
+  MAX_DESCRIPTION_LENGTH,
+  MIN_DESCRIPTION_LENGTH,
+} from "./reportValidation";
 
 export type ReportStatus =
   | "active"
@@ -194,6 +199,64 @@ export async function getFlaggedReportsWithFlags() {
   }
 
   return { reports: reports || [], flags: flagRows };
+}
+
+export function canOwnerEditReportDetails(status: ReportStatus): boolean {
+  return status === "active" || status === "resolved";
+}
+
+export async function getOwnerReportById(
+  id: string,
+  ownerUserId: string,
+): Promise<Report | null> {
+  const trimmed = id.trim();
+  if (!trimmed || !ownerUserId) return null;
+
+  const { data, error } = await supabase
+    .from("reports")
+    .select(REPORT_PUBLIC_SELECT)
+    .eq("id", trimmed)
+    .eq("owner_user_id", ownerUserId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("getOwnerReportById error:", error);
+    return null;
+  }
+
+  if (!data) return null;
+  return normalizeReportRow(data as ReportRow);
+}
+
+export async function updateOwnerReportDetails(
+  reportId: string,
+  ownerUserId: string,
+  fields: { description: string; animal_name: string },
+) {
+  const description = fields.description.trim();
+  const animal_name = fields.animal_name.trim();
+  if (
+    description.length < MIN_DESCRIPTION_LENGTH ||
+    description.length > MAX_DESCRIPTION_LENGTH ||
+    animal_name.length > MAX_ANIMAL_NAME_LENGTH
+  ) {
+    return false;
+  }
+
+  const { data, error } = await supabase
+    .from("reports")
+    .update({ description, animal_name })
+    .eq("id", reportId)
+    .eq("owner_user_id", ownerUserId)
+    .in("status", ["active", "resolved"])
+    .select("id");
+
+  if (error || !data?.length) {
+    console.error("updateOwnerReportDetails error:", error);
+    return false;
+  }
+
+  return true;
 }
 
 export async function updateReportStatus(

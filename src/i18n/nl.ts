@@ -84,8 +84,10 @@ export const nl: Record<keyof typeof en, string> = {
   reportPhoto: "Foto (optioneel)",
   reportChoosePhoto: "Kies foto",
   reportPhotoSelected: "Geselecteerd:",
-  reportLocationPrivacy: "De locatie wordt licht vervaagd voor privacy.",
-  reportConsent: "Ik geef toestemming om deze melding te delen",
+  reportLocationPrivacy:
+    "De speld wordt iets verschoven opgeslagen, zodat de publieke kaart niet de exacte plek toont.",
+  reportConsent:
+    "Ik geef toestemming om deze melding op de publieke kaart te zetten, inclusief de benaderde locatie en een eventuele foto.",
   reportSubmit: "Melding indienen",
   reportSubmitting: "Bezig met verzenden...",
   reportLoginLink: "Inloggen",
@@ -134,8 +136,23 @@ export const nl: Record<keyof typeof en, string> = {
   reportEditOrDelete: "Melding bewerken of verwijderen",
   reportEdit: "Melding bewerken",
   reportDelete: "Melding verwijderen",
-  reportDeleteConfirm: "Deze melding permanent verwijderen?",
+  reportDeleteConfirm:
+    "Deze melding permanent verwijderen? De publieke vermelding en de foto verdwijnen. Dit is niet hetzelfde als een beheerder die een melding verbergt.",
   reportDeleteFailed: "Verwijderen mislukt.",
+  reportDeletePermanentHint:
+    "Permanent verwijderen wist de melding en de foto. Beheerders kunnen een melding van de publieke kaart halen zonder die te wissen.",
+  reportEditTitle: "Melding bewerken",
+  reportEditHint: "Je kunt naam en beschrijving aanpassen. Type en diersoort blijven zoals ingediend.",
+  reportEditSave: "Wijzigingen opslaan",
+  reportEditSaving: "Opslaan...",
+  reportEditSaved: "Wijzigingen opgeslagen.",
+  reportEditSaveFailed: "Opslaan mislukt. Probeer opnieuw.",
+  reportEditLogin: "Log in om je meldingen te beheren.",
+  reportEditMissingId: "Meldings-id ontbreekt.",
+  reportEditNotFound: "Melding niet gevonden, of je hebt geen toestemming om die te beheren.",
+  reportEditTypeReadonly: "Type en diersoort kun je na het indienen niet meer wijzigen.",
+  reportEditUnavailable:
+    "Deze melding is niet meer openbaar, dus naam en beschrijving kun je niet meer wijzigen. Je kunt ze wel permanent verwijderen.",
 
   notificationsTitle: "Meldingen",
   notificationsLoading: "Meldingen laden...",

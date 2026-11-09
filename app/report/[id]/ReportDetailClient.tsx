@@ -86,7 +86,8 @@ export default function ReportDetailClient({
       .from("reports")
       .update({ status: "resolved" as ReportStatus })
       .eq("id", report.id)
-      .eq("owner_user_id", user.id);
+      .eq("owner_user_id", user.id)
+      .eq("status", "active");
 
     setResolving(false);
 

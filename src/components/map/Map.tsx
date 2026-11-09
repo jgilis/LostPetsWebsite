@@ -77,6 +77,7 @@ function MapClickCloser() {
 export default function Map({
   mode: modeProp,
   reportId: reportIdProp,
+  refreshKey = 0,
   typeFilter: typeFilterProp,
   animalFilter: animalFilterProp,
   onTypeFilterChange,
@@ -106,7 +107,9 @@ export default function Map({
     mode === "admin-scoped" && !!scopedReportId;
 
   const { reports, loading: reportsLoading } = useReports(
-    isAdminScoped ? { reportId: scopedReportId } : undefined
+    isAdminScoped
+      ? { reportId: scopedReportId, refreshKey }
+      : { refreshKey },
   );
 
   const [isMounted, setIsMounted] = useState(false);

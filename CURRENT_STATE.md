@@ -2,9 +2,9 @@
 
 **This file is a 7 November 2026 inventory of commit `cdc62cf`.** It is not the live product.
 
-**Live status (9 November 2026):** GitHub `main` is `cd8eedd`. Vercel hosts the site and deploys from that repository. Supabase project `dmubikdkyusadzqngapy`. Sighting and notification security SQL was applied in the production SQL Editor. `smooth-processor` was deployed with `--no-verify-jwt`. The sighting submit → pending → admin approve → owner notification → public “sighted nearby” path was production-tested. Remaining Phase 0 work and the deployment model are in `PRODUCT_PLAN.md` section 15.
+**Live status (9 November 2026):** Vercel hosts the site and deploys from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Sighting/notification security, Package A report/flag RLS, and Package B submission security are production-tested. Package C (application integrity) is implemented locally: captcha functions no longer write or return `edit_token`; `/edit` is authenticated owner edit of name/description plus permanent delete; `onReportCreated` refreshes map and feed; privacy/terms/consent match the implementation. Package C is **not** deployed. Optional SQL to let owners read their own hidden rows, and to drop `edit_token`, is prepared and not applied. Full status: `PRODUCT_PLAN.md` section 15.
 
-Do not use the sections below as the current hosting, Edge Function, or sighting-privacy story. They describe the pre-security tree.
+Do not use the sections below as the current hosting, Edge Function, or privacy story. They describe the pre-security tree.
 
 ---
 

@@ -1,6 +1,6 @@
 "use client";
 
-/** Mutation surface for report delete (and future edit). Reachable from /report/[id] Edit only. */
+/** Owner mutation surface: edit description/name, or permanently delete. */
 import { Suspense } from "react";
 import EditContent from "./EditContent";
 

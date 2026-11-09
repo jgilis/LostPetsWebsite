@@ -60,6 +60,7 @@ function sortReportsNewestFirst(reports: Report[]): Report[] {
 type ReportsFeedProps = {
   typeFilter: TypeFilter;
   animalFilter: AnimalFilter;
+  refreshKey?: number;
 };
 
 function FeedSkeleton() {
@@ -210,8 +211,9 @@ function ReportFeedCard({
 export default function ReportsFeed({
   typeFilter,
   animalFilter,
+  refreshKey = 0,
 }: ReportsFeedProps) {
-  const { reports, loading } = useReports();
+  const { reports, loading } = useReports({ refreshKey });
   const { t } = useTranslation();
   const { user } = useCurrentUser();
   const scrollRef = useRef<HTMLUListElement>(null);

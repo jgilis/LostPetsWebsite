@@ -315,7 +315,6 @@ serve(async (req) => {
     const now = new Date();
     const expires = new Date(now);
     expires.setDate(now.getDate() + 120);
-    const editToken = crypto.randomUUID();
 
     const { data, error } = await supabase
       .from("reports")
@@ -333,7 +332,6 @@ serve(async (req) => {
           contact_info: "",
           photo_url: photoUrl,
           status: "active",
-          edit_token: editToken,
           date_reported: now.toISOString(),
           expires_at: expires.toISOString(),
           owner_user_id: user.id,

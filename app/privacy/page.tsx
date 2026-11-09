@@ -5,51 +5,49 @@ export default function PrivacyPolicy() {
 
       <p>
         This page explains what information the Lost Pets Map collects, why we
-        store it, and how the app works. We aim to be straightforward — sign-in
-        uses a magic link (no passwords), and we do not sell your data.
+        store it, and how the app works. Sign-in uses a magic link (no
+        passwords). We do not sell your data.
       </p>
 
       <h2 className="text-xl font-semibold">1. Sign-in and ownership</h2>
       <p>
-        You can browse the map without signing in. To <strong>submit a report</strong>,
-        you must log in with your email. We send a one-time magic link — there is
-        no password. Reports you create are linked to your account so you can
-        edit or delete them while logged in and receive notifications about
-        approved sightings on your reports.
+        You can browse the map without signing in. To{" "}
+        <strong>submit a report</strong>, you must log in with your email. We
+        send a one-time magic link. Reports you create are linked to your
+        account so you can edit the name and description, mark a report as
+        reunited, or delete it while logged in, and so you can receive
+        notifications about approved sightings on your lost reports.
       </p>
       <p>
-        Use the same email address whenever you sign in to return to your reports
-        and notifications.
-      </p>
-      <p>
-        Authentication email addresses are managed through our authentication
-        provider and are not publicly visible to other users.
+        Use the same email address whenever you sign in. Authentication email
+        addresses are managed through our authentication provider and are not
+        shown to other users.
       </p>
 
       <h2 className="text-xl font-semibold">2. What we store</h2>
       <p>When you use the app, we may store:</p>
       <ul className="list-disc pl-6 space-y-1">
         <li>
-          <strong>Reports</strong> — lost or found animals, including approximate
-          location (map coordinates), animal type, optional name, and status
+          <strong>Reports</strong> — lost or found, including an approximate
+          map location, animal type, optional name, description, status, and
+          expiry date (about 120 days after submit)
         </li>
         <li>
           <strong>Sightings</strong> — reports from others who think they saw a
-          lost animal, including location and optional notes
+          lost animal, including location and optional notes. Sightings stay
+          pending until a moderator approves them
         </li>
         <li>
-          <strong>Device geolocation (optional)</strong> — when you choose
-          &quot;Use my location&quot; for a sighting, we collect latitude and
-          longitude from your device. This is optional; we do not use it for any
-          purpose other than placing that sighting on the map.
+          <strong>Device geolocation (optional)</strong> — only if you tap
+          &quot;Use my location&quot; for a sighting. We read your position
+          once for that form. We do not track you in the background
         </li>
         <li>
-          <strong>Uploaded images</strong> — photos you attach to a report or
-          sighting
-        </li>
-        <li>
-          <strong>Optional contact information</strong> — only if you choose to
-          provide it on a report
+          <strong>Photos</strong> — optional images on a report. Report photos
+          are re-encoded (which removes typical camera metadata such as EXIF)
+          and then stored in a public image bucket. Anyone who has the image
+          URL can open the file. The public app only shows those URLs on
+          active or reunited reports
         </li>
         <li>
           <strong>Descriptions</strong> — text you write about an animal or
@@ -57,121 +55,115 @@ export default function PrivacyPolicy() {
         </li>
         <li>
           <strong>Notification events</strong> — linked to your account when a
-          sighting on your lost report is approved, so we can show you alerts
-          in the app
+          sighting on your lost report is approved
         </li>
         <li>
-          <strong>Hashed IP addresses</strong> — when you submit certain
-          content, we store a one-way hash of your IP address for abuse
-          prevention (see section 4). We do not store or display your raw IP
-          address in the public app.
+          <strong>Hashed IP addresses</strong> — for <em>sightings</em> and{" "}
+          <em>flags</em> only, used for abuse prevention. Report submit does
+          not store an IP hash
         </li>
         <li>
-          <strong>Your sign-in session</strong> — managed by our auth provider
-          when you use the magic link; we do not store passwords
+          <strong>Your sign-in session</strong> — managed by our auth provider.
+          We do not store passwords
         </li>
       </ul>
       <p>
-        <strong>Geolocation (how it works):</strong> We only store map coordinates
-        that you actively choose and submit with a report or sighting — not a
-        continuous record of where your device is. If you tap{" "}
-        <strong>Use my location</strong> for a sighting, your browser reads your
-        position once at that moment to fill in the form; we do not track your
-        GPS in the background or tie live location to your sign-in session. After
-        you submit, those coordinates are kept only as part of that one report or
-        sighting record.
+        The report form does not collect a public contact field. Do not put
+        phone numbers or email addresses in the description unless you are
+        comfortable with that text being public.
+      </p>
+      <p>
+        <strong>Report location:</strong> you pick a point on the map. We store
+        that point with a small random offset (on the order of tens of metres)
+        so the public map is approximate, not the exact pin you chose.
+        Sightings can store a more precise point for the report owner and
+        moderators; other visitors see only that the animal was sighted nearby.
       </p>
 
       <h2 className="text-xl font-semibold">3. Why we store it</h2>
-      <p>We use this information to:</p>
       <ul className="list-disc pl-6 space-y-1">
+        <li>Show lost and found reports on the public map and feed</li>
+        <li>Let owners manage their own reports while logged in</li>
         <li>
-          <strong>Show reports and sightings on the map</strong> so the
-          community can help lost pets
+          Let moderators review sightings and hide or resolve abusive reports
         </li>
         <li>
-          <strong>Place reports and sightings accurately</strong> — including
-          device geolocation when you choose to share it, so locations on the
-          map reflect where the animal was reported or seen
-        </li>
-        <li>
-          <strong>Run moderation</strong> — admins review sightings and
-          flagged reports before or after they appear, to reduce spam and abuse
-        </li>
-        <li>
-          <strong>Send in-app notifications</strong> to report owners when a
+          Notify report owners in the app (and optionally by web push) when a
           sighting is approved
         </li>
-        <li>
-          <strong>Prevent abuse</strong> — rate limiting and duplicate or
-          suspicious submissions
-        </li>
-        <li>
-          <strong>Restore ownership context</strong> — so you can edit your own
-          reports and see details meant for you (not the general public)
-        </li>
+        <li>Limit spam on sightings and flags</li>
       </ul>
 
-      <h2 className="text-xl font-semibold">4. Abuse prevention and IP addresses</h2>
+      <h2 className="text-xl font-semibold">4. What others can see</h2>
       <p>
-        To limit spam and misuse, we store a <strong>hashed</strong> version of
-        your IP address when you submit reports, sightings, or flags — not your
-        exact IP in plain text. The hash is used for rate limiting and abuse
-        detection on our side. It cannot reasonably be reversed to reveal your
-        IP, and it is not shown publicly on the map or in popups.
+        Anyone using the site can see <strong>active</strong> reports on the
+        map and <strong>active</strong> or <strong>reunited</strong> reports in
+        the feed, including the approximate location, description, and photo if
+        one was attached. Hidden, flagged, or expired reports are not listed
+        there.
+      </p>
+      <p>
+        Sighting pins and exact sighting coordinates are not shown to the
+        public. Report owners and moderators can see more detail after a
+        sighting is approved.
       </p>
 
-      <h2 className="text-xl font-semibold">5. What others can see</h2>
-      <p>
-        Reports on the map are visible to anyone using the site. Depending on
-        the situation, sighting details may be limited for the public (for
-        example, a generic message instead of exact coordinates) while report
-        owners and moderators may see more. Contact details you add to a report
-        are shown to people who open that report&apos;s details — only share
-        what you are comfortable with.
-      </p>
-
-      <h2 className="text-xl font-semibold">6. Data retention</h2>
-      <p>
-        Reports and sightings stay available until they expire, are resolved,
-        removed by moderation, or deleted by you while logged in. We may remove
-        outdated or inactive content to keep the map useful. Security-related
-        data such as hashed IPs may be kept for a limited time for abuse
-        prevention.
-      </p>
-
-      <h2 className="text-xl font-semibold">7. Data sharing</h2>
-      <p>
-        We do not sell your data. We use Supabase and hosting providers to run
-        the app; they process data on our behalf to store reports, images, and
-        related records. We do not share your information with advertisers.
-      </p>
-
-      <h2 className="text-xl font-semibold">8. Your choices</h2>
+      <h2 className="text-xl font-semibold">5. Retention and deletion</h2>
       <ul className="list-disc pl-6 space-y-1">
         <li>
-          While logged in, open <strong>Manage this report</strong> (or visit
-          the edit page for your report) to update or remove it
+          <strong>You delete a report</strong> — the listing is removed, and
+          the stored photo file is deleted with it
         </li>
         <li>
-          Sign out or clear site data on a device if you do not want that browser
-          to stay signed in — sign in again with the same email to access your
-          reports and notifications
+          <strong>A moderator hides a report</strong> — it leaves the public
+          map and feed, but the record and photo are kept for audit. That is
+          not the same as deletion
         </li>
         <li>
-          Open the <strong>Notifications</strong> page while logged in to view
-          and clear unread alerts for your account
+          <strong>Reunited</strong> — the report leaves the map but can still
+          appear in the reunited feed
         </li>
         <li>
-          When submitting a sighting, choose <strong>Pick on map</strong>{" "}
-          instead of <strong>Use my location</strong> if you prefer not to share
-          your device&apos;s geolocation
+          Reports also carry an expiry timestamp (about 120 days). Expired
+          reports are not shown publicly
+        </li>
+      </ul>
+      <p>
+        Hashed IPs on sightings and flags may be kept for a limited time for
+        abuse prevention.
+      </p>
+
+      <h2 className="text-xl font-semibold">6. Data sharing</h2>
+      <p>
+        We do not sell your data. We use Supabase and hosting providers to run
+        the app. They store reports, images, and related records on our behalf.
+        We do not share your information with advertisers.
+      </p>
+
+      <h2 className="text-xl font-semibold">7. Your choices</h2>
+      <ul className="list-disc pl-6 space-y-1">
+        <li>
+          While logged in, open your report to edit the name or description,
+          mark it reunited, or delete it permanently
+        </li>
+        <li>
+          Sign out or clear site data if you do not want that browser to stay
+          signed in
+        </li>
+        <li>
+          Open <strong>Notifications</strong> while logged in to view alerts
+          for your account
+        </li>
+        <li>
+          For a sighting, choose <strong>Pick on map</strong> instead of{" "}
+          <strong>Use my location</strong> if you do not want to share device
+          GPS
         </li>
       </ul>
 
-      <h2 className="text-xl font-semibold">9. Contact</h2>
+      <h2 className="text-xl font-semibold">8. Contact</h2>
       <p>
-        Questions about privacy or your data? Email us at{" "}
+        Questions about privacy or your data? Email{" "}
         <a
           href="mailto:lostpetsbelgium@gmail.com"
           className="text-blue-400 hover:underline"

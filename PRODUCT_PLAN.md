@@ -331,20 +331,21 @@ These should not silently become permanent technical or product assumptions:
 
 ## 15. Current implementation baseline
 
-**As of 9 November 2026.** The live product is the Mechelen beta. Application code is on GitHub at `jgilis/LostPetsWebsite`, currently `main` commit `cd8eedd` (`security updates`). Vercel deploys that repository. The next version remains an evolution of this application, not a rebuild.
+**As of 9 November 2026.** The live product is the Mechelen beta. Application code is on GitHub at `jgilis/LostPetsWebsite`. Vercel deploys that repository. The next version remains an evolution of this application, not a rebuild.
+
+Phase 0 Packages A and B are production-tested. Package C (application integrity) is implemented in the local tree and is **not** deployed until the matching frontend and `verify-captcha-v2` go out together.
 
 ### How production is updated
 
 | Piece | How it is changed | Status |
 |---|---|---|
-| Next.js app | Push to GitHub; Vercel deploys automatically | Phase 0 frontend is live |
+| Next.js app | Push to GitHub; Vercel deploys automatically | Packages A and B frontend are live. Package C frontend is local only |
 | `smooth-processor` | `npx supabase functions deploy smooth-processor --project-ref dmubikdkyusadzqngapy --no-verify-jwt` | Deployed |
-| Database | SQL pasted in the production SQL Editor | `20261107180000_sighting_and_notification_security.sql` applied, then the `is_current_user_admin` EXECUTE grant |
-| Other Edge Functions | CLI deploy when explicitly done | `verify-captcha`, `flag-report`, and `send-push-on-notification` were not redeployed in this round |
+| `verify-captcha-v2` | `npx supabase functions deploy verify-captcha-v2 --project-ref dmubikdkyusadzqngapy` | Package B contract is live. The Package C build that omits `edit_token` is local only |
+| Database | SQL pasted in the production SQL Editor | Sighting/notification SQL, admin EXECUTE grant, Package A report/flag RLS, and Package B photo-cleanup SQL are applied. Do not run `supabase db push` |
+| Other Edge Functions | CLI deploy when explicitly done | `flag-report` and `send-push-on-notification` were not redeployed in this round. Legacy `verify-captcha` is unused by the current frontend |
 
 There is no verified automatic Supabase–GitHub integration. Production does not have a trustworthy `schema_migrations` history for the full schema. The database cannot be rebuilt from this repository. Do not run `supabase db push`.
-
-The EXECUTE grant that fixed admin approval is live in production. The follow-up file `supabase/migrations/20261109114100_grant_is_current_user_admin_execute.sql` exists locally and may not yet be on GitHub.
 
 ### Production-tested sighting workflow
 
@@ -376,7 +377,7 @@ That path is **production-tested**. It does **not** by itself prove logged-out a
 
 ### Phase 0 reassessment
 
-Compared with the current application, the applied production SQL, and the last live policy audit of `reports` (the sighting migration did not change report or storage policies).
+Compared with the current application and the applied production SQL for Packages A and B. Package C is in the local tree.
 
 | Item | Status |
 |---|---|
@@ -389,30 +390,24 @@ Compared with the current application, the applied production SQL, and the last 
 | Remove client `notification_events` inserts | **Implemented.** Production SQL revoked the open insert. Direct-insert attacks were not re-tested. |
 | `smooth-processor` source and deploy | **Completed and verified.** Source is `supabase/functions/smooth-processor/index.ts`. Deployed with `--no-verify-jwt`. |
 | Hosting | **Completed and verified.** Vercel, from GitHub. |
-| Report owner UPDATE/DELETE RLS | **Implemented but not yet verified.** Live audit: owners may update and delete their own reports. Not re-tested in this round. |
-| Direct authenticated `reports` INSERT | **Requires investigation / still open.** Live audit allowed insert when `owner_user_id = auth.uid()`, which bypasses captcha. Not changed by the sighting SQL. |
-| Admin access to reports | **Not implemented** in RLS. Admin pages still use the user JWT. There is no admin policy on `reports`, so flagged, removed and expired rows are not readable that way. |
-| Admin access to flags | **Not implemented** in RLS. `reports_flags` has insert only; no SELECT for administrators. `/admin/flags` cannot be trusted until that changes. |
-| Server-side report location offset | **Not implemented.** `applyLocationOffset` still runs in the browser. `verify-captcha` stores the coordinates it is given. |
-| Photo type, size, EXIF, cleanup | **Partially implemented.** Bucket allows `image/*` up to 5 MB. The form uses `accept="image/*"`. No EXIF stripping. Report delete does not delete the storage object. Storage RLS remains loose. |
-| Required report type and species | **Partially implemented.** The form defaults to empty placeholders. There is no `required` check and `verify-captcha` does not validate the values. |
-| Stop writing `edit_token` | **Not implemented.** `verify-captcha` still writes `edit_token` and returns `/edit?token=`. The edit page uses `?id=` and `owner_user_id`. |
-| Call `onReportCreated` | **Not implemented.** Home passes the callback; `ReportForm` never calls it. |
-| Privacy policy accuracy | **Partially implemented.** Public sighting copy is closer to reality. The page still claims hashed IPs for report submit (`verify-captcha` does not hash IP) and optional public contact details (the form sends an empty string). |
+| Direct authenticated `reports` INSERT | **Completed (Package A).** Client insert policy dropped. `enforce_report_write` blocks non-service-role inserts. Captcha functions use the service role. |
+| Admin access to reports | **Completed (Package A).** Admin SELECT/UPDATE policies plus owner UPDATE of name, description, photo, coordinates, and status. Trigger blocks identity fields and owner reopen. |
+| Admin access to flags | **Completed (Package A).** Admin SELECT on `reports_flags`; IP hashes are not granted. |
+| Report owner UPDATE/DELETE RLS | **Completed (Package A), owner UI completed locally (Package C).** Owners can edit name and description, mark active reports reunited, and permanently delete. They cannot reopen. Admin hide (`removed`) stays distinct from owner delete. |
+| Server-side report location offset | **Completed and verified (Package B).** Offset runs once in `verify-captcha-v2`. |
+| Photo type, size, EXIF, cleanup | **Completed and verified (Package B).** Client re-encode, server JPEG sanitize, post-captcha upload, delete trigger on hard delete. Soft-remove keeps the row and photo. |
+| Required report type and species | **Completed and verified (Package B).** Validated in `verify-captcha-v2` before insert. |
+| Stop writing `edit_token` | **Implemented locally (Package C).** Captcha functions omit the column (DB default still fills it). Public SELECT never grants it. `/edit` uses `?id=` and `owner_user_id`. Optional SQL to drop the column is prepared, not applied. |
+| Call `onReportCreated` | **Implemented locally (Package C).** Successful submit bumps `refreshKey` for map and feed. Failed submit does not show the success panel. |
+| Privacy policy accuracy | **Implemented locally (Package C).** Privacy, terms, consent, and form copy match location offset, photo processing, public photo URLs, hashed IPs on sightings/flags only, retention, and the hide vs delete distinction. |
 | `flag-report` in the repository | **Implemented but not yet verified.** Source is in `supabase/functions/flag-report/`. This round did not redeploy it. |
 | Anonymous sighting submit | **Implemented but not yet verified.** The form still posts without an Authorization header. The recorded tests do not state that the tester was signed out. |
 | Web Push on sighting approval | **Implemented but not yet verified.** The webhook and `send-push-on-notification` remain. The recorded tests confirmed the in-app notification only. |
 
 ### Remaining Phase 0 work before Phase 1
 
-- Admin RLS (or a trusted server path) for reports and flags.
-- Move report location offset into `verify-captcha`.
-- Tighten photo upload, strip EXIF, delete objects when a report is deleted.
-- Validate type and species on the server.
-- Stop writing `edit_token`.
-- Invoke `onReportCreated` after a successful report.
-- Align privacy copy with what is actually stored.
-- Decide whether authenticated clients may insert `reports` directly.
+- Deploy Package C: `verify-captcha-v2` together with the frontend. Optionally deploy unused `verify-captcha` so it also omits `edit_token`.
+- Optional SQL, after that function deploy: owner SELECT for own non-public rows (`20261109150000_owners_can_read_own_reports.sql`); drop `edit_token` (`20261109151000_drop_reports_edit_token.sql`).
 - Independently verify logged-out sighting submit and Web Push if those remain product promises.
 
 ### Later product work (unchanged)

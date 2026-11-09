@@ -18,8 +18,12 @@ export type { Report };
 
 type ReportRow = Parameters<typeof normalizeReportRow>[0];
 
-export function useReports(options?: { reportId?: string | null }) {
+export function useReports(options?: {
+  reportId?: string | null;
+  refreshKey?: number;
+}) {
   const reportId = options?.reportId ?? null;
+  const refreshKey = options?.refreshKey ?? 0;
   const isScoped = !!reportId;
 
   const [reports, setReports] = useState<Report[]>([]);
@@ -54,7 +58,7 @@ export function useReports(options?: { reportId?: string | null }) {
 
   useEffect(() => {
     void fetchReports();
-  }, [fetchReports]);
+  }, [fetchReports, refreshKey]);
 
   useVisibilitySyncRegister(() => {
     void fetchReports();

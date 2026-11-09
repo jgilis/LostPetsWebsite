@@ -29,8 +29,12 @@ export default function TermsOfUse() {
 
       <h2 className="text-xl font-semibold">5. Data</h2>
       <p>
-        By submitting a report, you agree that your data (excluding private contact
-        details) may be displayed publicly on the map.
+        By submitting a report, you agree that the description, approximate
+        location, animal details, and any photo may be shown on the public map
+        and feed. Photos are stored at public URLs. See the Privacy Policy for
+        how location offset, photo processing, hiding, and deletion work. Do
+        not put private contact details in a report unless you want them
+        public.
       </p>
 
       <h2 className="text-xl font-semibold">6. Abuse</h2>

@@ -82,8 +82,10 @@ export const en = {
   reportPhoto: "Photo (optional)",
   reportChoosePhoto: "Choose photo",
   reportPhotoSelected: "Selected:",
-  reportLocationPrivacy: "Location will be slightly blurred for privacy.",
-  reportConsent: "I consent to sharing this report",
+  reportLocationPrivacy:
+    "The pin is stored slightly offset from the point you choose, so the public map does not show the exact spot.",
+  reportConsent:
+    "I consent to publishing this report on the public map, including the approximate location and any photo I attach.",
   reportSubmit: "Submit report",
   reportSubmitting: "Submitting...",
   reportLoginLink: "Log in",
@@ -132,8 +134,23 @@ export const en = {
   reportEditOrDelete: "Edit or delete report",
   reportEdit: "Edit report",
   reportDelete: "Delete report",
-  reportDeleteConfirm: "Delete this report permanently?",
+  reportDeleteConfirm:
+    "Delete this report permanently? The public listing and its photo will be removed. This is not the same as an administrator hiding a report.",
   reportDeleteFailed: "Delete failed.",
+  reportDeletePermanentHint:
+    "Permanent deletion removes the report and its photo. Administrators can hide a report from the public map without deleting it.",
+  reportEditTitle: "Edit report",
+  reportEditHint: "You can update the name and description. Type and species stay as submitted.",
+  reportEditSave: "Save changes",
+  reportEditSaving: "Saving...",
+  reportEditSaved: "Changes saved.",
+  reportEditSaveFailed: "Could not save changes. Please try again.",
+  reportEditLogin: "Please log in to manage your reports.",
+  reportEditMissingId: "Missing report id.",
+  reportEditNotFound: "Report not found, or you do not have permission to manage it.",
+  reportEditTypeReadonly: "Type and animal species cannot be changed after submit.",
+  reportEditUnavailable:
+    "This report is no longer public, so the name and description cannot be changed. You can still delete it permanently.",
 
   notificationsTitle: "Notifications",
   notificationsLoading: "Loading notifications...",

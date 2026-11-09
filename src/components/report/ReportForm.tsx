@@ -110,6 +110,7 @@ export default function ReportForm({
       return;
     }
 
+    setSubmittedReportId(null);
     setIsSubmitting(true);
     setMessage(t("reportSubmitting"));
     setMessageType("info");
@@ -218,7 +219,16 @@ export default function ReportForm({
         animal_type: animalType,
       });
 
-      setSubmittedReportId(result.report?.id ?? null);
+      const createdId =
+        typeof result.report?.id === "string" ? result.report.id : null;
+      setSubmittedReportId(createdId);
+      if (createdId) {
+        setMessage(null);
+        setMessageType(null);
+      } else {
+        setMessage(t("reportSuccessTitle"));
+        setMessageType("success");
+      }
       onReportCreated?.();
 
       // reset form safely

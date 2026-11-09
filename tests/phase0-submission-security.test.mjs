@@ -36,7 +36,7 @@ test("legacy verify-captcha keeps the current frontend contract", () => {
   assert.match(verifyCaptcha, /photo_url: report\.photo_url/);
   assert.match(verifyCaptcha, /latitude: report\.latitude/);
   assert.match(verifyCaptcha, /longitude: report\.longitude/);
-  assert.match(verifyCaptcha, /edit_token: editToken/);
+  assert.doesNotMatch(verifyCaptcha, /edit_token/);
   assert.doesNotMatch(verifyCaptcha, /applyLocationOffset/);
   assert.doesNotMatch(verifyCaptcha, /LOCATION_OFFSET_SPAN/);
   assert.doesNotMatch(verifyCaptcha, /photo_base64/);
@@ -78,7 +78,7 @@ test("verify-captcha-v2 validates report fields before insert", () => {
   assert.match(verifyCaptchaV2, /latitude < -90/);
   assert.match(verifyCaptchaV2, /longitude > 180/);
   assert.match(verifyCaptchaV2, /validateReport\(report\)/);
-  assert.match(verifyCaptchaV2, /edit_token: editToken/);
+  assert.doesNotMatch(verifyCaptchaV2, /edit_token/);
   assert.doesNotMatch(verifyCaptchaV2, /edit_link/);
   assert.doesNotMatch(verifyCaptchaV2, /report\.photo_url/);
   assert.match(verifyCaptchaV2, /contact_info: ""/);

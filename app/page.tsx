@@ -109,6 +109,7 @@ function HomePageContent() {
           <ReportsFeed
             typeFilter={typeFilter}
             animalFilter={animalFilter}
+            refreshKey={refreshKey}
           />
         )}
 

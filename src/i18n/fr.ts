@@ -85,8 +85,10 @@ export const fr: Record<keyof typeof en, string> = {
   reportPhoto: "Photo (facultatif)",
   reportChoosePhoto: "Choisir une photo",
   reportPhotoSelected: "Sélectionné :",
-  reportLocationPrivacy: "La position sera légèrement floutée pour la confidentialité.",
-  reportConsent: "J'accepte de partager ce signalement",
+  reportLocationPrivacy:
+    "L'épingle est enregistrée avec un léger décalage, pour que la carte publique ne montre pas l'endroit exact.",
+  reportConsent:
+    "J'accepte de publier ce signalement sur la carte publique, y compris la position approximative et toute photo jointe.",
   reportSubmit: "Envoyer le signalement",
   reportSubmitting: "Envoi en cours...",
   reportLoginLink: "Se connecter",
@@ -135,8 +137,23 @@ export const fr: Record<keyof typeof en, string> = {
   reportEditOrDelete: "Modifier ou supprimer le signalement",
   reportEdit: "Modifier le signalement",
   reportDelete: "Supprimer le signalement",
-  reportDeleteConfirm: "Supprimer ce signalement définitivement ?",
+  reportDeleteConfirm:
+    "Supprimer ce signalement définitivement ? L'annonce publique et sa photo seront retirées. Ce n'est pas la même action qu'un administrateur qui masque un signalement.",
   reportDeleteFailed: "Échec de la suppression.",
+  reportDeletePermanentHint:
+    "La suppression définitive retire le signalement et sa photo. Les administrateurs peuvent masquer un signalement de la carte publique sans le supprimer.",
+  reportEditTitle: "Modifier le signalement",
+  reportEditHint: "Vous pouvez modifier le nom et la description. Le type et l'espèce restent ceux du dépôt.",
+  reportEditSave: "Enregistrer",
+  reportEditSaving: "Enregistrement...",
+  reportEditSaved: "Modifications enregistrées.",
+  reportEditSaveFailed: "Impossible d'enregistrer. Veuillez réessayer.",
+  reportEditLogin: "Connectez-vous pour gérer vos signalements.",
+  reportEditMissingId: "Identifiant de signalement manquant.",
+  reportEditNotFound: "Signalement introuvable, ou vous n'avez pas le droit de le gérer.",
+  reportEditTypeReadonly: "Le type et l'espèce ne peuvent plus être changés après l'envoi.",
+  reportEditUnavailable:
+    "Ce signalement n'est plus public, donc le nom et la description ne peuvent plus être modifiés. Vous pouvez encore le supprimer définitivement.",
 
   notificationsTitle: "Notifications",
   notificationsLoading: "Chargement des notifications...",
