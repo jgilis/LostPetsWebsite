@@ -25,11 +25,11 @@ import { useMapFocus } from "./useMapFocus";
 import { useReportUrlFocus } from "./useReportUrlFocus";
 import NearbyAwareness from "../nearby/NearbyAwareness";
 import WalkingModeMapLayers from "./WalkingModeMapLayers";
-import { useWalkingMode } from "@/src/hooks/useWalkingMode";
 import { isPublicMapReport } from "@/src/lib/reports";
 import { useReportSightings } from "./useReportSightings";
 import type { MapProps } from "./mapTypes";
 import AdminMapLegend from "./AdminMapLegend";
+import DiscoverMapLegend from "./DiscoverMapLegend";
 import PopupViewGuard from "./PopupViewGuard";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import type { TranslationKey } from "@/src/i18n/types";
@@ -52,7 +52,11 @@ const TYPE_FILTER_LABELS: Record<"all" | "lost" | "found", TranslationKey> = {
   found: "filterFound",
 };
 
-function MapClickCloser() {
+function MapClickCloser({
+  onBackgroundClick,
+}: {
+  onBackgroundClick?: () => void;
+}) {
   const wasDraggedRef = useRef(false);
 
   useMapEvents({
@@ -68,6 +72,7 @@ function MapClickCloser() {
       if (wasDraggedRef.current) return;
 
       map.target.closePopup();
+      onBackgroundClick?.();
     },
   });
 
@@ -83,6 +88,11 @@ export default function Map({
   onTypeFilterChange,
   onAnimalFilterChange,
   hideFilters = false,
+  walkingMode,
+  fillContainer = false,
+  selectedReportId = null,
+  onSelectedReportChange,
+  onDiscoverViewChange,
 }: MapProps) {
   const searchParams = useSearchParams();
 
@@ -215,6 +225,22 @@ export default function Map({
     bounds: mapState.bounds,
   });
 
+  const lastDiscoverViewKeyRef = useRef("");
+  useEffect(() => {
+    if (!onDiscoverViewChange) return;
+    const bounds = mapState.bounds;
+    const key = `${bounds?.join(",") ?? "none"}|${activeReports
+      .map((report) => report.id)
+      .join(",")}|${reports.map((report) => report.id).join(",")}`;
+    if (key === lastDiscoverViewKeyRef.current) return;
+    lastDiscoverViewKeyRef.current = key;
+    onDiscoverViewChange({
+      bounds,
+      filteredReports: activeReports,
+      reports,
+    });
+  }, [activeReports, mapState.bounds, onDiscoverViewChange, reports]);
+
   const mapCenterLocation = useMemo(() => {
     if (!bounds) {
       return { lat: 51.025, lng: 4.477 };
@@ -232,7 +258,6 @@ export default function Map({
     [reports],
   );
 
-  const walkingMode = useWalkingMode();
   const isWalkingSearch =
     !isAdminScoped && walkingMode.isWalkingModeEnabled;
   const lastLivePositionRef = useRef(walkingMode.livePosition);
@@ -262,6 +287,20 @@ export default function Map({
     }
   }, [map, isWalkingSearch]);
 
+  useEffect(() => {
+    if (!map) return;
+    const container = map.getContainer();
+    const host = container.parentElement;
+    if (!host) return;
+
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    observer.observe(host);
+    map.invalidateSize();
+    return () => observer.disconnect();
+  }, [map]);
+
   const handleRecenter = useCallback(() => {
     walkingMode.enableFollowMode();
     const position = walkingMode.livePosition ?? lastLivePositionRef.current;
@@ -284,7 +323,11 @@ export default function Map({
   if (loading) return <p>{t("reportsLoading")}</p>;
 
   return (
-    <div>
+    <div
+      className={
+        fillContainer ? "relative flex h-full min-h-0 flex-col" : undefined
+      }
+    >
 
       {!hideFilters && (
       <div
@@ -423,7 +466,9 @@ export default function Map({
 
       {/* MAP */}
       <div
-        className={isWalkingSearch ? "walking-map-host relative" : "relative"}
+        className={`walking-map-host relative ${
+          fillContainer ? "min-h-0 flex-1" : ""
+        }`}
         style={{ position: "relative" }}
       >
       <MapContainer
@@ -439,9 +484,11 @@ export default function Map({
         worldCopyJump={false}
         preferCanvas={true}
         scrollWheelZoom={true}
-        className={isWalkingSearch ? "walking-map-container" : undefined}
+        className={
+          isWalkingSearch || fillContainer ? "walking-map-container" : undefined
+        }
         style={
-          isWalkingSearch
+          isWalkingSearch || fillContainer
             ? { height: "100%", width: "100%" }
             : { height: "60vh", width: "100%" }
         }
@@ -449,7 +496,9 @@ export default function Map({
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <MapRefBridge setMap={setMap} />
         <MapStateWatcher onChange={setMapState} />
-        <MapClickCloser />
+        <MapClickCloser
+          onBackgroundClick={() => onSelectedReportChange?.(null)}
+        />
         <PopupViewGuard />
 
         {sightingMarkers.map((s) => {
@@ -502,8 +551,11 @@ export default function Map({
           }
           index={index}
           map={map}
-          popupTargetId={popupTargetId}
-          popupOpenToken={popupOpenToken}
+          popupTargetId={isAdminScoped ? popupTargetId : null}
+          popupOpenToken={isAdminScoped ? popupOpenToken : 0}
+          enablePopup={isAdminScoped}
+          selectedReportId={selectedReportId}
+          onSelectReport={(id) => onSelectedReportChange?.(id)}
           onClusterClick={(id, lat, lng) => {
             if (!map) return;
 
@@ -528,18 +580,19 @@ export default function Map({
         <button
           type="button"
           onClick={handleRecenter}
-          className="absolute bottom-3 right-3 z-[500] rounded-md bg-gray-900/90 px-3 py-2 text-xs font-medium text-gray-100 shadow ring-1 ring-gray-600 hover:bg-gray-800"
+          className="walking-recenter-btn absolute right-3 z-[500] rounded-md bg-gray-900/90 px-3 py-2 text-xs font-medium text-gray-100 shadow ring-1 ring-gray-600 hover:bg-gray-800"
           aria-label="Recenter on your location"
         >
           Recenter
         </button>
       ) : null}
 
-      {isAdminScoped && <AdminMapLegend />}
+      {isAdminScoped ? <AdminMapLegend /> : <DiscoverMapLegend />}
       </div>
 
       {!isAdminScoped && (
         <NearbyAwareness
+          overlay={fillContainer}
           centerLocation={mapCenterLocation}
           reports={mapProximityReports}
           walkingMode={walkingMode}

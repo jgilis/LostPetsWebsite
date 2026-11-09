@@ -1,8 +1,8 @@
 # Lost Pets Map — next-version product specification
 
-**Status:** product specification. Phase 0 is in progress; sighting and notification security is in production. Phases 1–5 have not started.  
-**Baseline:** live product as of 9 November 2026, GitHub `main` at `cd8eedd`, hosted on Vercel, Supabase project `dmubikdkyusadzqngapy`. `CURRENT_STATE.md` remains a 7 November inventory of the pre-security commit and is not the live baseline.  
-**This document is the product direction.** Implementation status lives in `PRODUCT_PLAN.md` section 15. Where this spec and that status disagree on facts about the running system, the plan wins.
+**Status:** product specification. Phase 0 is complete. Phase 1 is next. Phases 2–5 have not started.  
+**Baseline:** live product as of 9 November 2026, hosted on Vercel from GitHub `jgilis/LostPetsWebsite`, Supabase project `dmubikdkyusadzqngapy`. `CURRENT_STATE.md` remains a 7 November inventory of the pre-security commit and is not the live baseline.  
+**This document is the product direction.** What to build next is `PRODUCT_PLAN.md` section 12. What is true in production is `PRODUCT_PLAN.md` section 15. Where this spec and that status disagree on facts about the running system, the plan wins.
 
 **Stack, unchanged:** Next.js 16, React 19, TypeScript, Tailwind 4, Leaflet, Supercluster, Supabase, Web Push, one codebase for the desktop site and the Android PWA, Vercel as the host. Vercel is confirmed by a successful production deployment from GitHub.
 
@@ -53,13 +53,13 @@ Do not merge them into one “pin” type. A found report is how an unidentified
 
 | Keep and build on | Change in place | Leave until later, or drop from the UX |
 | --- | --- | --- |
-| Leaflet map, Mechelen bounds, species colors, lost pin vs found dot, supercluster | Make the map the shell of the app, not a tab inside a page | `edit_token` and `/edit?token=` (the editor already uses the Auth user id) |
+| Leaflet map, Mechelen bounds, species colors, lost pin vs found dot, supercluster | Make Discover a full-screen map with a bounds-synced report list (bottom sheet on mobile, side-by-side on desktop) | `edit_token` and `/edit?token=` (removed in Phase 0) |
 | Magic-link accounts and `owner_user_id` = Auth user id | Bottom navigation on small screens; the map stays mounted | `contact_info` (always empty). Do not bring the field back |
 | Report form, hCaptcha, photo bucket, client location offset, “Near …” labels | Sheets instead of `alert` / `prompt` | `react-leaflet-cluster` (unused) |
 | Sighting linked to a lost report; GPS or map pick; pending until admin approval | Area-scoped activity, including approved sightings and reunions | Push copy for rejected/updated sightings (nothing inserts those types) |
 | Owner notification on approved sighting (now a database trigger); Web Push pipeline | Area subscriptions as a new notification type on the same pipeline | Anonymous Supabase users (section 5) |
 | `profiles.is_admin` as the only privilege | Admin home becomes a queue, same flag, no new role | A moderator role, user admin, public profiles |
-| Nearby 500 m list and foreground Walking Mode | Keep them as tools on Discover, not as a separate product | Background geofencing and a movement history |
+| Nearby 500 m list and foreground Walking Mode | Keep both on Discover. Walking Mode sorts by distance, keeps normal nav, and has a prominent Exit control | Background geofencing and a movement history |
 | en / nl / fr for the main chrome | Extend those three languages to Help, sightings, and admin | A fourth language |
 | PWA manifest, service worker, install prompt | Same app installed and in the browser | A native rewrite |
 
@@ -82,7 +82,7 @@ There are two account categories. Administrators moderate. There is no moderator
 | Review flags, hide, resolve, approve or reject sightings | No | No | Yes |
 | Manage other people’s accounts | No | No | No, and do not add it in this version |
 
-Enforcement stays in Postgres RLS and Edge Functions, not in the React redirect. Sighting approve/reject is now enforced in the database. Report and flag moderation still depend on `useAdmin` in the browser; there is no admin RLS policy on `reports` or `reports_flags`. The redesign does not add screens until those remaining writes are actually limited to `is_admin`.
+Enforcement stays in Postgres RLS and Edge Functions, not in the React redirect. Sighting approve/reject, report writes, and flag reads are already limited in the database (Phase 0). The Discover shell must not weaken that.
 
 There is still no in-app screen to grant `is_admin`. Keep granting it in Supabase. An in-app user directory is a social-admin tool this product does not need.
 
@@ -138,7 +138,7 @@ Use these three destinations. Account is not a destination. It is a sheet opened
 | **Activity** | What changed recently in the area I am looking at? | The Feed tab |
 | **Help** | How do I add a fact? | The Report tab, the sighting modal, and the flag action’s dead ends |
 
-**Why not keep Map / Feed / Report.** The map is currently one of three equal tabs under a title, inside `max-w-6xl`, at 65vh (`app/page.tsx`). Feed is a global report list. Report is a publish form that cannot express “I saw the missing dog.” Those three tabs hide the product’s actual verbs: look, notice change, help. Discover / Activity / Help match the verbs without adding a fourth idea.
+**Why not keep Map / Feed / Report.** The live home is still three equal tabs under a title, inside `max-w-6xl`, at 65vh (`app/page.tsx`). Feed is a global report list, not tied to the map camera. Report is a publish form that cannot express “I saw the missing dog.” Those three tabs hide the product’s actual verbs: look, notice change, help. Discover / Activity / Help match the verbs without adding a fourth idea. The Discover list is the reports in view, not the Activity event feed.
 
 **Why not two destinations.** Putting “report” and “sighting” only on map pins makes Help hard to find for “I found an animal that is not listed.” That case has no pin yet. Help is the front door for it. Pins remain the fast path for “I saw this one.”
 
@@ -150,7 +150,7 @@ Discover owns the map camera: center, zoom, species filter, lost/found filter. A
 - Help, when offering “I saw a listed pet,” shows lost reports inside those bounds.
 - Switching tabs does not unmount the map on mobile if we can avoid it. On a small screen the map is hidden but its state stays. On a large screen the map stays visible and Activity or Help opens as a side sheet.
 
-This is the main structural change. It is a new shell around `Map.tsx`, `useReports`, and `ReportsFeed`, not a new map engine.
+This is the main structural change. It is a new shell around `Map.tsx`, `useReports`, and the existing report cards, not a new map engine.
 
 ### Desktop and installed Android PWA
 
@@ -158,13 +158,13 @@ Same routes, same components.
 
 | | Narrow (phone, installed PWA) | Wide (desktop) |
 | --- | --- | --- |
-| Discover | Full-bleed map. Filters in a top scrim. Nearby as a bottom sheet peek | Map fills the window. A right rail can show the selected report or Nearby |
-| Activity | Full list, with a one-line area summary (“Around Mechelen-Noord”) and a control to return to the map | List in the right rail. Map remains |
-| Help | Full-screen task | Sheet over the map, so the pin they are about to set stays visible |
+| Discover | Full-screen map. Draggable bottom sheet of report cards in three positions (collapsed, half, full). Map stays visible behind the sheet. Panning the map updates the cards to the visible bounds. | Map and a scrollable report list side by side. Panning the map updates the list to the visible bounds. Card and marker selection stay in sync. |
+| Activity | Existing feed until Phase 2. Then: list of events in the Discover camera, with a way back to the map | Existing feed until Phase 2. Then: event list; map can remain |
+| Help | Existing report form until Phase 3 | Existing report form until Phase 3 |
 | Navigation | Bottom bar: Discover, Activity, Help. Account icon at the top of the map | Same three as a slim top bar, so the map keeps the vertical space. No bottom bar |
 | Admin | Separate `/admin` stack, linked from the account sheet only if `is_admin` | Same |
 
-Walking Mode is a state of Discover, not a fourth tab. Turning it on hides the bottom bar and the title, as `body.walking-mode-active` already hides the footer. Recenter stays.
+Walking Mode is a first-class Discover mode, not a fourth tab and not part of Activity. Foreground location only. Reports in the sheet/list are prioritised by distance. Keep the normal Discover / Activity / Help navigation visible. Provide a clear, prominent Exit Walking Mode control. Recenter stays. Nearby remains the existing 500 m feature on Discover; it is not the report-card sheet.
 
 There is no hamburger full of features. If a control does not serve look, notice, or help, it goes in the account sheet (language, push, zones, sign-in, sign-out, about, privacy, terms).
 
@@ -185,34 +185,41 @@ Operational today and still correct:
 - Clusters with counts.
 - Species and lost/found filters.
 - Halos at close zoom only as a soft “area,” not as a privacy mechanism and not as a second marker. Keep them, label them in the legend as approximate area.
-- `/?focus=<reportId>` opens that report.
+- `/?focus=<reportId>` selects that report on Discover (card + detail sheet), without leaving the map.
 
 ### What changes
 
-**The selected report is a sheet, not only a Leaflet popup.** Popups are the weakest part of the current mobile UI (white card, `prompt`, easy to fall off-screen). The pin still marks the spot. The sheet holds the photo, name, coarse place, time, status, and the actions: view details, “I saw this animal” (lost only, not the owner), “This is mine” is not a public action. Owners see “You reported this,” reunite, and delete.
+**Mobile: map plus a draggable report-card sheet.** The primary Discover screen is a full-screen map. A bottom sheet lists report cards and snaps to three positions: collapsed, partially expanded, fully expanded. The map remains visible behind it. Do not use the Leaflet popup as the way to browse reports.
 
-**Relevance to the camera.** A small line under the filters states the truth of the data the way Nearby already does: “Showing active reports in view” or, when Walking Mode has a fix, “Using your location.” The inventory is honest that the app loads all public reports and only draws what is in view. Keep that until the volume hurts. Do not pretend there is a server bbox query. When the list is large enough to matter, add a bbox filter in front of the same `reports` table. That is an optimization, not a new feature.
+**Desktop: map and list side by side.** A scrollable report list sits next to the map. There is no “selected report or Nearby” rail that replaces the list.
 
-**Nearby stays on Discover.** 500 m, very-close under 75 m, session-only “seen.” It is the answer to “what is around me,” which the feed is not. Do not persist “seen” across sessions. Do not turn it into push.
+**The list follows the camera.** Panning or zooming updates the cards to the reports in the visible map bounds. Filter that list from reports already loaded for the map. Do not add a server bounding-box query in Phase 1.
 
-**No text search in the first redesign.** The city is small, filters exist, and a search box implies a geocoder we should not bolt on casually. A later search can jump the camera to a neighbourhood via the existing Nominatim path. It is not required to make Discover useful.
+**Cards and markers stay synchronized.** Selecting a card highlights its marker. Tapping a marker selects and scrolls/highlights the matching card, then opens a dedicated **detail sheet over Discover**. Do not navigate to `/report/[id]` or leave the map. Cluster tap still zooms, as today.
 
-**Legend.** One compact legend: pin = lost, dot = found, colors = species. The current filter chips can stay, but they should use the same dark surface as the map chrome. The white chips on the dark page are the loudest visual break in the UI.
+**Walking Mode stays on Discover.** Foreground GPS only. Prioritise the in-view reports by distance. Keep the normal navigation visible. Provide a clear, prominent Exit Walking Mode control. Do not move Walking Mode into Activity. Do not hide the Discover / Activity / Help bar.
+
+**Nearby stays on Discover.** Keep the existing 500 m feature (very-close under 75 m, session-only “seen”). It is not the report-card sheet. Do not persist “seen” across sessions. Do not turn it into push.
+
+**No text search in Phase 1.** Filters and the map are enough.
+
+**Legend.** Keep a compact map legend: pin = lost, dot = found, colours = species. Place it so it does not obstruct the map or report controls. Keep existing filter chips.
+
+**Visual styling.** Phase 1 keeps the current dark UI. No colour, type, or chrome redesign.
+
+The Discover list shows **reports** only. Approved sightings and reunion events belong to Activity (Phase 2).
 
 ### Report detail
 
-Reached from the sheet. Shows the same facts as `ReportDetailClient` today, plus:
+Reached from a selected card or marker as a **dedicated sheet over Discover**. The map stays underneath. Reuse `ReportDetailClient` content where possible. Do not route to `/report/[id]` for this gesture.
 
-- Status in human language: Missing, Found (the report type), Reunited, Removed (admin-only; the public gets a not-available page, as removed reports already disappear).
-- Coarse place and relative time.
-- If the viewer is the owner or an admin, approved sightings with their exact points.
-- If the viewer is anyone else, a count and the latest coarse phrase: “Seen nearby · 2 hours ago.” No exact sighting marker on the public map.
+The sheet shows the same facts as today: photo, type, species, name, coarse place, time, description, owner actions when the viewer owns the report. Public viewers do not get exact sighting pins on Discover.
 
-`/sightings/[id]` today draws the exact point for whoever can read the row. That page either becomes owner/admin only, or it shows the same coarse treatment as the popup. Shipping the redesign without that fix undoes the privacy rule.
+`/sightings/[id]` exact-location visibility is **not** Phase 1. It is outstanding technical debt (this file, Public precision; `PRODUCT_PLAN.md` section 14).
 
 ### Empty and denied states
 
-- No reports in view: the map stays. The sheet says “Nothing active in this area” and offers Help. It does not send people to a blank feed.
+- No reports in view: the map stays. The sheet or list says “Nothing active in this area.” It does not send people to a blank feed.
 - Location denied: the map stays where it is. Walking Mode explains that it needs permission. Browse-by-pan still works. No modal loop.
 
 ---
@@ -290,10 +297,9 @@ Keep captcha, consent, one photo, map pin, description, optional name, location 
 
 Fix before calling the form “redesigned”:
 
-- Type and species are required. Today both can be submitted empty.
-- The photo is checked for type and size before upload, re-encoded so EXIF (including GPS) is dropped, and uploaded only when captcha is about to succeed. Orphan public files are a current defect.
-- After success, “manage” goes to `/edit?id=`, which must become a real editor or be renamed. The spec treats edit as real: description, photo, and pin. Status changes stay the reunite and delete actions, not free-text status.
-- `onReportCreated` is wired so Discover refreshes even if realtime is slow. The prop exists today and is never called.
+- Type, species, photo type/size/EXIF, and post-captcha upload are already enforced (Phase 0). Do not re-solve them here.
+- After success, “manage” goes to `/edit?id=`. Name and description are editable. Photo and pin edit, and 7-day reopen, are Phase 3.
+- `onReportCreated` already refreshes the map and feed after a successful submit. Keep that when Discover becomes the shell.
 
 ### Flagging
 
@@ -325,7 +331,8 @@ Sightings are not offset in storage, because the owner needs the real point. Pre
 
 - Public map and Activity: no sighting pin. Text only.
 - Owner of that lost report, and administrators: exact pin.
-- `/sightings/[id]` follows the same rule. That visibility split is in production and was tested.
+
+`/sightings/[id]` is **outstanding technical debt**, not Phase 1. The page can still show an exact point to whoever can load the row. Fix it separately (owner/admin only, or the same coarse public treatment). Do not change production for this during Discover.
 
 ### Area subscriptions
 
@@ -440,9 +447,7 @@ Privacy and terms currently describe contact details, IP hashes, and duplicate d
 
 ### Design intent
 
-Dark, quiet, map-first. One surface language. The animals and the map carry the color. Chrome does not.
-
-The current UI has three dialects: Tailwind dark pages, white Leaflet popups and the sighting modal, and inline-styled edit and notification pages. Geist is loaded and then `body` sets Arial. The next version picks one: the dark UI, the already-loaded sans font actually applied, and no light modal unless it is the map tile itself.
+**Phase 1 keeps the existing visual styling.** Dark, map-first, current species colours. Do not redesign type, colour, or chrome. A later warm/light exploration is out of this phase.
 
 Species colors stay (dog blue, cat amber, bird violet, rodent red, other neutral). They are already a legend. Do not add a second palette.
 
@@ -451,7 +456,9 @@ Species colors stay (dog blue, cat amber, bird violet, rodent red, other neutral
 | Piece | Plan |
 | --- | --- |
 | Map chrome | Dark scrim, same chips as filters, not white pills |
-| Sheet | One bottom sheet on narrow, one right rail on wide. Report, sighting, Help, and account all use it |
+| Discover list | Narrow: draggable bottom sheet of report cards, three snap positions, map visible behind it. Wide: scrollable list beside the map |
+| Report detail | Dedicated sheet over Discover after card or marker selection. Map stays. Do not navigate away |
+| Other sheets | Account (and later Help/sighting) can use a sheet. Do not merge them into the Discover report-card list |
 | Primary button | One style. Blue is already the action color |
 | Destructive | One style for delete and hide |
 | Feedback | Inline sheet text. Retire `alert` and `prompt` |
@@ -461,7 +468,7 @@ Species colors stay (dog blue, cat amber, bird violet, rodent red, other neutral
 
 ### Map markers
 
-Keep pin vs dot vs cluster. Add a legend that says what they mean. Do not put exact sighting pins on the public map. Owner and admin scopes may keep the red sighting pin that `useMapIcons` already builds.
+Keep pin vs dot vs cluster. Keep a compact legend that says what they mean, placed so it does not cover map or report controls. Do not put exact sighting pins on the public Discover map.
 
 ### Writing
 
@@ -469,7 +476,7 @@ Short, concrete, in the existing three languages. Prefer “Missing,” “Found
 
 ### Accessibility
 
-Sheet focus trap, labelled icon buttons, visible focus, hit targets at least 44 px in the bottom bar. The map remains a known hard spot. The sheet is how keyboard and screen-reader users get the report without fighting Leaflet.
+Sheet focus trap on the report-card sheet and the detail sheet, labelled icon buttons, visible focus, hit targets at least 44 px in the bottom bar. The map remains a known hard spot. The sheets are how keyboard and screen-reader users get the report without fighting Leaflet.
 
 ### PWA
 
@@ -482,14 +489,12 @@ Same UI installed or not. Install stays a quiet control, not a banner on first p
 Each phase is usable on its own. None of them replaces Leaflet, Supabase, or the report/sighting model.
 
 **Phase 0 — make the current promises true.**  
-Required before new UX. Do not start Phase 1 yet.
-
-Done in production and tested: pending-only sighting inserts, admin-only sighting status changes, public queries without exact coordinates, owner/admin coordinates through `sighting_exact_coordinates`, server-side `sighting_approved` notifications, `smooth-processor` in the repo and deployed, Vercel hosting.
-
-Still required in Phase 0: admin RLS (or a trusted path) for reports and flags; server-side report location offset; photo type/size/EXIF and storage cleanup; server-side type and species checks; stop writing `edit_token`; call `onReportCreated`; align privacy copy; decide whether clients may insert `reports` directly. `flag-report` source is in the repo; it was not redeployed in this round. Full status table: `PRODUCT_PLAN.md` section 15.
+**Done.** Live baseline: `PRODUCT_PLAN.md` section 15.
 
 **Phase 1 — Discover shell.**  
-Full-bleed map, bottom bar on narrow screens, top bar on wide, report sheet instead of the popup, legend, shared camera state. Reuse `Map.tsx`, filters, Nearby, Walking Mode.
+**Next.** Checklist: `PRODUCT_PLAN.md` section 12. Behaviour and layout: this file, sections 5 and 6.
+
+Full-screen map. Mobile: three-position draggable sheet of report cards, map visible behind it. Desktop: map and report list side by side. List follows visible bounds. Card select highlights the marker. Marker tap scrolls/highlights the card and opens a detail sheet over Discover — do not leave the map. Compact legend, not covering controls. Walking Mode stays on Discover: foreground GPS, sort by distance, **nav stays visible**, prominent Exit Walking Mode. Keep existing visual styling. Reuse `Map.tsx` and existing report cards. Activity and Help stay as the current feed and report form until Phases 2 and 3. No new tables, no production database or security changes. `/sightings/[id]` exact-location visibility is separate debt.
 
 **Phase 2 — Activity in the camera.**  
 Extend the feed query to the map bounds and add approved sightings and reunions. Keep “Mine.”
@@ -503,7 +508,7 @@ Restructure the report tab and sighting modal into one flow. Real edit of descri
 **Phase 5 — admin queue and audit.**  
 Counts, pending-only sightings, photos on sighting review, `reviewed_by`, `moderation_actions`, expiry job, duplicate hint, storage cleanup on delete.
 
-Phases 1–3 are mostly presentation and flow on top of tables that exist. Phase 4 is the first new product table. Phase 0 and 5 are trust, and they should not wait behind visual polish if abuse is already possible. If only one trust item is scheduled early, it is RLS plus sighting visibility.
+Phases 1–3 are mostly presentation and flow on top of tables that exist. Phase 4 is the first new product table. Phase 5 is remaining trust (audit trail, expiry). Phase 0 security must not be weakened by the shell.
 
 ---
 
@@ -545,9 +550,13 @@ Do not track walking paths. Do not add a social graph metric.
 
 1. **Vercel** is the host. **Confirmed.** Vercel deploys `jgilis/LostPetsWebsite` to the live site. The deployed app uses Supabase project `dmubikdkyusadzqngapy`.
 2. **Area alerts fire only for new lost reports** in the first subscription release. Found reports are a later opt-in.
-3. **Sightings stay usable without an account.** Withdrawal of a pending sighting is therefore impossible for those submissions. Logged-out submit is implemented in the client and was not separately recorded in the latest tests.
+3. **Sightings stay usable without an account.** **Confirmed.** Withdrawal of a pending sighting is therefore impossible for those submissions. Logged-out submit was production-tested.
 4. **Ordinary reports stay public immediately.** Only out-of-area pins, failed media, and flags interrupt that.
 5. **Reunion events stay on Activity for 14 days**, then leave the list. The detail page can remain.
 6. **No anonymous auth** in this version.
+7. **Phase 1 marker tap.** Select and scroll/highlight the card, then open a detail sheet over Discover. Do not leave the map.
+8. **Phase 1 Walking Mode.** Normal navigation stays visible. Prominent Exit Walking Mode control.
+9. **Phase 1 legend.** Compact, must not obstruct map or report controls.
+10. **Phase 1 visual direction.** Keep the existing styling. No redesign.
 
-Phase 0 has started. Remaining Phase 0 work does not need another product pass. It still must finish before Phase 1.
+Phase 0 is complete. Next work is Phase 1 (`PRODUCT_PLAN.md` section 12). `/sightings/[id]` exact-location visibility is separate debt.

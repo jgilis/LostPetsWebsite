@@ -18,8 +18,8 @@ export function reportDetailHref(
 }
 
 export function reportBackHref(from: ReportFromContext): string {
-  if (from === "feed") return "/?tab=feed";
-  if (from === "map") return "/?tab=map";
+  if (from === "feed") return "/?tab=activity";
+  if (from === "map") return "/?tab=discover";
   return "/";
 }
 

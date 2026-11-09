@@ -18,15 +18,19 @@ type Props = {
   icon?: any;
   color: string;
   isAdmin?: boolean;
+  selected?: boolean;
+  onSelect?: (id: string) => void;
+  enablePopup?: boolean;
   openPopupToken?: number;
 };
 
 function useOpenPopupFromFocus(
   openPopupToken: number,
   markerRef: React.RefObject<Layer | null>,
+  enabled: boolean,
 ) {
   useEffect(() => {
-    if (!openPopupToken) return;
+    if (!enabled || !openPopupToken) return;
 
     const timer = window.setTimeout(() => {
       const layer = markerRef.current as
@@ -37,7 +41,7 @@ function useOpenPopupFromFocus(
     }, 50);
 
     return () => window.clearTimeout(timer);
-  }, [openPopupToken, markerRef]);
+  }, [enabled, openPopupToken, markerRef]);
 }
 
 export default memo(function ReportMarker({
@@ -45,13 +49,16 @@ export default memo(function ReportMarker({
   icon,
   color,
   isAdmin,
+  selected = false,
+  onSelect,
+  enablePopup = false,
   openPopupToken = 0,
 }: Props) {
   const layerRef = useRef<Layer | null>(null);
   const setLayerRef = useCallback((instance: Layer | null) => {
     layerRef.current = instance;
   }, []);
-  useOpenPopupFromFocus(openPopupToken, layerRef);
+  useOpenPopupFromFocus(openPopupToken, layerRef, enablePopup);
   const { userId } = useCurrentUser();
 
   const popupProps = {
@@ -71,16 +78,41 @@ export default memo(function ReportMarker({
   const isReportOwner = isOwner(userId, report.owner_user_id);
 
   const canSeeExactSightings = isAdmin || isReportOwner;
+  const handleSelect = useCallback(() => {
+    onSelect?.(report.id);
+  }, [onSelect, report.id]);
+  const center: [number, number] = [report.latitude, report.longitude];
+  const selectedRing = selected ? (
+    <CircleMarker
+      center={center}
+      radius={18}
+      interactive={false}
+      pathOptions={{
+        color: "#ffffff",
+        fillOpacity: 0,
+        opacity: 0.95,
+        weight: 3,
+      }}
+    />
+  ) : null;
+  const popup = enablePopup ? (
+    <Popup {...popupProps}>
+      <ReportPopup
+        report={report}
+        canSeeExactSightings={canSeeExactSightings}
+      />
+    </Popup>
+  ) : null;
 
   if (report.type === "found") {
-    const center: [number, number] = [report.latitude, report.longitude];
-
     return (
       <>
+        {selectedRing}
         <CircleMarker
           ref={setLayerRef}
           center={center}
           radius={14}
+          eventHandlers={{ click: handleSelect }}
           pathOptions={{
             fillOpacity: 0,
             opacity: 0,
@@ -88,12 +120,7 @@ export default memo(function ReportMarker({
             stroke: false,
           }}
         >
-          <Popup {...popupProps}>
-            <ReportPopup
-              report={report}
-              canSeeExactSightings={canSeeExactSightings}
-            />
-          </Popup>
+          {popup}
         </CircleMarker>
         <CircleMarker
           center={center}
@@ -112,17 +139,16 @@ export default memo(function ReportMarker({
   }
 
   return (
-    <Marker
-      ref={setLayerRef}
-      position={[report.latitude, report.longitude]}
-      icon={icon}
-    >
-      <Popup {...popupProps}>
-        <ReportPopup
-          report={report}
-          canSeeExactSightings={canSeeExactSightings}
-        />
-      </Popup>
-    </Marker>
+    <>
+      {selectedRing}
+      <Marker
+        ref={setLayerRef}
+        position={center}
+        icon={icon}
+        eventHandlers={{ click: handleSelect }}
+      >
+        {popup}
+      </Marker>
+    </>
   );
 })

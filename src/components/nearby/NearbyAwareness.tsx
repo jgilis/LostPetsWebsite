@@ -21,6 +21,7 @@ type NearbyAwarenessProps = {
   reports: Report[];
   radiusMeters?: number;
   walkingMode: UseWalkingModeResult;
+  overlay?: boolean;
 };
 
 function NearbyAwareness({
@@ -28,6 +29,7 @@ function NearbyAwareness({
   reports,
   radiusMeters = DEFAULT_NEARBY_RADIUS_METERS,
   walkingMode,
+  overlay = false,
 }: NearbyAwarenessProps) {
   const lastMapCenterRef = useRef<GeoPoint | null>(
     centerLocation ? stabilizeProximityCenter(centerLocation) : null,
@@ -151,7 +153,9 @@ function NearbyAwareness({
 
   return (
     <section
-      className="nearby-awareness-panel mt-3 rounded-lg border border-gray-700/80 bg-gray-900/40 px-3 py-2"
+      className={`nearby-awareness-panel rounded-lg border border-gray-700/80 bg-gray-900/40 px-3 py-2 ${
+        overlay ? "discover-nearby-overlay" : "mt-3"
+      }`}
       aria-label="Nearby awareness"
     >
       <div className="flex flex-wrap items-center gap-2">

@@ -1,130 +1,131 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import MapWrapper from "../src/components/map/MapWrapper";
+import { useRouter, useSearchParams } from "next/navigation";
+import DiscoverWorkspace from "../src/components/discover/DiscoverWorkspace";
 import ReportForm from "../src/components/report/ReportForm";
 import ReportsFeed from "../src/components/feed/ReportsFeed";
 import ReportFiltersBar, {
   type AnimalFilter,
   type TypeFilter,
 } from "../src/components/report/ReportFiltersBar";
+import DiscoverDestinationNav from "../src/components/layout/DiscoverDestinationNav";
+import WalkingModeExitBar from "../src/components/layout/WalkingModeExitBar";
+import SessionControls from "../src/components/auth/SessionControls";
+import NotificationNavLink from "../src/components/notifications/NotificationNavLink";
+import { useWalkingMode } from "../src/hooks/useWalkingMode";
+import {
+  homeDestinationHref,
+  parseHomeDestination,
+} from "../src/lib/homeDestination";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 
-type HomeTab = "map" | "feed" | "report";
-
-function parseTabParam(value: string | null): HomeTab {
-  if (value === "report" || value === "feed") return value;
-  return "map";
-}
-
 function HomePageContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [refreshKey, setRefreshKey] = useState(0);
-  const [tab, setTab] = useState<HomeTab>("map");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [animalFilter, setAnimalFilter] = useState<AnimalFilter>("all");
+  const walkingMode = useWalkingMode();
   const { t } = useTranslation();
+  const destination = parseHomeDestination(
+    searchParams.get("tab"),
+    searchParams.get("focus"),
+  );
 
   useEffect(() => {
-    const focus = searchParams.get("focus");
-    const tabParam = searchParams.get("tab");
-    setTab(focus ? "map" : parseTabParam(tabParam));
-  }, [searchParams]);
+    document.body.classList.toggle(
+      "discover-fullbleed",
+      destination === "discover",
+    );
+    return () => document.body.classList.remove("discover-fullbleed");
+  }, [destination]);
 
   const handleReportCreated = () => {
     setRefreshKey((k) => k + 1);
   };
 
-  const showReportFilters = tab === "map" || tab === "feed";
+  const showDiscover = destination === "discover";
+  const walking = walkingMode.isWalkingModeEnabled;
 
   return (
-    <main className="home-main min-h-screen bg-gray-950 text-white flex justify-center">
-      <div className="home-page-inner w-full max-w-6xl px-4 py-6 space-y-6">
-        <div className="home-chrome space-y-6">
-        <h1 className="text-2xl font-bold text-center">{t("appTitle")}</h1>
+    <main
+      className={`home-main bg-gray-950 text-white ${
+        showDiscover
+          ? "flex h-dvh flex-col overflow-hidden"
+          : "min-h-screen"
+      }`}
+    >
+      <DiscoverDestinationNav destination={destination} />
+      <WalkingModeExitBar
+        visible={walking}
+        onExit={walkingMode.stopWalkingMode}
+      />
 
-        <div className="home-tabs flex border-b border-gray-700 mb-8">
-          <button
-            onClick={() => setTab("map")}
-            className={`flex-1 p-3 text-center transition ${
-              tab === "map"
-                ? "border-b-2 border-white font-semibold"
-                : "opacity-70 hover:opacity-100"
-            }`}
-          >
-            🗺 {t("tabMap")}
-          </button>
-
-          <button
-            onClick={() => setTab("feed")}
-            className={`flex-1 p-3 text-center transition ${
-              tab === "feed"
-                ? "border-b-2 border-white font-semibold"
-                : "opacity-70 hover:opacity-100"
-            }`}
-          >
-            📋 {t("tabFeed")}
-          </button>
-
-          <button
-            onClick={() => setTab("report")}
-            className={`flex-1 p-3 text-center transition ${
-              tab === "report"
-                ? "border-b-2 border-white font-semibold"
-                : "opacity-70 hover:opacity-100"
-            }`}
-          >
-            ➕ {t("tabReport")}
-          </button>
-        </div>
-        </div>
-
-        {showReportFilters && (
-          <ReportFiltersBar
+      <div
+        className={`home-page-inner mx-auto flex w-full flex-1 flex-col ${
+          showDiscover
+            ? "max-w-none min-h-0"
+            : "max-w-6xl px-4 py-6"
+        } ${walking ? "pt-12 md:pt-24" : "pt-0 md:pt-12"} pb-16 md:pb-0`}
+      >
+        {showDiscover ? (
+        <div className="relative flex min-h-0 flex-1 flex-col">
+          <div className="flex shrink-0 items-center justify-end gap-3 px-3 py-2 text-xs md:px-4">
+            <NotificationNavLink />
+            <SessionControls />
+          </div>
+          <div className="shrink-0 px-2 md:px-4">
+            <ReportFiltersBar
+              typeFilter={typeFilter}
+              animalFilter={animalFilter}
+              onTypeFilterChange={setTypeFilter}
+              onAnimalFilterChange={setAnimalFilter}
+            />
+          </div>
+          <DiscoverWorkspace
+            refreshKey={refreshKey}
             typeFilter={typeFilter}
             animalFilter={animalFilter}
             onTypeFilterChange={setTypeFilter}
             onAnimalFilterChange={setAnimalFilter}
-            sticky={tab === "map"}
+            walkingMode={walkingMode}
           />
-        )}
+        </div>
+        ) : null}
 
-        {tab === "map" && (
-          <div className="home-map-shell w-full h-[65vh] rounded-lg border border-gray-700">
-            <div className="w-full h-full rounded-lg">
-              <MapWrapper
-                refreshKey={refreshKey}
-                typeFilter={typeFilter}
-                animalFilter={animalFilter}
-                onTypeFilterChange={setTypeFilter}
-                onAnimalFilterChange={setAnimalFilter}
-                hideFilters
-              />
-            </div>
-          </div>
-        )}
-
-        {tab === "feed" && (
-          <ReportsFeed
-            typeFilter={typeFilter}
-            animalFilter={animalFilter}
-            refreshKey={refreshKey}
-          />
-        )}
-
-        {tab === "report" && (
+        {destination === "activity" ? (
           <div className="w-full">
-            <h2 className="text-xl font-semibold mb-4 text-center">
-              {t("reportPageTitle")}
-            </h2>
-
-            <ReportForm
-              onReportCreated={handleReportCreated}
-              onViewMap={() => setTab("map")}
+            <h1 className="mb-4 text-center text-2xl font-bold">
+              {t("tabActivity")}
+            </h1>
+            <ReportFiltersBar
+              typeFilter={typeFilter}
+              animalFilter={animalFilter}
+              onTypeFilterChange={setTypeFilter}
+              onAnimalFilterChange={setAnimalFilter}
+            />
+            <ReportsFeed
+              typeFilter={typeFilter}
+              animalFilter={animalFilter}
+              refreshKey={refreshKey}
             />
           </div>
-        )}
+        ) : null}
+
+        {destination === "help" ? (
+          <div className="w-full">
+            <h1 className="mb-4 text-center text-xl font-semibold">
+              {t("reportPageTitle")}
+            </h1>
+            <ReportForm
+              onReportCreated={handleReportCreated}
+              onViewMap={() =>
+                router.replace(homeDestinationHref("discover"), { scroll: false })
+              }
+            />
+          </div>
+        ) : null}
       </div>
     </main>
   );

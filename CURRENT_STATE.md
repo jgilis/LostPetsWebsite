@@ -2,7 +2,7 @@
 
 **This file is a 7 November 2026 inventory of commit `cdc62cf`.** It is not the live product.
 
-**Live status (9 November 2026):** Vercel hosts the site and deploys from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Sighting/notification security, Package A report/flag RLS, and Package B submission security are production-tested. Package C (application integrity) is implemented locally: captcha functions no longer write or return `edit_token`; `/edit` is authenticated owner edit of name/description plus permanent delete; `onReportCreated` refreshes map and feed; privacy/terms/consent match the implementation. Package C is **not** deployed. Optional SQL to let owners read their own hidden rows, and to drop `edit_token`, is prepared and not applied. Full status: `PRODUCT_PLAN.md` section 15.
+**Live status (9 November 2026):** Vercel hosts the site and deploys from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. The live home is still Map / Feed / Report tabs. Next work is Phase 1 Discover: full-screen map; bounds-synced report cards (mobile sheet / desktop list); marker tap highlights the card and opens a detail sheet over the map; compact legend; Walking Mode keeps normal nav and a prominent Exit control; keep existing styling. `/sightings/[id]` exact-location visibility is separate debt, not Phase 1. Spec: `PRODUCT_PLAN.md` section 12. Live baseline: `PRODUCT_PLAN.md` section 15.
 
 Do not use the sections below as the current hosting, Edge Function, or privacy story. They describe the pre-security tree.
 

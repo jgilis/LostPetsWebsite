@@ -35,9 +35,15 @@ const ANIMAL_LABEL_KEYS: Record<Report["animal_type"], TranslationKey> = {
 export default function ReportDetailClient({
   report: initialReport,
   from = null,
+  presentation = "page",
+  onClose,
+  onDeleted,
 }: {
   report: Report;
   from?: ReportFromContext;
+  presentation?: "page" | "sheet";
+  onClose?: () => void;
+  onDeleted?: () => void;
 }) {
   const { t } = useTranslation();
   const router = useRouter();
@@ -49,6 +55,7 @@ export default function ReportDetailClient({
   const reportIsOwner = isOwner(user?.id, report.owner_user_id);
   const isResolved = report.status === "resolved";
   const isActive = report.status === "active";
+  const isSheet = presentation === "sheet";
 
   useEffect(() => {
     track("report_viewed", {
@@ -71,6 +78,12 @@ export default function ReportDetailClient({
 
     if (error) {
       window.alert(t("reportDeleteFailed"));
+      return;
+    }
+
+    onDeleted?.();
+    if (isSheet) {
+      onClose?.();
       return;
     }
 
@@ -110,18 +123,8 @@ export default function ReportDetailClient({
   const typeLabel =
     report.type === "lost" ? t("reportLost") : t("reportFound");
 
-  return (
-    <main className="min-h-screen bg-gray-950 px-6 py-10 text-white">
-      <div className="mx-auto mb-4 max-w-lg">
-        <Link
-          href={reportBackHref(from)}
-          className="inline-flex min-h-[44px] items-center gap-1 text-sm text-gray-400 underline-offset-2 hover:text-gray-300 hover:underline"
-        >
-          <span aria-hidden>←</span>
-          {t(backLabelKey(from))}
-        </Link>
-      </div>
-      <article className="mx-auto max-w-lg space-y-5">
+  const article = (
+      <article className={`space-y-5 ${isSheet ? "" : "mx-auto max-w-lg"}`}>
         {isResolved ? (
           <div
             className="rounded-lg border border-emerald-900/50 bg-emerald-950/30 px-4 py-3"
@@ -153,7 +156,10 @@ export default function ReportDetailClient({
         )}
 
         <header className="space-y-1">
-          <h1 className="text-2xl font-bold capitalize text-white">
+          <h1
+            id={isSheet ? "discover-detail-title" : undefined}
+            className="text-2xl font-bold capitalize text-white"
+          >
             {t(ANIMAL_LABEL_KEYS[report.animal_type])}
           </h1>
           <p className="text-base text-gray-300">
@@ -217,7 +223,11 @@ export default function ReportDetailClient({
           <LocationDisplay
             latitude={report.latitude}
             longitude={report.longitude}
-            onViewMap={() => router.push(`/?focus=${report.id}`)}
+            onViewMap={
+              isSheet
+                ? undefined
+                : () => router.push(`/?focus=${report.id}`)
+            }
           />
         </p>
 
@@ -234,6 +244,24 @@ export default function ReportDetailClient({
           {t("reportDetailId")}: {report.id}
         </p>
       </article>
+  );
+
+  if (isSheet) {
+    return <div className="bg-gray-950 px-6 py-4 text-white">{article}</div>;
+  }
+
+  return (
+    <main className="min-h-screen bg-gray-950 px-6 py-10 text-white">
+      <div className="mx-auto mb-4 max-w-lg">
+        <Link
+          href={reportBackHref(from)}
+          className="inline-flex min-h-[44px] items-center gap-1 text-sm text-gray-400 underline-offset-2 hover:text-gray-300 hover:underline"
+        >
+          <span aria-hidden>←</span>
+          {t(backLabelKey(from))}
+        </Link>
+      </div>
+      {article}
     </main>
   );
 }

@@ -20,13 +20,13 @@ export default function SiteFooter() {
         className="mb-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm"
       >
         <a
-          href="/"
+          href="/?tab=discover"
           className="font-medium text-gray-300 hover:text-white"
         >
           {t("navHomeMap")}
         </a>
         <a
-          href="/?tab=report"
+          href="/?tab=help"
           className="font-medium text-gray-300 hover:text-white"
         >
           {t("navReport")}

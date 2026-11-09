@@ -14,6 +14,9 @@ type Props = {
   map: any;
   popupTargetId?: string | null;
   popupOpenToken?: number;
+  enablePopup?: boolean;
+  selectedReportId?: string | null;
+  onSelectReport?: (id: string) => void;
   onClusterClick: (id: number, lat: number, lng: number) => void;
 };
 
@@ -26,6 +29,9 @@ export default function ReportsLayer({
   map,
   popupTargetId = null,
   popupOpenToken = 0,
+  enablePopup = false,
+  selectedReportId = null,
+  onSelectReport,
   onClusterClick,
 }: Props) {
   const { isAdmin } = useCurrentUser();
@@ -72,6 +78,9 @@ export default function ReportsLayer({
         icon={icon}
         color={color}
         isAdmin={isAdmin}
+        selected={report.id === selectedReportId}
+        onSelect={onSelectReport}
+        enablePopup={enablePopup}
         openPopupToken={
           report.id === popupTargetId ? popupOpenToken : 0
         }

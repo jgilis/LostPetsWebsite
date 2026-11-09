@@ -207,49 +207,29 @@ body {
   cursor: pointer;
 }
 
-/* Walking mode — focused search layout (toggled via body.walking-mode-active) */
-body.walking-mode-active footer {
+/* Discover destination: full-bleed map, hide the site footer */
+body.discover-fullbleed footer {
   display: none;
 }
 
-body.walking-mode-active .home-chrome {
-  display: none;
-}
-
-body.walking-mode-active .home-main {
-  min-height: 100dvh;
-}
-
-body.walking-mode-active .home-page-inner {
-  max-width: none;
-  padding: 0.5rem 0.5rem 0.75rem;
-  gap: 0.5rem;
-  min-height: calc(100dvh - 1rem);
+.home-map-shell {
   display: flex;
-  flex-direction: column;
-}
-
-body.walking-mode-active .report-type-filters {
-  display: none;
-}
-
-body.walking-mode-active .home-map-shell {
-  flex: 1 1 auto;
   min-height: 0;
-  height: auto;
-  border-radius: 0.5rem;
-  display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
 }
 
+.home-map-shell .leaflet-container,
+.walking-map-container.leaflet-container {
+  height: 100% !important;
+  width: 100%;
+  min-height: 0;
+}
+
+/* Walking mode — keep Discover/Activity/Help nav visible */
 body.walking-mode-active .walking-map-host {
   flex: 1 1 auto;
-  min-height: min(58dvh, calc(100dvh - 14rem));
-}
-
-body.walking-mode-active .walking-map-container.leaflet-container {
-  height: 100% !important;
-  min-height: min(58dvh, calc(100dvh - 14rem));
+  min-height: 0;
 }
 
 body.walking-mode-active .nearby-awareness-panel {
@@ -259,11 +239,38 @@ body.walking-mode-active .nearby-awareness-panel {
   overflow-y: auto;
 }
 
-body.walking-mode-active .nearby-refresh-btn {
-  display: none;
+.discover-map-stage {
+  --discover-sheet-height: 42dvh;
 }
 
-body.walking-mode-active .report-filters-bar {
-  flex: 0 0 auto;
-  padding-top: 0.25rem;
+.discover-nearby-overlay {
+  position: absolute;
+  left: 0.5rem;
+  right: 5.5rem;
+  bottom: calc(var(--discover-sheet-height, 4.5rem) + 0.5rem);
+  z-index: 500;
+  margin-top: 0;
+  max-height: min(28dvh, 12rem);
+  overflow-y: auto;
+}
+
+.walking-recenter-btn {
+  bottom: calc(0.75rem + var(--discover-sheet-height, 0px));
+}
+
+@media (min-width: 768px) {
+  .discover-map-stage {
+    --discover-sheet-height: 0px;
+  }
+
+  .walking-recenter-btn {
+    bottom: 0.75rem;
+  }
+
+  .discover-nearby-overlay {
+    top: auto;
+    right: auto;
+    bottom: 0.5rem;
+    width: min(24rem, calc(100% - 1rem));
+  }
 }
