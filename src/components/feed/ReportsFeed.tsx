@@ -216,8 +216,7 @@ function SightingFeedCard({
     created_at: sighting.created_at,
   });
   const description = sighting.description?.trim();
-  const photoUrl =
-    sighting.photo_url?.trim() || report.photo_url?.trim() || null;
+  const photoUrl = report.photo_url?.trim() || null;
   const hasPhoto = !!photoUrl && !photoBroken;
   const placeholder = ANIMAL_PLACEHOLDER[report.animal_type];
   const title = report.animal_name?.trim()

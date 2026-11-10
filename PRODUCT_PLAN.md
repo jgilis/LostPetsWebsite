@@ -1,6 +1,6 @@
 # Lost Pets Map — Product Plan
 
-**Status:** Working product direction. Phase 0, Phase 1, Phase 2, and Phase 3 slice 1 are complete in this repository. Remaining Phase 3 slices are next.  
+**Status:** Working product direction. Phase 0, Phase 1, Phase 2, and Phase 3 slices 1–2 are complete in this repository. Remaining Phase 3 slices are next.  
 **Scope:** Next version  
 **Primary area:** Mechelen, Belgium  
 **Languages:** English, Dutch and French
@@ -310,7 +310,7 @@ Work in small, reviewable phases. Complete and test each phase before starting t
 | 0 | Security, privacy and technical foundations | **Done.** Packages A, B and C are live. See section 15. |
 | 1 | Discover navigation and map experience | **Done.** Shell, bounds-synced reports, detail sheet, legend, desktop pass, map-first Android, Within 500 m on the report list, clickable found dots. |
 | 2 | Activity and map-area filtering | **Done.** |
-| 3 | Report as three tasks, then edit/reopen/flagging | **Slice 1 in this repository.** Slices 2–6 not started. |
+| 3 | Report as three tasks, then edit/reopen/flagging | **Slices 1–2 in this repository.** Slices 3–6 not started. |
 | 4 | Area subscriptions and notifications | Not started |
 | 5 | Administration, expiry and cleanup | Not started |
 
@@ -414,9 +414,14 @@ The destination label is **Report** (EN Report / NL Melding / FR Signaler), not 
 - Spotted is a picker of active lost reports in the Discover camera, then the existing `SightingsModal`. Discover “I spotted this animal” skips the picker. Both paths call `submitSighting`.
 - Keep the map mounted. Do not start slices 2–6 here.
 
+**Slice 2 — Sighting confirmation, observation time, optional photo (implemented in this repository)**
+
+- After submit: in-modal pending copy instead of `alert`. GPS/map/description/out-of-area warning stay.
+- Observation time defaults to now and is editable. Optional photo is re-encoded, EXIF-stripped, and uploaded **after** the sighting row exists, to private bucket `sighting-photos`. Do not use `report-photos`. Do not accept a client `photo_url`.
+- SQL in `supabase/migrations/20261110190000_sighting_observed_at_and_private_photos.sql` is **not applied** until pasted in the dashboard. Then deploy `smooth-processor`.
+
 **Remaining slices (not started)**
 
-- Slice 2 — Sighting confirmation, observation time, optional photo (inspect storage; SQL first if needed).
 - Slice 3 — Magic-link draft keep.
 - Slice 4 — Owner photo + pin edit.
 - Slice 5 — 7-day reopen (SQL first).
@@ -467,7 +472,7 @@ These should not silently become permanent technical or product assumptions:
 
 ## 15. Live baseline
 
-**As of 10 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover, Phase 2 Activity, and Phase 3 slice 1 are implemented in this repository** (production is whatever Vercel last deployed from GitHub). Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. **Phase 3 slice 1:** Report is a three-task chooser (lost / found / spotted a listed pet). Lost and found reuse the current form with type preset. Spotted picks lost reports in the Discover camera, then the existing sighting modal; Discover “I spotted this animal” skips the picker. Both paths call `submitSighting`. `/sightings/[id]` exact-location visibility is separate debt.
+**As of 10 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover, Phase 2 Activity, and Phase 3 slices 1–2 are implemented in this repository** (production is whatever Vercel last deployed from GitHub). Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. **Phase 3 slice 1:** Report is a three-task chooser (lost / found / spotted a listed pet). Lost and found reuse the current form with type preset. Spotted picks lost reports in the Discover camera, then the existing sighting modal; Discover “I spotted this animal” skips the picker. Both paths call `submitSighting`. **Phase 3 slice 2:** sighting success is a pending confirmation, not `alert`; observation time is editable; optional photo goes to private `sighting-photos` after insert. SQL + `smooth-processor` deploy are required before time/photo persist. `/sightings/[id]` exact-location visibility is separate debt.
 
 ### How production is updated
 

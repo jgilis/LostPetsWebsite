@@ -13,11 +13,126 @@ const corsHeaders = {
   "Content-Type": "application/json",
 };
 
+const MAX_SOURCE_PHOTO_BYTES = 5_242_880;
+const MAX_ENCODED_PHOTO_BYTES = 1_500_000;
+const PHOTO_BUCKET = "sighting-photos";
+
 function jsonResponse(body: unknown, status: number) {
   return new Response(JSON.stringify(body), {
     status,
     headers: corsHeaders,
   });
+}
+
+function decodePhotoBase64(value: unknown): Uint8Array | null {
+  if (value == null) return new Uint8Array();
+  if (typeof value !== "string") return null;
+  if (value.length === 0) return new Uint8Array();
+  if (value.length > Math.ceil(MAX_ENCODED_PHOTO_BYTES * 1.4) + 32) return null;
+
+  try {
+    const binary = atob(value);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  } catch {
+    return null;
+  }
+}
+
+function concatBytes(chunks: Uint8Array[]) {
+  const total = chunks.reduce((sum, chunk) => sum + chunk.byteLength, 0);
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    out.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return out;
+}
+
+/** Drop EXIF/APP/COM segments from a client-re-encoded JPEG. */
+function sanitizeJpeg(bytes: Uint8Array): Uint8Array {
+  if (
+    bytes.byteLength < 4 ||
+    bytes.byteLength > MAX_SOURCE_PHOTO_BYTES ||
+    bytes[0] !== 0xff ||
+    bytes[1] !== 0xd8
+  ) {
+    throw new Error("Invalid photo");
+  }
+
+  const chunks: Uint8Array[] = [bytes.subarray(0, 2)];
+  let offset = 2;
+
+  while (offset < bytes.byteLength) {
+    if (bytes[offset] !== 0xff) {
+      throw new Error("Invalid photo");
+    }
+
+    let markerOffset = offset + 1;
+    while (markerOffset < bytes.byteLength && bytes[markerOffset] === 0xff) {
+      markerOffset += 1;
+    }
+    if (markerOffset >= bytes.byteLength) {
+      throw new Error("Invalid photo");
+    }
+
+    const marker = bytes[markerOffset];
+
+    if (marker === 0xd9) {
+      chunks.push(new Uint8Array([0xff, 0xd9]));
+      break;
+    }
+
+    if (marker === 0xda) {
+      chunks.push(bytes.subarray(offset));
+      break;
+    }
+
+    if (marker >= 0xd0 && marker <= 0xd7) {
+      chunks.push(new Uint8Array([0xff, marker]));
+      offset = markerOffset + 1;
+      continue;
+    }
+
+    if (markerOffset + 2 >= bytes.byteLength) {
+      throw new Error("Invalid photo");
+    }
+
+    const length =
+      (bytes[markerOffset + 1] << 8) | bytes[markerOffset + 2];
+    const next = markerOffset + 1 + length;
+    if (length < 2 || next > bytes.byteLength) {
+      throw new Error("Invalid photo");
+    }
+
+    const dropMetadata =
+      (marker >= 0xe1 && marker <= 0xef) || marker === 0xfe;
+    if (!dropMetadata) {
+      chunks.push(bytes.subarray(offset, next));
+    }
+    offset = next;
+  }
+
+  const sanitized = concatBytes(chunks);
+  if (sanitized.byteLength > MAX_ENCODED_PHOTO_BYTES) {
+    throw new Error("Invalid photo");
+  }
+  return sanitized;
+}
+
+function parseObservedAt(value: unknown, now: number): string | null {
+  if (value == null || value === "") {
+    return new Date(now).toISOString();
+  }
+  if (typeof value !== "string") return null;
+  const at = Date.parse(value);
+  if (!Number.isFinite(at)) return null;
+  if (at > now) return null;
+  return new Date(at).toISOString();
 }
 
 serve(async (req) => {
@@ -42,7 +157,8 @@ serve(async (req) => {
       latitude,
       longitude,
       description,
-      photo_url,
+      observed_at,
+      photo_base64,
     } = body;
 
     if (
@@ -68,6 +184,26 @@ serve(async (req) => {
       longitude > 180
     ) {
       return jsonResponse({ error: { message: "Invalid coordinates" } }, 400);
+    }
+
+    const now = Date.now();
+    const observedAt = parseObservedAt(observed_at, now);
+    if (!observedAt) {
+      return jsonResponse({ error: { message: "Invalid observation time" } }, 400);
+    }
+
+    const photoBytes = decodePhotoBase64(photo_base64);
+    if (photoBytes == null) {
+      return jsonResponse({ error: { message: "Invalid photo" } }, 400);
+    }
+
+    let encodedPhoto: Uint8Array | null = null;
+    if (photoBytes.byteLength > 0) {
+      try {
+        encodedPhoto = sanitizeJpeg(photoBytes);
+      } catch {
+        return jsonResponse({ error: { message: "Invalid photo" } }, 400);
+      }
     }
 
     const { data: report, error: reportError } = await supabase
@@ -115,16 +251,39 @@ serve(async (req) => {
         latitude,
         longitude,
         description: description || null,
-        photo_url: photo_url || null,
+        photo_url: null,
         status: "pending",
         reporter_ip_hash: ipHash,
         confidence_score: 1.0,
+        observed_at: observedAt,
       })
-      .select("id, lost_report_id, status, created_at")
+      .select("id, lost_report_id, status, created_at, observed_at")
       .single();
 
     if (error) {
       return jsonResponse({ error: { message: "Could not save the sighting" } }, 500);
+    }
+
+    if (encodedPhoto && data?.id) {
+      const photoPath = `${data.id}.jpg`;
+      const { error: uploadError } = await supabase.storage
+        .from(PHOTO_BUCKET)
+        .upload(photoPath, encodedPhoto, {
+          contentType: "image/jpeg",
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (!uploadError) {
+        const { error: photoUpdateError } = await supabase
+          .from("sightings")
+          .update({ photo_url: photoPath })
+          .eq("id", data.id);
+
+        if (photoUpdateError) {
+          await supabase.storage.from(PHOTO_BUCKET).remove([photoPath]);
+        }
+      }
     }
 
     return jsonResponse({ success: true, sighting: data }, 200);

@@ -26,6 +26,7 @@ test("Activity mixes approved sightings with a coarse place, not exact coordinat
   assert.match(feed, /activitySightingNearby/);
   assert.match(feed, /latitude=\{report\.latitude\}/);
   assert.doesNotMatch(feed, /sighting\.latitude/);
+  assert.doesNotMatch(feed, /sighting\.photo_url/);
   assert.doesNotMatch(hook, /withExactCoordinates/);
   assert.doesNotMatch(feed, /\/sightings\//);
   assert.doesNotMatch(workspace, /useApprovedSightings/);

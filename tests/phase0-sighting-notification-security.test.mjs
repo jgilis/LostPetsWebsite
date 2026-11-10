@@ -142,7 +142,7 @@ test("sighting submission validates an active lost report and stores pending", (
   assert.match(submitSighting, /status: "pending"/);
   assert.match(
     submitSighting,
-    /\.select\("id, lost_report_id, status, created_at"\)/,
+    /\.select\("id, lost_report_id, status, created_at, observed_at"\)/,
   );
   assert.match(submitSighting, /error: \{ message: "Too many sightings\. Slow down\." \}/);
 });

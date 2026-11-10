@@ -78,6 +78,24 @@ export const en = {
   reportSeenPickerTitle: "Which listed pet did you see?",
   reportSeenPickerEmpty: "No missing pets listed in this map area.",
   reportSeenPickerEmptyHint: "Zoom out on Discover to look at a wider area.",
+  sightingTitle: "Report a sighting",
+  sightingUseLocation: "Use my location",
+  sightingPickMap: "Pick on map",
+  sightingWhatDidYouSee: "What did you see?",
+  sightingOutOfArea:
+    "Coordinates are outside the usual Mechelen area. Admins will review.",
+  sightingCancel: "Cancel",
+  sightingSubmit: "Submit sighting",
+  sightingSubmitting: "Submitting...",
+  sightingClose: "Close",
+  sightingGpsFailed: "Could not get location. Please use the map instead.",
+  sightingNeedLocation: "Please set a location first.",
+  sightingWhen: "When did you see it?",
+  sightingPhoto: "Photo (optional)",
+  sightingErrorWhen: "Please choose a recent observation time.",
+  sightingPendingTitle: "Thanks.",
+  sightingPendingBody:
+    "An administrator will check this before the owner is notified and before it appears on the map.",
 
   loginTitle: "Login",
   loginIntro:

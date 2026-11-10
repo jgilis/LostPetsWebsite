@@ -1,13 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import "leaflet/dist/leaflet.css";
-import useLeaflet from "../../hooks/useLeaflet";
 import LocationPicker from "../report/LocationPicker";
 import { isOutOfMechelen } from "../../lib/mechelenBounds";
 import LocationDisplay from "@/src/components/location/LocationDisplay";
 import { track } from "@/src/lib/analytics/analytics";
 import { submitSighting } from "@/src/lib/submitSighting";
+import {
+  parseObservedAt,
+  toDatetimeLocalValue,
+} from "@/src/lib/sightingObservation";
+import {
+  blobToBase64,
+  PhotoPreparationError,
+  prepareReportPhoto,
+} from "@/src/lib/prepareReportPhoto";
+import { useTranslation } from "@/src/i18n/I18nProvider";
 
 type Props = {
   lostReportId: string;
@@ -15,20 +24,22 @@ type Props = {
 };
 
 export default function SightingModal({ lostReportId, onClose }: Props) {
+  const { t } = useTranslation();
+  const defaultWhen = useMemo(() => toDatetimeLocalValue(new Date()), []);
   const [description, setDescription] = useState("");
+  const [observedAt, setObservedAt] = useState(defaultWhen);
+  const [photo, setPhoto] = useState<File | null>(null);
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"gps" | "manual" | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const L = useLeaflet();
+  const [submitted, setSubmitted] = useState(false);
   const isValid = !!lat && !!lng && !loading;
   const outOfArea =
     lat != null && lng != null && isOutOfMechelen(lat, lng);
+  const observedMax = toDatetimeLocalValue(new Date());
 
-  // -----------------------
-  // GPS location
-  // -----------------------
   const useGPS = () => {
     setMode("gps");
 
@@ -38,26 +49,21 @@ export default function SightingModal({ lostReportId, onClose }: Props) {
         setLng(pos.coords.longitude);
       },
       () => {
-        setError("Could not get location. Please use manual mode.");
+        setError(t("sightingGpsFailed"));
         setMode(null);
       }
     );
   };
 
-  // -----------------------
-  // Manual map click handler (simple version)
-  // -----------------------
-  const handleMapClick = (e: any) => {
-    setLat(e.latlng.lat);
-    setLng(e.latlng.lng);
-  };
-
-  // -----------------------
-  // Submit sighting
-  // -----------------------
   const submit = async () => {
     if (!lat || !lng) {
-      setError("Please set a location first.");
+      setError(t("sightingNeedLocation"));
+      return;
+    }
+
+    const when = parseObservedAt(observedAt);
+    if (!when) {
+      setError(t("sightingErrorWhen"));
       return;
     }
 
@@ -65,21 +71,38 @@ export default function SightingModal({ lostReportId, onClose }: Props) {
     setError(null);
 
     try {
+      let photoBase64: string | undefined;
+      if (photo) {
+        const prepared = await prepareReportPhoto(photo);
+        photoBase64 = await blobToBase64(prepared);
+      }
+
       await submitSighting({
         lostReportId,
         latitude: lat,
         longitude: lng,
         description,
+        observedAt: when.toISOString(),
+        photoBase64,
       });
 
       track("sighting_created", {
         report_id: lostReportId,
       });
 
-      alert("Sighting submitted!");
-      onClose();
-    } catch (err: any) {
-      setError(err.message);
+      setSubmitted(true);
+    } catch (err: unknown) {
+      if (err instanceof PhotoPreparationError) {
+        setError(
+          err.code === "too-large"
+            ? t("reportErrorPhotoTooLarge")
+            : t("reportErrorPhotoInvalid"),
+        );
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(t("reportErrorGeneric"));
+      }
     } finally {
       setLoading(false);
     }
@@ -105,133 +128,212 @@ export default function SightingModal({ lostReportId, onClose }: Props) {
           width: "95%",
           maxWidth: "720px",
           minWidth: "320px",
+          maxHeight: "90vh",
+          overflowY: "auto",
+          color: "#111827",
         }}
       >
-        <h2
-          style={{
-            fontSize: "20px",
-            fontWeight: 700,
-            marginBottom: "12px",
-            letterSpacing: "-0.2px",
-          }}
-        >
-          Report a sighting
-        </h2>
+        {submitted ? (
+          <>
+            <h2
+              style={{
+                fontSize: "20px",
+                fontWeight: 700,
+                marginBottom: "12px",
+                letterSpacing: "-0.2px",
+              }}
+            >
+              {t("sightingPendingTitle")}
+            </h2>
+            <p style={{ marginBottom: "16px", lineHeight: 1.5 }}>
+              {t("sightingPendingBody")}
+            </p>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                padding: "10px 14px",
+                borderRadius: "8px",
+                border: "none",
+                background: "#2563eb",
+                color: "white",
+                cursor: "pointer",
+                width: "100%",
+              }}
+            >
+              {t("sightingClose")}
+            </button>
+          </>
+        ) : (
+          <>
+            <h2
+              style={{
+                fontSize: "20px",
+                fontWeight: 700,
+                marginBottom: "12px",
+                letterSpacing: "-0.2px",
+              }}
+            >
+              {t("sightingTitle")}
+            </h2>
 
-        {/* LOCATION MODE */}
-        <div style={{ display: "flex", gap: "10px", marginBottom: "12px" }}>
-          <button
-            onClick={useGPS}
-            style={{
-              padding: "8px 12px",
-              borderRadius: "8px",
-              border: "1px solid #ddd",
-              background: "#f3f4f6",
-              cursor: "pointer",
-            }}
-          >
-            📍 Use my location
-          </button>
+            <div style={{ display: "flex", gap: "10px", marginBottom: "12px" }}>
+              <button
+                type="button"
+                onClick={useGPS}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #ddd",
+                  background: "#f3f4f6",
+                  cursor: "pointer",
+                }}
+              >
+                {t("sightingUseLocation")}
+              </button>
 
-          <button
-            onClick={() => setMode("manual")}
-            style={{
-              padding: "8px 12px",
-              borderRadius: "8px",
-              border: "1px solid #ddd",
-              background: "#f3f4f6",
-              cursor: "pointer",
-            }}
-          >
-            🗺 Pick on map
-          </button>
-        </div>
+              <button
+                type="button"
+                onClick={() => setMode("manual")}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #ddd",
+                  background: "#f3f4f6",
+                  cursor: "pointer",
+                }}
+              >
+                {t("sightingPickMap")}
+              </button>
+            </div>
 
-        {/* REAL MAP PICKER */}
-        {mode === "manual" && (
-          <div style={{ marginTop: "10px" }}>
-            <LocationPicker
-              latitude={lat ?? 51.025}
-              longitude={lng ?? 4.477}
-              setLatitude={setLat}
-              setLongitude={setLng}
+            {mode === "manual" && (
+              <div style={{ marginTop: "10px" }}>
+                <LocationPicker
+                  latitude={lat ?? 51.025}
+                  longitude={lng ?? 4.477}
+                  setLatitude={setLat}
+                  setLongitude={setLng}
+                />
+              </div>
+            )}
+
+            {lat && lng && (
+              <p>
+                📍 <LocationDisplay latitude={lat} longitude={lng} />
+              </p>
+            )}
+
+            {outOfArea && (
+              <p
+                style={{
+                  color: "#b45309",
+                  fontSize: "14px",
+                  marginTop: "8px",
+                  marginBottom: 0,
+                }}
+              >
+                {t("sightingOutOfArea")}
+              </p>
+            )}
+
+            <label style={{ display: "block", marginTop: "12px" }}>
+              <span style={{ display: "block", fontSize: "14px", marginBottom: "4px" }}>
+                {t("sightingWhen")}
+              </span>
+              <input
+                type="datetime-local"
+                value={observedAt}
+                max={observedMax}
+                onChange={(e) => setObservedAt(e.target.value)}
+                style={{ width: "100%" }}
+              />
+            </label>
+
+            <textarea
+              placeholder={t("sightingWhatDidYouSee")}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              style={{ width: "100%", marginTop: "10px" }}
             />
-          </div>
+
+            <div style={{ marginTop: "10px" }}>
+              <span style={{ display: "block", fontSize: "14px", marginBottom: "4px" }}>
+                {t("sightingPhoto")}
+              </span>
+              <label style={{ display: "inline-block" }}>
+                <span
+                  style={{
+                    cursor: "pointer",
+                    display: "inline-block",
+                    background: "#f3f4f6",
+                    border: "1px solid #ddd",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                  }}
+                >
+                  {t("reportChoosePhoto")}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+                  style={{ display: "none" }}
+                />
+              </label>
+              {photo ? (
+                <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "6px" }}>
+                  {t("reportPhotoSelected")} {photo.name}
+                </p>
+              ) : null}
+            </div>
+
+            {error && (
+              <p style={{ color: "red" }}>{error}</p>
+            )}
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: "16px",
+                gap: "10px",
+              }}
+            >
+              <button
+                type="button"
+                onClick={onClose}
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: "8px",
+                  border: "1px solid #ddd",
+                  background: "#f3f4f6",
+                  cursor: "pointer",
+                  flex: 1,
+                }}
+              >
+                {t("sightingCancel")}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => void submit()}
+                disabled={!isValid}
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: "8px",
+                  border: "none",
+                  background: !isValid ? "#9ca3af" : "#2563eb",
+                  color: "white",
+                  cursor: !isValid ? "not-allowed" : "pointer",
+                  flex: 1,
+                }}
+              >
+                {loading ? t("sightingSubmitting") : t("sightingSubmit")}
+              </button>
+            </div>
+          </>
         )}
-
-        {/* SELECTED LOCATION */}
-        {lat && lng && (
-          <p>
-            📍 <LocationDisplay latitude={lat} longitude={lng} />
-          </p>
-        )}
-
-        {outOfArea && (
-          <p
-            style={{
-              color: "#b45309",
-              fontSize: "14px",
-              marginTop: "8px",
-              marginBottom: 0,
-            }}
-          >
-            ⚠ Coordinates are outside the usual Mechelen area. Admins will
-            review.
-          </p>
-        )}
-
-        {/* DESCRIPTION */}
-        <textarea
-          placeholder="What did you see?"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          style={{ width: "100%", marginTop: "10px" }}
-        />
-
-        {/* ERROR */}
-        {error && (
-          <p style={{ color: "red" }}>{error}</p>
-        )}
-
-        {/* ACTIONS */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginTop: "16px",
-            gap: "10px",
-          }}
-        >
-          <button
-            onClick={onClose}
-            style={{
-              padding: "10px 14px",
-              borderRadius: "8px",
-              border: "1px solid #ddd",
-              background: "#f3f4f6",
-              cursor: "pointer",
-              flex: 1,
-            }}
-          >
-            Cancel
-          </button>
-
-          <button
-            onClick={submit}
-            disabled={!isValid}
-            style={{
-              padding: "10px 14px",
-              borderRadius: "8px",
-              border: "none",
-              background: !isValid ? "#9ca3af" : "#2563eb",
-              color: "white",
-              cursor: !isValid ? "not-allowed" : "pointer",
-              flex: 1,
-            }}
-          >
-            {loading ? "Submitting..." : "Submit sighting"}
-          </button>
-        </div>
       </div>
     </div>
   );

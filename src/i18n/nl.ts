@@ -80,6 +80,24 @@ export const nl: Record<keyof typeof en, string> = {
   reportSeenPickerTitle: "Welk gemeld huisdier heb je gezien?",
   reportSeenPickerEmpty: "Geen vermiste huisdieren in dit kaartgebied.",
   reportSeenPickerEmptyHint: "Zoom uit op Ontdekken om een groter gebied te zien.",
+  sightingTitle: "Meld een waarneming",
+  sightingUseLocation: "Gebruik mijn locatie",
+  sightingPickMap: "Kies op de kaart",
+  sightingWhatDidYouSee: "Wat heb je gezien?",
+  sightingOutOfArea:
+    "De coördinaten liggen buiten het gebruikelijke Mechelse gebied. Beheerders zullen dit bekijken.",
+  sightingCancel: "Annuleren",
+  sightingSubmit: "Waarneming versturen",
+  sightingSubmitting: "Versturen...",
+  sightingClose: "Sluiten",
+  sightingGpsFailed: "Locatie lukte niet. Gebruik de kaart.",
+  sightingNeedLocation: "Stel eerst een locatie in.",
+  sightingWhen: "Wanneer heb je het gezien?",
+  sightingPhoto: "Foto (optioneel)",
+  sightingErrorWhen: "Kies een recent tijdstip van de waarneming.",
+  sightingPendingTitle: "Bedankt.",
+  sightingPendingBody:
+    "Een beheerder controleert dit voordat de eigenaar wordt verwittigd en voordat het op de kaart verschijnt.",
 
   loginTitle: "Inloggen",
   loginIntro:

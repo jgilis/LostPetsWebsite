@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { useAdmin } from "../../../src/hooks/useAdmin";
 import AdminHeader from "../../../src/components/admin/AdminHeader";
-import { getAdminSightings, updateSightingStatus } from "../../../src/lib/sightings";
+import {
+  getAdminSightings,
+  resolveSightingPhotoUrl,
+  updateSightingStatus,
+} from "../../../src/lib/sightings";
 
 type ReportRef = {
   id: string;
@@ -23,8 +27,33 @@ type Sighting = {
   photo_url: string | null;
   status: string;
   created_at: string;
+  observed_at?: string | null;
   reports?: ReportRef | null;
 };
+
+function AdminSightingPhoto({ photoUrl }: { photoUrl: string | null }) {
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void resolveSightingPhotoUrl(photoUrl).then((url) => {
+      if (!cancelled) setSrc(url);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [photoUrl]);
+
+  if (!src) return null;
+
+  return (
+    <img
+      src={src}
+      alt=""
+      className="mt-3 max-h-48 w-full rounded-md object-contain bg-black/30"
+    />
+  );
+}
 
 function getDistanceMeters(
   lat1: number,
@@ -143,7 +172,15 @@ export default function AdminSightingsPage() {
               </div>
             )}
 
+            {s.observed_at ? (
+              <p className="mt-2 text-sm text-gray-400">
+                Seen: {new Date(s.observed_at).toLocaleString()}
+              </p>
+            ) : null}
+
             <p className="mt-2">{s.description || "No description"}</p>
+
+            <AdminSightingPhoto photoUrl={s.photo_url} />
 
             <p
               className={`mt-2 text-xs font-semibold ${statusClass[s.status] ?? "text-gray-400"}`}

@@ -2,7 +2,7 @@
 
 **This file is a 7 November 2026 inventory of commit `cdc62cf`.** It is not the live product.
 
-**Live status (10 November 2026):** Vercel hosts the site and deploys from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover, Phase 2 Activity, and Phase 3 slice 1 (Report chooser)** are done in this repository. Remaining Phase 3 work: `PRODUCT_PLAN.md` section 12.
+**Live status (10 November 2026):** Vercel hosts the site and deploys from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover, Phase 2 Activity, and Phase 3 slices 1–2** are done in this repository. Remaining Phase 3 work: `PRODUCT_PLAN.md` section 12.
 
 Phase 1 Discover is the home:
 
@@ -12,6 +12,7 @@ Phase 1 Discover is the home:
 - **Found reports** are species-colored DOM circle markers (`discover-found-marker`, 44 px hit target, `zIndexOffset` above lost pins) in `ReportMarker.tsx`. They are not canvas `CircleMarker` paths.
 - **Activity (Phase 2):** the Discover map stays mounted under Activity/Report so the camera is unchanged after tab switches and after opening/closing a Discover detail sheet. The Activity list is loaded reports inside those bounds, mixed with **approved** sightings and **14-day reunions** (`status = resolved` and `resolved_at` within 14 days), newest first. Type can isolate Missing / Found / Sightings / Reunited. Public sighting copy is coarse (“Seen nearby” plus the linked report’s “Near …” place). Exact coordinates and `/sightings/[id]` are not used. No public sighting pin on Discover. Reunions are not Discover map/list items. **Mine** ignores the area filter and the 14-day cut, including resolved rows with NULL `resolved_at`. Tapping an Activity event opens that report in Activity. **View on Discover** goes to `/?tab=discover&focus=` and opens the Phase 1 detail sheet for that report; it does not go to `/report/[id]`. The Discover sheet follows the focused report. Area-scoped Activity is labelled “in this map area”; an empty area explains that and links to Discover so the person can zoom out. Opening Activity does not auto-zoom.
 - **Report (Phase 3 slice 1):** nav is Discover / Activity / Report (`tab=report`; `tab=help` still works). The Report screen is three tasks — I lost a pet, I found an animal, I spotted a listed pet. Lost/found reuse `ReportForm` with type preset. Spotted is a picker of active lost reports in the Discover camera, then the existing `SightingsModal`. The Discover sheet still skips the picker. Both paths call `submitSighting`. Login-before-publish is unchanged. Flagging is still “Report this post”.
+- **Sighting step (Phase 3 slice 2):** after submit, a pending confirmation replaces `alert`. Observation time defaults to now and is editable. Optional photo is uploaded after the row exists, to private `sighting-photos`, not the public report bucket. SQL and `smooth-processor` deploy are required before time/photo persist.
 - `/sightings/[id]` exact-location visibility is separate debt, not Phase 2.
 
 Live baseline: `PRODUCT_PLAN.md` section 15.

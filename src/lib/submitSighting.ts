@@ -3,6 +3,8 @@ export async function submitSighting(input: {
   latitude: number;
   longitude: number;
   description: string;
+  observedAt: string;
+  photoBase64?: string;
 }): Promise<void> {
   const res = await fetch(
     "https://dmubikdkyusadzqngapy.supabase.co/functions/v1/smooth-processor",
@@ -16,6 +18,8 @@ export async function submitSighting(input: {
         latitude: input.latitude,
         longitude: input.longitude,
         description: input.description,
+        observed_at: input.observedAt,
+        ...(input.photoBase64 ? { photo_base64: input.photoBase64 } : {}),
       }),
     },
   );

@@ -83,6 +83,24 @@ export const fr: Record<keyof typeof en, string> = {
   reportSeenPickerEmpty: "Aucun animal perdu dans cette zone de la carte.",
   reportSeenPickerEmptyHint:
     "Dézoomez dans Découvrir pour voir une zone plus large.",
+  sightingTitle: "Signaler une observation",
+  sightingUseLocation: "Utiliser ma position",
+  sightingPickMap: "Choisir sur la carte",
+  sightingWhatDidYouSee: "Qu'avez-vous vu ?",
+  sightingOutOfArea:
+    "Les coordonnées sont en dehors de la zone habituelle de Malines. Les administrateurs vérifieront.",
+  sightingCancel: "Annuler",
+  sightingSubmit: "Envoyer l'observation",
+  sightingSubmitting: "Envoi...",
+  sightingClose: "Fermer",
+  sightingGpsFailed: "Impossible d'obtenir la position. Utilisez la carte.",
+  sightingNeedLocation: "Veuillez d'abord indiquer un lieu.",
+  sightingWhen: "Quand l'avez-vous vu ?",
+  sightingPhoto: "Photo (facultatif)",
+  sightingErrorWhen: "Choisissez un horaire d'observation récent.",
+  sightingPendingTitle: "Merci.",
+  sightingPendingBody:
+    "Un administrateur vérifiera cela avant que le propriétaire ne soit prévenu et avant que cela n'apparaisse sur la carte.",
 
   loginTitle: "Connexion",
   loginIntro:

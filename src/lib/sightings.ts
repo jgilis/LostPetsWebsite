@@ -7,6 +7,8 @@ export type SightingStatus =
   | "rejected"
   | "expired";
 
+export const SIGHTING_PHOTO_BUCKET = "sighting-photos";
+
 export  type AdminSightingRaw = {
   id: string;
   lost_report_id: string;
@@ -16,6 +18,7 @@ export  type AdminSightingRaw = {
   photo_url: string | null;
   status: string;
   created_at: string;
+  observed_at?: string | null;
   reports: {
     id: string;
     latitude: number;
@@ -46,6 +49,7 @@ export interface Sighting {
   id: string;
   lost_report_id: string;
   created_at: string;
+  observed_at?: string | null;
   latitude?: number | null;
   longitude?: number | null;
   location_accuracy_meters?: number | null;
@@ -92,6 +96,22 @@ function isPrivilegeDenied(error: PostgrestFailure) {
     message.includes("permission denied") ||
     message.includes("row-level security")
   );
+}
+
+/** Public HTTP URLs stay as-is. Private storage paths become a short-lived signed URL. */
+export async function resolveSightingPhotoUrl(
+  photoUrl: string | null | undefined,
+): Promise<string | null> {
+  const value = photoUrl?.trim();
+  if (!value) return null;
+  if (/^https?:\/\//i.test(value)) return value;
+
+  const { data, error } = await supabase.storage
+    .from(SIGHTING_PHOTO_BUCKET)
+    .createSignedUrl(value, 3600);
+
+  if (error || !data?.signedUrl) return null;
+  return data.signedUrl;
 }
 
 export async function withExactCoordinates<T extends { id: string }>(
@@ -222,6 +242,7 @@ export async function getAdminSightings() {
       photo_url,
       status,
       created_at,
+      observed_at,
       reports:lost_report_id (
         id,
         latitude,
@@ -257,7 +278,8 @@ export async function getAdminSightingById(id: string) {
       description,
       photo_url,
       status,
-      created_at
+      created_at,
+      observed_at
     `)
     .eq("id", id)
     .single();
