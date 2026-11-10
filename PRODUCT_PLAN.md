@@ -1,6 +1,6 @@
 # Lost Pets Map — Product Plan
 
-**Status:** Working product direction. Phase 0 and Phase 1 are complete. Phase 2 slices 1–3 are in this repository. Next is slice 4.  
+**Status:** Working product direction. Phase 0, Phase 1, and Phase 2 are complete in this repository. Next is Phase 3.  
 **Scope:** Next version  
 **Primary area:** Mechelen, Belgium  
 **Languages:** English, Dutch and French
@@ -9,7 +9,7 @@
 
 | Need | Place |
 |---|---|
-| What to build next | This file, section 12 (Phase 2 slices) |
+| What to build next | This file, section 12 (Phase 3) |
 | Activity behaviour | `PRODUCT_STRATEGY.md` sections 5, 7 and 14 |
 | Discover behaviour, layout, sheets | `PRODUCT_STRATEGY.md` sections 5, 6 and 14 |
 | What is true in production | This file, section 15 |
@@ -341,7 +341,7 @@ Work and test one slice at a time. Each slice should be usable on its own.
 - Replace the global `ReportsFeed` dump as the default. List **active lost and active found reports inside those bounds**, newest first.
 - Reuse `filterReportsInBounds` / `reportInBounds`. Do not add a server bounding-box query.
 - **Mine** stays and **ignores the area filter**. Owners are looking for their records, not the camera.
-- Empty state: nothing in this area. The map camera stays where it was.
+- Empty state: this map area has no recent activity; a Discover link lets people zoom out. The map camera stays where it was. Do not auto-zoom when opening Activity.
 - Keep the existing feed cards as far as possible. Keep species and lost/found filters from Discover.
 - Do not add sightings, reunion events, or a new event-type filter yet.
 - Do not change Discover’s map-first Android chrome except to share camera state.
@@ -368,14 +368,17 @@ Implemented in this repository.
 - A filter may isolate Missing, Found, Sightings, Reunited.
 - Mine still ignores the area filter and can still show the owner’s own resolved reports.
 - Hidden, as today: `flagged`, `removed`, `expired`, pending sightings, rejected sightings.
-- The 14-day window uses `reports.resolved_at`, stamped on `active` → `resolved`. Existing resolved rows with NULL `resolved_at` stay in Mine and stay out of the area reunion feed. Migration `20261110120000_reports_resolved_at.sql` is in the repository and is **not applied to production yet**.
+- The 14-day window uses `reports.resolved_at`, stamped on `active` → `resolved`. Existing resolved rows with NULL `resolved_at` stay in Mine and stay out of the area reunion feed. The `resolved_at` column is live in Supabase; frontend SELECT of it ships with this repository.
 
 **Slice 4 — Open on Discover**
 
-- Tap an Activity event: Discover opens, the camera focuses that report (`/?focus=` already exists), and the Phase 1 detail sheet opens. Do not navigate to `/report/[id]` for this gesture.
+Implemented in this repository.
+
+- Tap an Activity event: stay in Activity and open the report there. **View on Discover** focuses that report (`/?focus=` already exists) and opens the Phase 1 detail sheet. Do not navigate to `/report/[id]` for this gesture. A new focus replaces any previously open Discover sheet.
 - Mobile: Activity is a list with a clear way back to the map. The map may stay mounted and hidden; do not lose camera state.
 - Desktop: keep the map visible if it can stay mounted (Activity as a list beside the map). If that is too large for this slice, persist camera and restore Discover on tap — do not remount a reset map.
 - No like, comment, or share-to-followers. A system share of the report URL is fine.
+- Implemented as Activity overlay + `/?tab=discover&focus=`: the map stays mounted; tap restores Discover and opens the Phase 1 sheet. Activity is not a side list beside the map in this slice.
 
 **Keep**
 
@@ -445,7 +448,7 @@ These should not silently become permanent technical or product assumptions:
 
 ## 15. Live baseline
 
-**As of 10 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover is implemented in this repository** (production is whatever Vercel last deployed from GitHub). Home is Discover / Activity / Help. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2 slices 1–3 are in this repository:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings into that list (coarse place only; no public sighting pin; no `/sightings/[id]` from Activity), and mixes 14-day reunions (`status = resolved`) with a Type filter for Missing / Found / Sightings / Reunited. Slice 4 is not started. Help is still the report form. `/sightings/[id]` exact-location visibility is separate debt, not Phase 2.
+**As of 10 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover and Phase 2 Activity are implemented in this repository** (production is whatever Vercel last deployed from GitHub). Home is Discover / Activity / Help. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. Help is still the report form. `/sightings/[id]` exact-location visibility is separate debt, not Phase 2.
 
 ### How production is updated
 

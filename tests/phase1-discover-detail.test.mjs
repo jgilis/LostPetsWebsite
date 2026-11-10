@@ -31,6 +31,16 @@ test("marker, card, and URL focus open the Discover detail sheet", () => {
   assert.doesNotMatch(card, /reportDetailHref/);
 });
 
+test("report photos enlarge with the existing popup lightbox", () => {
+  const photo = readFileSync("src/components/map/PopupPhoto.tsx", "utf8");
+  assert.match(detail, /PopupPhoto/);
+  assert.match(detail, /layout="detail"/);
+  assert.match(detail, /photoTapToEnlarge/);
+  assert.match(photo, /createPortal/);
+  assert.match(photo, /report-popup-lightbox/);
+  assert.match(photo, /stopImmediatePropagation/);
+});
+
 test("Discover reuses ReportDetailClient and does not route marker or card taps to /report/[id]", () => {
   assert.match(detail, /presentation = "page"/);
   assert.match(detail, /"sheet"/);
@@ -42,5 +52,5 @@ test("Discover reuses ReportDetailClient and does not route marker or card taps 
 test("Leaflet popup is not the Discover reading UI", () => {
   assert.match(map, /enablePopup=\{isAdminScoped\}/);
   assert.match(marker, /enablePopup = false/);
-  assert.match(workspace, /detailOpen && detailReport/);
+  assert.match(workspace, /detailsEnabled && detailReport/);
 });

@@ -32,6 +32,8 @@ test("Activity uses a Type menu on desktop and a Type sheet on Android", () => {
   assert.match(toolbar, /md:hidden/);
   assert.match(toolbar, /hidden shrink-0 items-center gap-2[\s\S]*md:flex/);
   assert.match(toolbar, /activityEventType/);
+  assert.match(toolbar, /activityAreaScope/);
+  assert.match(toolbar, /!mineOn \?/);
   assert.match(toolbar, /feedOwnershipMine/);
   assert.match(toolbar, /activityScopeAll/);
   assert.match(toolbar, /pressed \? "activityScopeAll" : "feedOwnershipMine"/);
@@ -60,4 +62,16 @@ test("Activity Type copy exists in English, Dutch, and French", () => {
   assert.match(en, /activityScopeAll: "All activity"/);
   assert.match(nl, /activityScopeAll: "Alle activiteit"/);
   assert.match(fr, /activityScopeAll: "Toute l'activité"/);
+  assert.match(en, /activityAreaScope: "Activity in this map area"/);
+  assert.match(nl, /activityAreaScope: "Activiteit in dit kaartgebied"/);
+  assert.match(fr, /activityAreaScope: "Activité dans cette zone de la carte"/);
+  assert.match(
+    en,
+    /activityEmptyOpenDiscover: "Open Discover to zoom out"/,
+  );
+  assert.match(nl, /activityEmptyOpenDiscover: "Open Ontdekken om uit te zoomen"/);
+  assert.match(
+    fr,
+    /activityEmptyOpenDiscover: "Ouvrir Découvrir pour dézoomer"/,
+  );
 });

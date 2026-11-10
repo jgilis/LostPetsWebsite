@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import ReportDetailClient from "@/app/report/[id]/ReportDetailClient";
 import type { Report } from "@/src/lib/reports";
 import { flagReport } from "@/src/lib/flags";
@@ -12,11 +13,15 @@ import SightingModal from "@/src/components/sightings/SightingsModal";
 type DiscoverDetailSheetProps = {
   report: Report;
   onClose: () => void;
+  discoverHref?: string;
+  onDiscoverNavigate?: () => void;
 };
 
 export default function DiscoverDetailSheet({
   report,
   onClose,
+  discoverHref,
+  onDiscoverNavigate,
 }: DiscoverDetailSheetProps) {
   const { t } = useTranslation();
   const { user } = useCurrentUser();
@@ -61,6 +66,16 @@ export default function DiscoverDetailSheet({
             onClose={onClose}
           />
           <div className="flex flex-wrap gap-2 px-6 pb-6">
+            {discoverHref ? (
+              <Link
+                href={discoverHref}
+                scroll={false}
+                onClick={onDiscoverNavigate}
+                className="rounded-md bg-blue-700 px-3 py-2 text-sm font-medium text-white hover:bg-blue-600"
+              >
+                {t("activityViewOnDiscover")}
+              </Link>
+            ) : null}
             {report.type === "lost" && !reportIsOwner ? (
               <button
                 type="button"

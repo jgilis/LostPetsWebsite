@@ -88,35 +88,42 @@ export default function ActivityToolbar({
 
   return (
     <>
-      <div className="flex shrink-0 items-center gap-2 border-b border-gray-800/80 px-3 py-2 md:hidden">
-        <button
-          type="button"
-          className="inline-flex min-h-11 min-w-0 flex-1 items-center rounded-md border border-gray-700 bg-gray-900 px-3 text-left text-sm font-medium text-gray-100"
-          aria-expanded={typeSheetOpen}
-          aria-controls="activity-type-sheet"
-          onClick={() => setTypeSheetOpen((open) => !open)}
-        >
-          <span className="truncate">{typeValueLabel}</span>
-        </button>
-        <MineToggle pressed={mineOn} onClick={toggleMine} compact />
-      </div>
+      <div className="shrink-0 border-b border-gray-800/80">
+        {!mineOn ? (
+          <p className="px-3 pt-2 text-xs font-medium text-gray-500">
+            {t("activityAreaScope")}
+          </p>
+        ) : null}
+        <div className="flex items-center gap-2 px-3 py-2 md:hidden">
+          <button
+            type="button"
+            className="inline-flex min-h-11 min-w-0 flex-1 items-center rounded-md border border-gray-700 bg-gray-900 px-3 text-left text-sm font-medium text-gray-100"
+            aria-expanded={typeSheetOpen}
+            aria-controls="activity-type-sheet"
+            onClick={() => setTypeSheetOpen((open) => !open)}
+          >
+            <span className="truncate">{typeValueLabel}</span>
+          </button>
+          <MineToggle pressed={mineOn} onClick={toggleMine} compact />
+        </div>
 
-      <div
-        ref={desktopRef}
-        className="hidden shrink-0 items-center gap-2 border-b border-gray-800/80 px-3 py-3 md:flex"
-      >
-        <TypeMenu
-          id={typeMenuId}
-          value={eventType}
-          valueLabel={typeValueLabel}
-          open={typeMenuOpen}
-          onToggle={() => setTypeMenuOpen((open) => !open)}
-          onChange={(value) => {
-            onEventTypeChange(value);
-            setTypeMenuOpen(false);
-          }}
-        />
-        <MineToggle pressed={mineOn} onClick={toggleMine} />
+        <div
+          ref={desktopRef}
+          className="hidden shrink-0 items-center gap-2 px-3 py-3 md:flex"
+        >
+          <TypeMenu
+            id={typeMenuId}
+            value={eventType}
+            valueLabel={typeValueLabel}
+            open={typeMenuOpen}
+            onToggle={() => setTypeMenuOpen((open) => !open)}
+            onChange={(value) => {
+              onEventTypeChange(value);
+              setTypeMenuOpen(false);
+            }}
+          />
+          <MineToggle pressed={mineOn} onClick={toggleMine} />
+        </div>
       </div>
 
       {typeSheetOpen ? (

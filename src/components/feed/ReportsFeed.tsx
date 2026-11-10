@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { homeDestinationHref } from "@/src/lib/homeDestination";
 import {
+  activityEventFocusHref,
   readAndClearFeedScrollPosition,
-  reportDetailHref,
   saveFeedScrollPosition,
 } from "@/src/lib/reportNavigation";
 import { formatReportTimestampDisplay } from "@/src/lib/reportTimestamps";
@@ -18,6 +19,7 @@ import { isOwner } from "@/src/lib/permissions";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import type { TranslationKey } from "@/src/i18n/types";
 import type { Sighting } from "@/src/lib/sightings";
+import DiscoverDetailSheet from "../discover/DiscoverDetailSheet";
 import ActivityToolbar from "./ActivityToolbar";
 import {
   buildActivityEvents,
@@ -79,11 +81,11 @@ function FeedSkeleton() {
 
 function ReportFeedCard({
   report,
-  onBeforeNavigate,
+  onOpen,
   emphasizeOwned,
 }: {
   report: Report;
-  onBeforeNavigate: () => void;
+  onOpen: () => void;
   emphasizeOwned: boolean;
 }) {
   const { t } = useTranslation();
@@ -109,9 +111,9 @@ function ReportFeedCard({
         : "border-gray-800/90";
 
   return (
-    <Link
-      href={reportDetailHref(report.id, "feed")}
-      onClick={onBeforeNavigate}
+    <button
+      type="button"
+      onClick={onOpen}
       className={`group block w-full overflow-hidden rounded-xl border bg-gray-900/80 text-left shadow-sm transition-colors hover:border-gray-600 hover:bg-gray-900 active:bg-gray-800/90 ${borderClass}`}
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-900 md:aspect-[16/10] xl:aspect-[18/10]">
@@ -195,18 +197,18 @@ function ReportFeedCard({
           </p>
         ) : null}
       </div>
-    </Link>
+    </button>
   );
 }
 
 function SightingFeedCard({
   sighting,
   report,
-  onBeforeNavigate,
+  onOpen,
 }: {
   sighting: Sighting;
   report: Report;
-  onBeforeNavigate: () => void;
+  onOpen: () => void;
 }) {
   const { t } = useTranslation();
   const [photoBroken, setPhotoBroken] = useState(false);
@@ -223,9 +225,9 @@ function SightingFeedCard({
     : t(ANIMAL_LABEL_KEYS[report.animal_type]);
 
   return (
-    <Link
-      href={reportDetailHref(report.id, "feed")}
-      onClick={onBeforeNavigate}
+    <button
+      type="button"
+      onClick={onOpen}
       className="group block w-full overflow-hidden rounded-xl border border-amber-900/40 bg-gray-900/80 text-left shadow-sm transition-colors hover:border-amber-800/60 hover:bg-gray-900 active:bg-gray-800/90"
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-900 md:aspect-[16/10] xl:aspect-[18/10]">
@@ -292,7 +294,7 @@ function SightingFeedCard({
           </p>
         ) : null}
       </div>
-    </Link>
+    </button>
   );
 }
 
@@ -309,6 +311,7 @@ export default function ReportsFeed({
   const [ownershipFilter, setOwnershipFilter] =
     useState<OwnershipFilter>("all");
   const [eventType, setEventType] = useState<ActivityEventType>("all");
+  const [openReportId, setOpenReportId] = useState<string | null>(null);
   const waiting = loading || sightingsLoading;
 
   const events = useMemo(
@@ -341,16 +344,18 @@ export default function ReportsFeed({
     hasAnyActivity &&
     events.length === 0;
 
-  const emptyLifecycleMessage =
-    ownershipFilter === "mine"
-      ? eventType === "reunited"
-        ? t("feedEmptyResolved")
-        : t("feedEmpty")
+  const areaEmptyTitle =
+    eventType === "all"
+      ? t("activityEmptyInArea")
       : eventType === "reunited"
         ? t("feedEmptyResolved")
-        : hasAnyActivity
-          ? t("activityEmptyInArea")
-          : t("feedEmpty");
+        : t("feedEmpty");
+  const openReport =
+    openReportId == null
+      ? null
+      : (reports.find((report) => report.id === openReportId) ??
+        events.find((event) => event.report.id === openReportId)?.report ??
+        null);
 
   const saveScroll = () => {
     if (scrollRef.current) {
@@ -368,7 +373,7 @@ export default function ReportsFeed({
   }, [waiting, events.length]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-gray-800/80 bg-gray-950/40">
+    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-gray-800/80 bg-gray-950/40">
       <ActivityToolbar
         eventType={eventType}
         onEventTypeChange={setEventType}
@@ -409,11 +414,22 @@ export default function ReportsFeed({
           </p>
         </div>
       ) : events.length === 0 ? (
-        <div
-          className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center"
-          role="status"
-        >
-          <p className="text-sm text-gray-400">{emptyLifecycleMessage}</p>
+        <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center">
+          <div role="status">
+            <p className="text-base font-medium text-gray-300">
+              {areaEmptyTitle}
+            </p>
+            <p className="mt-2 max-w-sm text-sm text-gray-500">
+              {t("activityEmptyInAreaHint")}
+            </p>
+          </div>
+          <Link
+            href={homeDestinationHref("discover")}
+            scroll={false}
+            className="mt-5 inline-flex min-h-11 items-center justify-center rounded-md border border-gray-600 bg-gray-900 px-4 text-sm font-medium text-gray-100 hover:border-gray-500"
+          >
+            {t("activityEmptyOpenDiscover")}
+          </Link>
         </div>
       ) : (
         <ul
@@ -425,20 +441,30 @@ export default function ReportsFeed({
               {event.kind === "report" ? (
                 <ReportFeedCard
                   report={event.report}
-                  onBeforeNavigate={saveScroll}
+                  onOpen={() => setOpenReportId(event.report.id)}
                   emphasizeOwned={ownershipFilter === "mine"}
                 />
               ) : (
                 <SightingFeedCard
                   sighting={event.sighting}
                   report={event.report}
-                  onBeforeNavigate={saveScroll}
+                  onOpen={() => setOpenReportId(event.report.id)}
                 />
               )}
             </li>
           ))}
         </ul>
       )}
+
+      {openReport ? (
+        <DiscoverDetailSheet
+          key={openReport.id}
+          report={openReport}
+          onClose={() => setOpenReportId(null)}
+          discoverHref={activityEventFocusHref(openReport.id)}
+          onDiscoverNavigate={saveScroll}
+        />
+      ) : null}
     </div>
   );
 }

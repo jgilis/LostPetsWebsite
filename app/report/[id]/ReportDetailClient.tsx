@@ -12,6 +12,7 @@ import {
 } from "@/src/lib/reportNavigation";
 import { formatReportTimestampDisplay } from "@/src/lib/reportTimestamps";
 import LocationDisplay from "@/src/components/location/LocationDisplay";
+import PopupPhoto from "@/src/components/map/PopupPhoto";
 import { useCurrentUser } from "@/src/hooks/useCurrentUser";
 import { isOwner } from "@/src/lib/permissions";
 import { useTranslation } from "@/src/i18n/I18nProvider";
@@ -52,6 +53,11 @@ export default function ReportDetailClient({
   const [photoBroken, setPhotoBroken] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [resolving, setResolving] = useState(false);
+
+  useEffect(() => {
+    setReport(initialReport);
+    setPhotoBroken(false);
+  }, [initialReport.id]);
   const reportIsOwner = isOwner(user?.id, report.owner_user_id);
   const isResolved = report.status === "resolved";
   const isActive = report.status === "active";
@@ -140,10 +146,14 @@ export default function ReportDetailClient({
         ) : null}
 
         {report.photo_url && !photoBroken ? (
-          <img
+          <PopupPhoto
             src={report.photo_url}
-            alt=""
-            className="w-full max-h-80 rounded-lg border border-gray-700 object-cover"
+            alt={
+              report.animal_name?.trim() ||
+              t(ANIMAL_LABEL_KEYS[report.animal_type])
+            }
+            layout="detail"
+            hint={t("photoTapToEnlarge")}
             onError={() => setPhotoBroken(true)}
           />
         ) : (

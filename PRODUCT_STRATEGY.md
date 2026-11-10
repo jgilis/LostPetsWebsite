@@ -1,6 +1,6 @@
 # Lost Pets Map — next-version product specification
 
-**Status:** product specification. Phase 0 and Phase 1 are complete. Phase 2 slices 1–3 are in this repository. Slice 4 is next. Phases 3–5 have not started.  
+**Status:** product specification. Phase 0, Phase 1, and Phase 2 are complete in this repository. Phases 3–5 have not started.  
 **Baseline:** live product as of 9 November 2026, hosted on Vercel from GitHub `jgilis/LostPetsWebsite`, Supabase project `dmubikdkyusadzqngapy`. `CURRENT_STATE.md` remains a 7 November inventory of the pre-security commit and is not the live baseline.  
 **This document is the product direction.** What to build next is `PRODUCT_PLAN.md` section 12. What is true in production is `PRODUCT_PLAN.md` section 15. Where this spec and that status disagree on facts about the running system, the plan wins.
 
@@ -260,7 +260,7 @@ Sorting stays newest first. No infinite-scroll library is required at Mechelen v
 
 ### Interactions
 
-Tap an event, the camera focuses that report (`/?focus=` already exists), and Discover opens the sheet. No like, no comment, no share-to-followers. A system share of the report URL is fine and is not a social feature.
+Tap an event to read it in Activity. View on Discover focuses that report (`/?focus=` already exists) and opens the sheet. A new focus replaces any previously open Discover sheet. No like, no comment, no share-to-followers. A system share of the report URL is fine and is not a social feature.
 
 ---
 
@@ -499,9 +499,9 @@ Each phase is usable on its own. None of them replaces Leaflet, Supabase, or the
 Full-screen map. Android / PWA: map-first default (compact top bar, on-demand Filters / legend / Walking Mode, collapsed report-sheet handle with Within 500 m on the same list). Mobile sheet still has three snap positions, map visible behind it. Desktop: map and report list side by side; Booking-style Status/Animal and Within 500 m in the list header; Walking Mode hidden. List follows visible bounds. Card select highlights the marker. Marker tap scrolls/highlights the card and opens a detail sheet over Discover — do not leave the map. Compact legend, not covering controls. Walking Mode stays on Discover for phone: foreground GPS, sort by distance, **nav stays visible**, prominent Exit Walking Mode. Found reports are clickable DOM circle markers. Keep existing visual styling. Reuse `Map.tsx` and existing report cards. Help stays as the current report form until Phase 3. No new tables, no production database or security changes. `/sightings/[id]` exact-location visibility is separate debt.
 
 **Phase 2 — Activity in the camera.**  
-**In progress.** Slices 1–3 are in this repository. Next is slice 4 (`PRODUCT_PLAN.md` section 12). Behaviour: this file, section 7.
+**Done** in this repository. Behaviour: this file, section 7. Next is Phase 3.
 
-Activity lists public facts inside the Discover camera, newest first: active lost, active found, approved sightings (coarse place only), reunions for 14 days. Keep Mine (ignores the area filter). Persist camera when switching destinations. Tap an event to focus that report on Discover and open the detail sheet — do not go to `/report/[id]`. Mobile: list with a way back to the map. Desktop: map can remain. Reuse loaded reports and existing bounds helpers. No activity table, no PostGIS, no production schema/security change unless the user asks. Do not put Activity events into the Discover report sheet. Do not move Nearby or Walking Mode. Do not fix `/sightings/[id]`.
+Activity lists public facts inside the Discover camera, newest first: active lost, active found, approved sightings (coarse place only), reunions for 14 days. Keep Mine (ignores the area filter). Persist camera when switching destinations. Tap an event to read it in Activity. View on Discover focuses that report and opens the detail sheet — do not go to `/report/[id]`. A new focus replaces any previously open Discover sheet. Mobile: list with a way back to the map. Desktop: map can remain. Reuse loaded reports and existing bounds helpers. No activity table, no PostGIS, no production schema/security change unless the user asks. Do not put Activity events into the Discover report sheet. Do not move Nearby or Walking Mode. Do not fix `/sightings/[id]`.
 
 **Phase 3 — Help as three tasks.**  
 Restructure the report tab and sighting modal into one flow. Real edit of description, photo, and pin. Pending sighting confirmation without `alert`.
@@ -563,4 +563,4 @@ Do not track walking paths. Do not add a social graph metric.
 9. **Phase 1 legend.** Compact, must not obstruct map or report controls.
 10. **Phase 1 visual direction.** Keep the existing styling. No redesign.
 
-Phase 0 and Phase 1 are complete. Phase 2 slices 1–3 are in this repository. Next is slice 4 (`PRODUCT_PLAN.md` section 12). `/sightings/[id]` exact-location visibility is separate debt.
+Phase 0, Phase 1, and Phase 2 are complete in this repository. Next is Phase 3 (`PRODUCT_PLAN.md` section 12). `/sightings/[id]` exact-location visibility is separate debt.

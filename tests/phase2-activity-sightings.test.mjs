@@ -66,7 +66,7 @@ test("Activity sightings use the linked report's coarse place, not exact coordin
 });
 
 test("Activity does not send people to /sightings/[id] or put sighting pins on Discover", () => {
-  assert.match(feed, /reportDetailHref\(report\.id, "feed"\)/);
+  assert.match(feed, /activityEventFocusHref\(openReport\.id\)/);
   assert.doesNotMatch(feed, /\/sightings\//);
   assert.doesNotMatch(activityEvents, /\/sightings\//);
   assert.doesNotMatch(workspace, /useApprovedSightings/);

@@ -112,6 +112,7 @@ function HomePageContent() {
             onAnimalFilterChange={setAnimalFilter}
             walkingMode={walkingMode}
             onViewChange={setDiscoverView}
+            detailsEnabled={showDiscover}
           />
         </div>
 

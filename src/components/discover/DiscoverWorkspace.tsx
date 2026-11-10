@@ -20,6 +20,7 @@ type DiscoverWorkspaceProps = {
   onAnimalFilterChange: (value: AnimalFilter) => void;
   walkingMode: UseWalkingModeResult;
   onViewChange?: (view: DiscoverViewState) => void;
+  detailsEnabled?: boolean;
 };
 
 export default function DiscoverWorkspace({
@@ -30,6 +31,7 @@ export default function DiscoverWorkspace({
   onAnimalFilterChange,
   walkingMode,
   onViewChange,
+  detailsEnabled = true,
 }: DiscoverWorkspaceProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -94,10 +96,13 @@ export default function DiscoverWorkspace({
     return { lat: position.lat, lng: position.lng };
   }, [walkingMode.isWalkingModeEnabled, walkingMode.livePosition]);
 
+  const detailId = focusId ?? (detailOpen ? selectedReportId : null);
   const detailReport =
-    view.reports.find((report) => report.id === selectedReportId) ??
-    view.filteredReports.find((report) => report.id === selectedReportId) ??
-    null;
+    detailId == null
+      ? null
+      : (view.reports.find((report) => report.id === detailId) ??
+        view.filteredReports.find((report) => report.id === detailId) ??
+        null);
 
   return (
     <div className="discover-map-stage relative flex min-h-0 flex-1 flex-col md:flex-row">
@@ -129,8 +134,9 @@ export default function DiscoverWorkspace({
             onTypeFilterChange={onTypeFilterChange}
             onAnimalFilterChange={onAnimalFilterChange}
           />
-          {detailOpen && detailReport ? (
+          {detailsEnabled && detailReport ? (
             <DiscoverDetailSheet
+              key={detailReport.id}
               report={detailReport}
               onClose={handleCloseDetail}
             />

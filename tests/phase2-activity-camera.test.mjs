@@ -32,12 +32,20 @@ test("Activity lists loaded reports in Discover bounds and Mine ignores the area
   assert.match(feed, /ownershipFilter === "mine"/);
   assert.match(feed, /ActivityToolbar/);
   assert.match(feed, /activityEmptyInArea/);
+  assert.match(feed, /activityEmptyInAreaHint/);
+  assert.match(feed, /activityEmptyOpenDiscover/);
+  assert.match(feed, /homeDestinationHref\("discover"\)/);
   assert.doesNotMatch(feed, /useReports\(/);
   assert.doesNotMatch(feed, /bounding.?box query/i);
+  assert.doesNotMatch(feed, /fitBounds|setZoom|flyTo|setView/);
   assert.match(home, /reports=\{discoverView.reports\}/);
   assert.match(home, /bounds=\{discoverView.bounds\}/);
   assert.match(bounds, /report\.latitude >= south/);
-  assert.match(en, /activityEmptyInArea: "Nothing in this area."/);
-  assert.match(nl, /activityEmptyInArea: "Niets in dit gebied."/);
-  assert.match(fr, /activityEmptyInArea: "Rien dans cette zone."/);
+  assert.match(en, /activityEmptyInArea: "No recent activity here."/);
+  assert.match(
+    en,
+    /activityEmptyInAreaHint: "Zoom out to see activity in a wider area."/,
+  );
+  assert.match(nl, /activityEmptyInArea: "Geen recente activiteit hier."/);
+  assert.match(fr, /activityEmptyInArea: "Aucune activité récente ici."/);
 });

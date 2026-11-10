@@ -17,6 +17,12 @@ export function reportDetailHref(
   return `/report/${id}?from=${from}`;
 }
 
+/** Activity tap: Discover + existing ?focus= camera/detail, not /report/[id]. */
+export function activityEventFocusHref(reportId: string): string {
+  const id = reportId.trim();
+  return `/?tab=discover&focus=${encodeURIComponent(id)}`;
+}
+
 export function reportBackHref(from: ReportFromContext): string {
   if (from === "feed") return "/?tab=activity";
   if (from === "map") return "/?tab=discover";
