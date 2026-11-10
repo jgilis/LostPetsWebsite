@@ -26,7 +26,7 @@ export default function SiteFooter() {
           {t("navHomeMap")}
         </a>
         <a
-          href="/?tab=help"
+          href="/?tab=report"
           className="font-medium text-gray-300 hover:text-white"
         >
           {t("navReport")}

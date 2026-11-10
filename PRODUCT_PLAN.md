@@ -1,6 +1,6 @@
 # Lost Pets Map — Product Plan
 
-**Status:** Working product direction. Phase 0, Phase 1, and Phase 2 are complete in this repository. Next is Phase 3.  
+**Status:** Working product direction. Phase 0, Phase 1, Phase 2, and Phase 3 slice 1 are complete in this repository. Remaining Phase 3 slices are next.  
 **Scope:** Next version  
 **Primary area:** Mechelen, Belgium  
 **Languages:** English, Dutch and French
@@ -67,7 +67,7 @@ Users can:
 - Browse the reports that fall inside the current map bounds, as cards synchronized with markers.
 - Select a map marker or a report card: the matching card is highlighted, and details open in a sheet on top of Discover. The map is not left.
 - Use Nearby (500 m) and Walking Mode on Discover.
-- Start a report or sighting from the existing Help/report entry points until Phase 3.
+- Start a report or sighting from Report (three-task chooser) or from a Discover sheet.
 
 Discover’s list is **reports**, not an Activity event feed. Sightings and reunion events stay in Phase 2.
 
@@ -85,15 +85,15 @@ Activity is scoped to the area currently visible on the map.
 
 A separate **Mine** view shows the signed-in user's own reports, regardless of the map area.
 
-### Help
+### Report
 
-The place to contribute.
+The place to contribute. The nav label is **Report** (not Help).
 
 There are three primary actions:
 
-1. **I've lost a pet** — create a missing-animal report.
-2. **I've found an animal** — create a found-animal report.
-3. **I've seen a missing pet** — submit a sighting linked to an existing missing-animal report.
+1. **I lost a pet** — create a missing-animal report.
+2. **I found an animal** — create a found-animal report.
+3. **I spotted a listed pet** — submit a sighting linked to an existing missing-animal report.
 
 Lost-pet reporting remains a core feature. It must not disappear as a consequence of the new navigation.
 
@@ -309,8 +309,8 @@ Work in small, reviewable phases. Complete and test each phase before starting t
 |---|---|---|
 | 0 | Security, privacy and technical foundations | **Done.** Packages A, B and C are live. See section 15. |
 | 1 | Discover navigation and map experience | **Done.** Shell, bounds-synced reports, detail sheet, legend, desktop pass, map-first Android, Within 500 m on the report list, clickable found dots. |
-| 2 | Activity and map-area filtering | **Slices 1–2 in this repository.** Slices 3–4 not started. |
-| 3 | Help, reporting and editing flows | Not started |
+| 2 | Activity and map-area filtering | **Done.** |
+| 3 | Report as three tasks, then edit/reopen/flagging | **Slice 1 in this repository.** Slices 2–6 not started. |
 | 4 | Area subscriptions and notifications | Not started |
 | 5 | Administration, expiry and cleanup | Not started |
 
@@ -318,7 +318,7 @@ Work in small, reviewable phases. Complete and test each phase before starting t
 
 A new shell around the existing map, not a new map engine. Reused `Map.tsx`, `useReports`, filters, Nearby and Walking Mode. No new tables. No production security change.
 
-- Home is Discover / Activity / Help. Discover owns center, zoom and filters.
+- Home is Discover / Activity / Report. Discover owns center, zoom and filters.
 - Mobile / PWA is map-first: compact top bar, Filters sheet, collapsed legend, Walking Mode from a map control, collapsed report sheet with Within 500 m (Off / map centre / my location). No Nearby overlay.
 - Desktop is map + list, with Status / Animal / Within 500 m in the list header. Walking Mode is hidden.
 - Report cards follow visible bounds. Marker or card select opens a detail sheet over Discover. Do not go to `/report/[id]`.
@@ -387,7 +387,7 @@ Implemented in this repository.
 - Mine on Activity.
 - Existing dark styling, species colours, lost pin vs found dot, Mechelen bounds, PWA, en/nl/fr.
 - Map camera when switching destinations. Discover owns center, zoom and filters; Activity reads them.
-- Current Help / report form until Phase 3.
+- Current Help / report form until Phase 3 slice 1 (now a three-task Report chooser).
 - Public browse without an account.
 
 **Do not**
@@ -403,11 +403,30 @@ Implemented in this repository.
 
 **Out of this phase:** Help as three tasks, photo/location edit, 7-day reopen (3); area subscriptions (4); moderation audit, expiry job, duplicate hints (5); `/sightings/[id]` exact-location visibility (separate debt).
 
+### What to build next — Phase 3 Report as three tasks
+
+The destination label is **Report** (EN Report / NL Melding / FR Signaler), not Help. Internal URLs: `/?tab=report`; `/?tab=help` still maps to it. Flagging copy stays “Report this post”.
+
+**Slice 1 — Three-task chooser (implemented in this repository)**
+
+- Report screen asks only: I lost a pet / I found an animal / I spotted a listed pet. No extra landing copy.
+- Lost and found reuse `ReportForm` with type preset. Login-before-publish banner stays. Do not rebuild the form.
+- Spotted is a picker of active lost reports in the Discover camera, then the existing `SightingsModal`. Discover “I spotted this animal” skips the picker. Both paths call `submitSighting`.
+- Keep the map mounted. Do not start slices 2–6 here.
+
+**Remaining slices (not started)**
+
+- Slice 2 — Sighting confirmation, observation time, optional photo (inspect storage; SQL first if needed).
+- Slice 3 — Magic-link draft keep.
+- Slice 4 — Owner photo + pin edit.
+- Slice 5 — 7-day reopen (SQL first).
+- Slice 6 — Flagging sheet (off `window.prompt`).
+
 ### Later phases
 
 | Phase | Build |
 |---|---|
-| 3 | Help as three tasks (lost, found, seen). Real edit of description, photo and pin. Reopen a resolved report within 7 days. |
+| 3 | Report as three tasks (lost, found, seen). Real edit of description, photo and pin. Reopen a resolved report within 7 days. Flagging sheet. |
 | 4 | Area subscriptions and lost-report alerts on the existing notification/push pipeline. |
 | 5 | Admin queue polish, `moderation_actions` audit trail, expiry job, duplicate hints. |
 
@@ -448,7 +467,7 @@ These should not silently become permanent technical or product assumptions:
 
 ## 15. Live baseline
 
-**As of 10 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover and Phase 2 Activity are implemented in this repository** (production is whatever Vercel last deployed from GitHub). Home is Discover / Activity / Help. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. Help is still the report form. `/sightings/[id]` exact-location visibility is separate debt, not Phase 2.
+**As of 10 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover, Phase 2 Activity, and Phase 3 slice 1 are implemented in this repository** (production is whatever Vercel last deployed from GitHub). Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. **Phase 3 slice 1:** Report is a three-task chooser (lost / found / spotted a listed pet). Lost and found reuse the current form with type preset. Spotted picks lost reports in the Discover camera, then the existing sighting modal; Discover “I spotted this animal” skips the picker. Both paths call `submitSighting`. `/sightings/[id]` exact-location visibility is separate debt.
 
 ### How production is updated
 

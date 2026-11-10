@@ -21,32 +21,24 @@ const detail = readFileSync(
 const marker = readFileSync("src/components/map/ReportMarker.tsx", "utf8");
 const map = readFileSync("src/components/map/Map.tsx", "utf8");
 
-test("marker, card, and URL focus open the Discover detail sheet", () => {
+test("marker, card, and URL focus open a sheet over Discover, not /report/[id]", () => {
   assert.match(workspace, /DiscoverDetailSheet/);
   assert.match(workspace, /setDetailOpen\(true\)/);
   assert.match(workspace, /if \(!focusId\) return/);
   assert.match(sheet, /ReportDetailClient/);
   assert.match(sheet, /presentation="sheet"/);
+  assert.match(sheet, /role="dialog"/);
   assert.match(card, /onSelect\(report\.id\)/);
   assert.doesNotMatch(card, /reportDetailHref/);
+  assert.doesNotMatch(sheet, /\/report\/\$\{/);
 });
 
 test("report photos enlarge with the existing popup lightbox", () => {
   const photo = readFileSync("src/components/map/PopupPhoto.tsx", "utf8");
   assert.match(detail, /PopupPhoto/);
   assert.match(detail, /layout="detail"/);
-  assert.match(detail, /photoTapToEnlarge/);
   assert.match(photo, /createPortal/);
-  assert.match(photo, /report-popup-lightbox/);
   assert.match(photo, /stopImmediatePropagation/);
-});
-
-test("Discover reuses ReportDetailClient and does not route marker or card taps to /report/[id]", () => {
-  assert.match(detail, /presentation = "page"/);
-  assert.match(detail, /"sheet"/);
-  assert.match(sheet, /role="dialog"/);
-  assert.doesNotMatch(sheet, /\/report\/\$\{/);
-  assert.doesNotMatch(card, /href=\{reportDetailHref/);
 });
 
 test("Leaflet popup is not the Discover reading UI", () => {

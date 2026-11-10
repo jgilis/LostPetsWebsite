@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DiscoverWorkspace from "../src/components/discover/DiscoverWorkspace";
-import ReportForm from "../src/components/report/ReportForm";
+import ReportWorkspace from "../src/components/report/ReportWorkspace";
 import ReportsFeed from "../src/components/feed/ReportsFeed";
 import {
   type AnimalFilter,
@@ -133,25 +133,23 @@ function HomePageContent() {
           </div>
         ) : null}
 
-        {destination === "help" ? (
+        {destination === "report" ? (
           <div
             className={`absolute inset-0 z-[545] overflow-y-auto bg-gray-950 px-4 py-6 pb-16 md:pb-6 ${
               walking && !isDesktop ? "pt-[4.75rem]" : "pt-6"
             } md:pt-12`}
           >
-            <div className="mx-auto w-full max-w-6xl">
-              <h1 className="mb-4 text-center text-xl font-semibold">
-                {t("reportPageTitle")}
-              </h1>
-              <ReportForm
-                onReportCreated={handleReportCreated}
-                onViewMap={() =>
-                  router.replace(homeDestinationHref("discover"), {
-                    scroll: false,
-                  })
-                }
-              />
-            </div>
+            <ReportWorkspace
+              reports={discoverView.reports}
+              bounds={discoverView.bounds}
+              loading={discoverView.bounds == null}
+              onReportCreated={handleReportCreated}
+              onViewDiscover={() =>
+                router.replace(homeDestinationHref("discover"), {
+                  scroll: false,
+                })
+              }
+            />
           </div>
         ) : null}
       </div>

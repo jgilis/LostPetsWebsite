@@ -2,7 +2,7 @@ import type { en } from "./en";
 
 export const fr: Record<keyof typeof en, string> = {
   navHomeMap: "Découvrir",
-  navReport: "Aider",
+  navReport: "Signaler",
   navNotifications: "Notifications",
   navAbout: "À propos",
   navPrivacy: "Politique de confidentialité",
@@ -76,6 +76,13 @@ export const fr: Record<keyof typeof en, string> = {
   reportMarkResolvedFailed:
     "Impossible de mettre à jour ce signalement. Veuillez réessayer.",
   reportPageTitle: "Signaler un animal perdu ou trouvé",
+  reportChooserLost: "J'ai perdu un animal",
+  reportChooserFound: "J'ai trouvé un animal",
+  reportChooserSeen: "J'ai vu un animal déjà signalé",
+  reportSeenPickerTitle: "Quel animal déjà signalé avez-vous vu ?",
+  reportSeenPickerEmpty: "Aucun animal perdu dans cette zone de la carte.",
+  reportSeenPickerEmptyHint:
+    "Dézoomez dans Découvrir pour voir une zone plus large.",
 
   loginTitle: "Connexion",
   loginIntro:

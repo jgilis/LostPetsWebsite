@@ -15,19 +15,17 @@ const css = readFileSync("app/globals.css", "utf8");
 const destination = readFileSync("src/lib/homeDestination.ts", "utf8");
 const back = readFileSync("src/lib/reportNavigation.ts", "utf8");
 
-test("home chrome uses Discover, Activity and Help", () => {
+test("home chrome uses Discover, Activity and Report", () => {
   assert.match(home, /DiscoverDestinationNav/);
   assert.match(nav, /tabDiscover/);
   assert.match(nav, /tabActivity/);
-  assert.match(nav, /tabHelp/);
+  assert.match(nav, /tabReport/);
+  assert.doesNotMatch(nav, /tabHelp/);
   assert.match(home, /ReportsFeed/);
-  assert.match(home, /ReportForm/);
-});
-
-test("legacy tab query values still map to destinations", () => {
+  assert.match(home, /ReportWorkspace/);
   assert.match(destination, /tab === "activity" \|\| tab === "feed"/);
   assert.match(destination, /tab === "help" \|\| tab === "report"/);
-  assert.match(nav, /homeDestinationHref/);
+  assert.match(destination, /return "\/\?tab=report"/);
   assert.match(back, /tab=activity/);
   assert.match(back, /tab=discover/);
 });

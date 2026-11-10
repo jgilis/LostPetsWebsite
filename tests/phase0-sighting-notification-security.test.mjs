@@ -17,6 +17,7 @@ const submitSighting = readFileSync(
 );
 const config = readFileSync("supabase/config.toml", "utf8");
 const modal = readFileSync("src/components/sightings/SightingsModal.tsx", "utf8");
+const submitClient = readFileSync("src/lib/submitSighting.ts", "utf8");
 
 test("migration closes client sighting inserts and direct notification inserts", () => {
   assert.match(migration, /DROP POLICY IF EXISTS "Anyone can insert sightings"/);
@@ -147,7 +148,8 @@ test("sighting submission validates an active lost report and stores pending", (
 });
 
 test("sighting submission deploys over the existing smooth-processor endpoint", () => {
-  assert.match(modal, /functions\/v1\/smooth-processor/);
+  assert.match(modal, /submitSighting/);
+  assert.match(submitClient, /functions\/v1\/smooth-processor/);
   assert.match(config, /\[functions\.smooth-processor\]/);
   const section = config.slice(config.indexOf("[functions.smooth-processor]"));
   assert.match(section, /verify_jwt = false/);

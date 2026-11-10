@@ -2,7 +2,7 @@ import type { en } from "./en";
 
 export const nl: Record<keyof typeof en, string> = {
   navHomeMap: "Ontdekken",
-  navReport: "Helpen",
+  navReport: "Melding",
   navNotifications: "Meldingen",
   navAbout: "Over",
   navPrivacy: "Privacybeleid",
@@ -74,6 +74,12 @@ export const nl: Record<keyof typeof en, string> = {
     "Deze melding als herenigd markeren? Hij verdwijnt van de kaart maar kan in het overzicht blijven.",
   reportMarkResolvedFailed: "Melding kon niet worden bijgewerkt. Probeer opnieuw.",
   reportPageTitle: "Meld een vermist of gevonden huisdier",
+  reportChooserLost: "Ik ben een huisdier kwijt",
+  reportChooserFound: "Ik heb een dier gevonden",
+  reportChooserSeen: "Ik heb een gemeld huisdier gezien",
+  reportSeenPickerTitle: "Welk gemeld huisdier heb je gezien?",
+  reportSeenPickerEmpty: "Geen vermiste huisdieren in dit kaartgebied.",
+  reportSeenPickerEmptyHint: "Zoom uit op Ontdekken om een groter gebied te zien.",
 
   loginTitle: "Inloggen",
   loginIntro:

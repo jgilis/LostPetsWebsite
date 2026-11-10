@@ -1,4 +1,4 @@
-export type HomeDestination = "discover" | "activity" | "help";
+export type HomeDestination = "discover" | "activity" | "report";
 
 export function parseHomeDestination(
   tab: string | null,
@@ -6,12 +6,12 @@ export function parseHomeDestination(
 ): HomeDestination {
   if (focus) return "discover";
   if (tab === "activity" || tab === "feed") return "activity";
-  if (tab === "help" || tab === "report") return "help";
+  if (tab === "help" || tab === "report") return "report";
   return "discover";
 }
 
 export function homeDestinationHref(destination: HomeDestination): string {
   if (destination === "activity") return "/?tab=activity";
-  if (destination === "help") return "/?tab=help";
+  if (destination === "report") return "/?tab=report";
   return "/?tab=discover";
 }

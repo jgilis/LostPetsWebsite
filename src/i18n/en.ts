@@ -1,6 +1,6 @@
 export const en = {
   navHomeMap: "Discover",
-  navReport: "Help",
+  navReport: "Report",
   navNotifications: "Notifications",
   navAbout: "About",
   navPrivacy: "Privacy Policy",
@@ -72,6 +72,12 @@ export const en = {
     "Mark this report as reunited? It will be removed from the map but can still appear in the feed.",
   reportMarkResolvedFailed: "Could not update this report. Please try again.",
   reportPageTitle: "Report a Lost or Found Pet",
+  reportChooserLost: "I lost a pet",
+  reportChooserFound: "I found an animal",
+  reportChooserSeen: "I spotted a listed pet",
+  reportSeenPickerTitle: "Which listed pet did you see?",
+  reportSeenPickerEmpty: "No missing pets listed in this map area.",
+  reportSeenPickerEmptyHint: "Zoom out on Discover to look at a wider area.",
 
   loginTitle: "Login",
   loginIntro:

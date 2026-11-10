@@ -7,6 +7,7 @@ import LocationPicker from "../report/LocationPicker";
 import { isOutOfMechelen } from "../../lib/mechelenBounds";
 import LocationDisplay from "@/src/components/location/LocationDisplay";
 import { track } from "@/src/lib/analytics/analytics";
+import { submitSighting } from "@/src/lib/submitSighting";
 
 type Props = {
   lostReportId: string;
@@ -64,27 +65,12 @@ export default function SightingModal({ lostReportId, onClose }: Props) {
     setError(null);
 
     try {
-      const res = await fetch(
-        "https://dmubikdkyusadzqngapy.supabase.co/functions/v1/smooth-processor",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            lost_report_id: lostReportId,
-            latitude: lat,
-            longitude: lng,
-            description,
-          }),
-        }
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error?.message || "Failed to submit");
-      }
+      await submitSighting({
+        lostReportId,
+        latitude: lat,
+        longitude: lng,
+        description,
+      });
 
       track("sighting_created", {
         report_id: lostReportId,

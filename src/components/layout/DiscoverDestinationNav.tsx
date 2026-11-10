@@ -14,7 +14,7 @@ const DESTINATIONS: {
 }[] = [
   { id: "discover", label: "tabDiscover" },
   { id: "activity", label: "tabActivity" },
-  { id: "help", label: "tabHelp" },
+  { id: "report", label: "tabReport" },
 ];
 
 type DiscoverDestinationNavProps = {

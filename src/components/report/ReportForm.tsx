@@ -19,16 +19,18 @@ import {
 } from "../../lib/reportValidation";
 
 interface ReportFormProps {
+  initialType?: "lost" | "found";
   onReportCreated?: () => void;
   onViewMap?: () => void;
 }
 
 export default function ReportForm({
+    initialType,
     onReportCreated,
     onViewMap,
   }: ReportFormProps) {
   
-  const [type, setType] = useState("");
+  const [type, setType] = useState(initialType ?? "");
   const [animalType, setAnimalType] = useState("");
   
   const [animalName, setAnimalName] = useState<string>("");
@@ -232,7 +234,7 @@ export default function ReportForm({
       onReportCreated?.();
 
       // reset form safely
-      setType("lost");
+      setType(initialType ?? "lost");
       setAnimalType("dog");
       setAnimalName("");
       setDescription("");

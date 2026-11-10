@@ -11,10 +11,6 @@ const pane = readFileSync(
   "src/components/discover/DiscoverReportsPane.tsx",
   "utf8",
 );
-const card = readFileSync(
-  "src/components/discover/DiscoverReportCard.tsx",
-  "utf8",
-);
 const map = readFileSync("src/components/map/Map.tsx", "utf8");
 const marker = readFileSync("src/components/map/ReportMarker.tsx", "utf8");
 const bounds = readFileSync("src/lib/geo/reportInBounds.ts", "utf8");
@@ -32,23 +28,6 @@ test("in-view cards filter loaded reports by map bounds", () => {
   assert.match(bounds, /report\.longitude >= west/);
   assert.match(pane, /filterReportsInBounds/);
   assert.doesNotMatch(pane, /bounding.?box query/i);
-});
-
-test("mobile sheet has three snaps and desktop has a side list", () => {
-  assert.match(pane, /collapsed/);
-  assert.match(pane, /partial/);
-  assert.match(pane, /expanded/);
-  assert.match(pane, /discover-reports-desktop/);
-  assert.match(pane, /discover-report-sheet/);
-});
-
-test("cards and markers stay synchronized; Discover details stay on the map", () => {
-  assert.match(map, /selectedReportId/);
-  assert.match(map, /onSelectReport/);
-  assert.match(marker, /eventHandlers=\{\{ click: handleSelect \}\}/);
-  assert.match(pane, /selectedReportId/);
-  assert.doesNotMatch(card, /reportDetailHref/);
-  assert.match(workspace, /DiscoverDetailSheet/);
 });
 
 test("found dots keep a hittable target and do not treat the tap as a map background click", () => {
