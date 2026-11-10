@@ -39,15 +39,12 @@ test("Activity uses a Type menu on desktop and a Type sheet on Android", () => {
   assert.doesNotMatch(toolbar, /discoverWithin500m/);
 });
 
-test("Activity Type isolates events without a 14-day reunion window", () => {
+test("Activity Type isolates Missing, Found, Sightings, and Reunited", () => {
   assert.match(activityEvents, /eventType === "sightings"/);
   assert.match(activityEvents, /eventType === "missing"/);
   assert.match(activityEvents, /eventType === "found"/);
-  assert.match(activityEvents, /eventType === "reunited" \? "resolved"/);
-  assert.doesNotMatch(activityEvents, /14/);
-  assert.doesNotMatch(activityEvents, /14-day/);
-  assert.doesNotMatch(feed, /14/);
-  assert.doesNotMatch(toolbar, /14/);
+  assert.match(activityEvents, /eventType === "reunited"\) return "resolved"/);
+  assert.match(toolbar, /activityEventReunited/);
 });
 
 test("Activity Type copy exists in English, Dutch, and French", () => {

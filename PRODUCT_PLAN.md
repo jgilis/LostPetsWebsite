@@ -1,6 +1,6 @@
 # Lost Pets Map — Product Plan
 
-**Status:** Working product direction. Phase 0 and Phase 1 are complete. Phase 2 slices 1–2 are in this repository. Next is slice 3.  
+**Status:** Working product direction. Phase 0 and Phase 1 are complete. Phase 2 slices 1–3 are in this repository. Next is slice 4.  
 **Scope:** Next version  
 **Primary area:** Mechelen, Belgium  
 **Languages:** English, Dutch and French
@@ -361,11 +361,14 @@ Implemented in this repository.
 
 **Slice 3 — 14-day reunions and event-type filter**
 
+Implemented in this repository.
+
 - Add **reunited** events: `reports` with `status = resolved` whose coordinate is inside the bounds, only for **14 days** after resolve. Then they leave Activity. The report detail URL can still open from an old link.
 - Default Activity is the mixed area feed (missing, found, approved sightings, recent reunions). Drop “All lifecycle” as the default dump. Active / Reunited / All as today’s feed default is not the Phase 2 default.
 - A filter may isolate Missing, Found, Sightings, Reunited.
 - Mine still ignores the area filter and can still show the owner’s own resolved reports.
 - Hidden, as today: `flagged`, `removed`, `expired`, pending sightings, rejected sightings.
+- The 14-day window uses `reports.resolved_at`, stamped on `active` → `resolved`. Existing resolved rows with NULL `resolved_at` stay in Mine and stay out of the area reunion feed. Migration `20261110120000_reports_resolved_at.sql` is in the repository and is **not applied to production yet**.
 
 **Slice 4 — Open on Discover**
 
@@ -442,7 +445,7 @@ These should not silently become permanent technical or product assumptions:
 
 ## 15. Live baseline
 
-**As of 9 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover is implemented in this repository** (production is whatever Vercel last deployed from GitHub). Home is Discover / Activity / Help. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2 slices 1–2 are in this repository:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds) and mixes approved sightings into that list (coarse place only; no public sighting pin; no `/sightings/[id]` from Activity). Slices 3–4 are not started. Help is still the report form. `/sightings/[id]` exact-location visibility is separate debt, not Phase 2.
+**As of 10 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover is implemented in this repository** (production is whatever Vercel last deployed from GitHub). Home is Discover / Activity / Help. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2 slices 1–3 are in this repository:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings into that list (coarse place only; no public sighting pin; no `/sightings/[id]` from Activity), and mixes 14-day reunions (`status = resolved`) with a Type filter for Missing / Found / Sightings / Reunited. Slice 4 is not started. Help is still the report form. `/sightings/[id]` exact-location visibility is separate debt, not Phase 2.
 
 ### How production is updated
 

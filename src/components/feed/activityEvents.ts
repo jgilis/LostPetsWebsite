@@ -31,10 +31,30 @@ export type ActivityEvent =
       report: Report;
     };
 
+export const ACTIVITY_REUNION_VISIBLE_MS = 14 * 24 * 60 * 60 * 1000;
+
 function eventTime(iso: string | null | undefined): number {
   if (!iso) return 0;
   const time = new Date(iso).getTime();
   return Number.isNaN(time) ? 0 : time;
+}
+
+function reunionEventTime(report: Report): number {
+  return (
+    eventTime(report.resolved_at) ||
+    eventTime(report.date_reported ?? report.created_at)
+  );
+}
+
+export function isRecentActivityReunion(
+  report: Report,
+  now = Date.now(),
+): boolean {
+  if (report.status !== "resolved") return false;
+  const at = eventTime(report.resolved_at);
+  if (!at) return false;
+  const age = now - at;
+  return age >= 0 && age <= ACTIVITY_REUNION_VISIBLE_MS;
 }
 
 function reportIsPublicActivityParent(report: Report): boolean {
@@ -64,7 +84,9 @@ function reportTypeForEvent(eventType: ActivityEventType): TypeFilter {
 }
 
 function lifecycleForEvent(eventType: ActivityEventType): FeedLifecycleFilter {
-  return eventType === "reunited" ? "resolved" : "active";
+  if (eventType === "reunited") return "resolved";
+  if (eventType === "all") return "all";
+  return "active";
 }
 
 export function buildActivityEvents({
@@ -101,13 +123,19 @@ export function buildActivityEvents({
       ? visibleReports.filter((report) => isOwner(userId, report.owner_user_id))
       : [];
   } else {
-    visibleReports = filterReportsInBounds(visibleReports, bounds);
+    visibleReports = filterReportsInBounds(visibleReports, bounds).filter(
+      (report) =>
+        report.status !== "resolved" || isRecentActivityReunion(report),
+    );
   }
 
   const reportEvents: ActivityEvent[] = visibleReports.map((report) => ({
     kind: "report",
     id: report.id,
-    sortAt: eventTime(report.date_reported ?? report.created_at),
+    sortAt:
+      report.status === "resolved"
+        ? reunionEventTime(report)
+        : eventTime(report.date_reported ?? report.created_at),
     report,
   }));
 

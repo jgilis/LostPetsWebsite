@@ -26,6 +26,7 @@ export interface Report {
   owner_user_id?: string | null;
   created_at?: string;
   date_reported?: string;
+  resolved_at?: string | null;
 }
 
 type ReportRow = {
@@ -43,6 +44,7 @@ type ReportRow = {
   owner_user_id?: string | null;
   created_at?: string | null;
   date_reported?: string | null;
+  resolved_at?: string | null;
 };
 
 export const REPORT_PUBLIC_SELECT = `
@@ -59,7 +61,8 @@ export const REPORT_PUBLIC_SELECT = `
   expires_at,
   owner_user_id,
   created_at,
-  date_reported
+  date_reported,
+  resolved_at
 `;
 
 // Columns remaining after edit_token is revoked from the Data API.
@@ -76,7 +79,8 @@ export const REPORT_ADMIN_SELECT = `
   date_reported,
   expires_at,
   owner_user_id,
-  created_at
+  created_at,
+  resolved_at
 `;
 
 export const FLAG_ADMIN_SELECT = "id, report_id, reason, created_at";
@@ -112,6 +116,7 @@ export function normalizeReportRow(r: ReportRow): Report {
     owner_user_id: r.owner_user_id ?? null,
     created_at: r.created_at ?? undefined,
     date_reported: r.date_reported ?? undefined,
+    resolved_at: r.resolved_at ?? null,
   };
 }
 
