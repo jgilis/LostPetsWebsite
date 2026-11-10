@@ -33,6 +33,8 @@ test("Activity uses a Type menu on desktop and a Type sheet on Android", () => {
   assert.match(toolbar, /hidden shrink-0 items-center gap-2[\s\S]*md:flex/);
   assert.match(toolbar, /activityEventType/);
   assert.match(toolbar, /feedOwnershipMine/);
+  assert.match(toolbar, /activityScopeAll/);
+  assert.match(toolbar, /pressed \? "activityScopeAll" : "feedOwnershipMine"/);
   assert.match(toolbar, /aria-pressed=\{pressed\}/);
   assert.doesNotMatch(toolbar, /filterDog/);
   assert.doesNotMatch(toolbar, /Walking Mode/);
@@ -55,4 +57,7 @@ test("Activity Type copy exists in English, Dutch, and French", () => {
   assert.match(nl, /activityEventSightings: "Waarnemingen"/);
   assert.match(fr, /activityEventAll: "Tout dans cette zone"/);
   assert.match(fr, /activityEventSightings: "Observations"/);
+  assert.match(en, /activityScopeAll: "All activity"/);
+  assert.match(nl, /activityScopeAll: "Alle activiteit"/);
+  assert.match(fr, /activityScopeAll: "Toute l'activité"/);
 });

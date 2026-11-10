@@ -605,7 +605,7 @@ export default function Map({
         <AdminMapLegend />
       ) : (
         <div className="discover-map-tool-stack pointer-events-none absolute top-2 right-2 z-[510] flex flex-col items-end gap-2">
-          <div className="pointer-events-auto">
+          <div className="pointer-events-auto flex w-fit max-w-[min(11.75rem,calc(100%-3.5rem))] justify-end">
             <DiscoverMapLegend />
           </div>
           {fillContainer ? (

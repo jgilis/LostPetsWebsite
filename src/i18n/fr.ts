@@ -53,6 +53,7 @@ export const fr: Record<keyof typeof en, string> = {
   activitySightingNearby: "Vu à proximité",
   feedOwnershipAll: "Tous",
   feedOwnershipMine: "Mes signalements",
+  activityScopeAll: "Toute l'activité",
   feedEmptyMyReports: "Vous n'avez aucun signalement actif.",
   feedEmptyMyReportsLogin: "Connectez-vous pour voir vos signalements.",
   feedViewEdit: "Voir / Modifier",

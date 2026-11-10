@@ -53,6 +53,7 @@ export const nl: Record<keyof typeof en, string> = {
   activitySightingNearby: "In de buurt gezien",
   feedOwnershipAll: "Alle",
   feedOwnershipMine: "Mijn meldingen",
+  activityScopeAll: "Alle activiteit",
   feedEmptyMyReports: "Je hebt geen actieve meldingen.",
   feedEmptyMyReportsLogin: "Log in om je meldingen te zien.",
   feedViewEdit: "Bekijken / Bewerken",

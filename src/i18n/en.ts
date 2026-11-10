@@ -51,6 +51,7 @@ export const en = {
   activitySightingNearby: "Seen nearby",
   feedOwnershipAll: "All",
   feedOwnershipMine: "My reports",
+  activityScopeAll: "All activity",
   feedEmptyMyReports: "You have no active reports.",
   feedEmptyMyReportsLogin: "Log in to see your reports.",
   feedViewEdit: "View / Edit",

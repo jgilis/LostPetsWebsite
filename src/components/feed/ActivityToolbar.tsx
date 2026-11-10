@@ -206,7 +206,7 @@ function MineToggle({
       aria-pressed={pressed}
       onClick={onClick}
     >
-      {t("feedOwnershipMine")}
+      {t(pressed ? "activityScopeAll" : "feedOwnershipMine")}
     </button>
   );
 }
