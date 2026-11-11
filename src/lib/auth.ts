@@ -1,4 +1,5 @@
 import type { AuthError, User } from "@supabase/supabase-js";
+import { safeAuthRedirectPath } from "./authRedirect";
 import { supabase } from "./supabase";
 
 export async function getUser(): Promise<User | null> {
@@ -9,9 +10,15 @@ export async function getUser(): Promise<User | null> {
 
 export async function signInWithEmail(
   email: string,
+  nextPath?: string | null,
 ): Promise<{ error: AuthError | null }> {
-  const emailRedirectTo =
-    typeof window !== "undefined" ? window.location.origin : undefined;
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const next = safeAuthRedirectPath(nextPath);
+  const emailRedirectTo = origin
+    ? next
+      ? `${origin}${next}`
+      : origin
+    : undefined;
 
   const { error } = await supabase.auth.signInWithOtp({
     email,

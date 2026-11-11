@@ -20,6 +20,7 @@ import { formatProximityDistance } from "../src/lib/geo/formatProximityDistance"
 import {
   homeDestinationHref,
   parseHomeDestination,
+  parseReportTask,
 } from "../src/lib/homeDestination";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import type { DiscoverViewState } from "../src/components/map/mapTypes";
@@ -43,6 +44,7 @@ function HomePageContent() {
     searchParams.get("tab"),
     searchParams.get("focus"),
   );
+  const reportTask = parseReportTask(searchParams.get("task"));
   const showDiscover = destination === "discover";
 
   useEffect(() => {
@@ -143,6 +145,7 @@ function HomePageContent() {
               reports={discoverView.reports}
               bounds={discoverView.bounds}
               loading={discoverView.bounds == null}
+              initialTask={reportTask}
               onReportCreated={handleReportCreated}
               onViewDiscover={() =>
                 router.replace(homeDestinationHref("discover"), {

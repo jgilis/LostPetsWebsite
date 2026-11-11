@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { AuthError } from "@supabase/supabase-js";
 import { signInWithEmail } from "@/src/lib/auth";
 import { useTranslation } from "@/src/i18n/I18nProvider";
@@ -29,8 +30,10 @@ function formatMagicLinkError(
   return error.message;
 }
 
-export default function LoginPage() {
+function LoginPageContent() {
   const { t } = useTranslation();
+  const searchParams = useSearchParams();
+  const nextPath = searchParams.get("next");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -44,7 +47,7 @@ export default function LoginPage() {
     setSuccess(false);
     setError(null);
 
-    const { error: signInError } = await signInWithEmail(email);
+    const { error: signInError } = await signInWithEmail(email, nextPath);
 
     setLoading(false);
 
@@ -113,5 +116,19 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center px-4 py-12 text-gray-400">
+          Loading…
+        </div>
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
   );
 }

@@ -26,6 +26,7 @@ test("Report is a three-task chooser; spotted reuses the Discover sighting submi
   assert.match(workspace, /reportChooserSeen/);
   assert.match(workspace, /initialType=\{task\}/);
   assert.match(form, /initialType\?: "lost" \| "found"/);
+  assert.match(workspace, /initialTask/);
   assert.match(workspace, /lostReportsInDiscoverCamera/);
   assert.match(camera, /report\.type === "lost"/);
   assert.match(workspace, /SightingModal/);

@@ -1,6 +1,6 @@
 # Lost Pets Map — Product Plan
 
-**Status:** Working product direction. Phase 0, Phase 1, Phase 2, and Phase 3 slices 1–2 are complete in this repository. Remaining Phase 3 slices are next.  
+**Status:** Working product direction. Phases 0–2 are done. Phase 3 slices 1–3 are done in this repository. Next is Phase 3 slice 4.  
 **Scope:** Next version  
 **Primary area:** Mechelen, Belgium  
 **Languages:** English, Dutch and French
@@ -9,7 +9,7 @@
 
 | Need | Place |
 |---|---|
-| What to build next | This file, section 12 (Phase 3) |
+| What to build next | This file, section 12 (Phase 3 slice 4) |
 | Activity behaviour | `PRODUCT_STRATEGY.md` sections 5, 7 and 14 |
 | Discover behaviour, layout, sheets | `PRODUCT_STRATEGY.md` sections 5, 6 and 14 |
 | What is true in production | This file, section 15 |
@@ -305,14 +305,42 @@ The live website is hosted on **Vercel**. Vercel deploys automatically from the 
 
 Work in small, reviewable phases. Complete and test each phase before starting the next.
 
-| Phase | Focus | Status |
-|---|---|---|
-| 0 | Security, privacy and technical foundations | **Done.** Packages A, B and C are live. See section 15. |
-| 1 | Discover navigation and map experience | **Done.** Shell, bounds-synced reports, detail sheet, legend, desktop pass, map-first Android, Within 500 m on the report list, clickable found dots. |
-| 2 | Activity and map-area filtering | **Done.** |
-| 3 | Report as three tasks, then edit/reopen/flagging | **Slices 1–2 in this repository.** Slices 3–6 not started. |
-| 4 | Area subscriptions and notifications | Not started |
-| 5 | Administration, expiry and cleanup | Not started |
+### Phases 0–5
+
+**Phase 0 — Security and foundations** (done)
+- Sighting writes: force pending, active lost report only, hide exact coordinates, notify the owner on the server
+- Close client report and flag inserts; tighten storage writes
+- Owner identity for edit (`edit_token` gone); captcha-v2 submit
+
+**Phase 1 — Discover** (done)
+- Home shell: Discover / Activity / Report
+- Bounds-synced report cards; detail sheet over the map (not `/report/[id]`)
+- Map-first Android; desktop map + list
+- Within 500 m, Walking Mode (phone), clickable found dots
+
+**Phase 2 — Activity** (done)
+- Slice 1: list follows the Discover camera; Mine ignores bounds
+- Slice 2: approved sightings as coarse events (no public pin)
+- Slice 3: 14-day reunions and Missing / Found / Sightings / Reunited filter
+- Slice 4: open the report in Activity; View on Discover uses `/?focus=`
+
+**Phase 3 — Report** (slices 1–3 done; next is slice 4)
+- Slice 1: three-task chooser — lost / found / spotted a listed pet
+- Slice 2: pending confirmation, observation time, private sighting photo
+- Slice 3: magic-link draft keep
+- Slice 4: owner photo + pin edit
+- Slice 5: 7-day reopen (SQL first)
+- Slice 6: flagging sheet (off `window.prompt`)
+
+**Phase 4 — Area subscriptions** (not started)
+- Saved areas; alerts for new lost reports
+- In-app notification list + existing push pipeline
+- Dedupe so the same alert is not sent twice
+
+**Phase 5 — Admin, expiry, cleanup** (not started)
+- Review-queue polish (counts, pending sightings, review photos)
+- `moderation_actions` audit trail and `reviewed_by`
+- Expiry job, duplicate hints, storage cleanup on delete
 
 ### Phase 1 Discover — delivered
 
@@ -418,22 +446,19 @@ The destination label is **Report** (EN Report / NL Melding / FR Signaler), not 
 
 - After submit: in-modal pending copy instead of `alert`. GPS/map/description/out-of-area warning stay.
 - Observation time defaults to now and is editable. Optional photo is re-encoded, EXIF-stripped, and uploaded **after** the sighting row exists, to private bucket `sighting-photos`. Do not use `report-photos`. Do not accept a client `photo_url`.
-- SQL in `supabase/migrations/20261110190000_sighting_observed_at_and_private_photos.sql` is **not applied** until pasted in the dashboard. Then deploy `smooth-processor`.
+- SQL is applied in production. `smooth-processor` is deployed with observation time and private `sighting-photos` upload.
+
+**Slice 3 — Magic-link draft keep (implemented in this repository)**
+
+- Lost/found form fields, pin, consent, and optional photo stay in `localStorage` while the person logs in.
+- Login from the form sends the magic link back to `/?tab=report&task=lost|found`, not the site origin.
+- After sign-in they land on the same Report form with the draft restored. Sightings are unchanged (no account). Header login still goes to `/login` without a next path.
 
 **Remaining slices (not started)**
 
-- Slice 3 — Magic-link draft keep.
 - Slice 4 — Owner photo + pin edit.
 - Slice 5 — 7-day reopen (SQL first).
 - Slice 6 — Flagging sheet (off `window.prompt`).
-
-### Later phases
-
-| Phase | Build |
-|---|---|
-| 3 | Report as three tasks (lost, found, seen). Real edit of description, photo and pin. Reopen a resolved report within 7 days. Flagging sheet. |
-| 4 | Area subscriptions and lost-report alerts on the existing notification/push pipeline. |
-| 5 | Admin queue polish, `moderation_actions` audit trail, expiry job, duplicate hints. |
 
 ## 13. Explicitly out of scope
 
@@ -472,7 +497,7 @@ These should not silently become permanent technical or product assumptions:
 
 ## 15. Live baseline
 
-**As of 10 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phase 0 is complete. **Phase 1 Discover, Phase 2 Activity, and Phase 3 slices 1–2 are implemented in this repository** (production is whatever Vercel last deployed from GitHub). Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. **Phase 3 slice 1:** Report is a three-task chooser (lost / found / spotted a listed pet). Lost and found reuse the current form with type preset. Spotted picks lost reports in the Discover camera, then the existing sighting modal; Discover “I spotted this animal” skips the picker. Both paths call `submitSighting`. **Phase 3 slice 2:** sighting success is a pending confirmation, not `alert`; observation time is editable; optional photo goes to private `sighting-photos` after insert. SQL + `smooth-processor` deploy are required before time/photo persist. `/sightings/[id]` exact-location visibility is separate debt.
+**As of 11 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phases 0–2 are live. Phase 3 slices 1–2 are live (chooser, pending confirmation, `observed_at`, private `sighting-photos`; SQL applied and `smooth-processor` deployed). Phase 3 slice 3 (magic-link draft keep) is in this repository; production is whatever Vercel last deployed from GitHub. Next is Phase 3 slice 4 (owner photo + pin edit). Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. `/sightings/[id]` exact-location visibility is separate debt.
 
 ### How production is updated
 

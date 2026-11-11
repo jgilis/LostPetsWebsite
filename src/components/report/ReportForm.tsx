@@ -1,17 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import LocationPicker from "./LocationPicker";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import { track } from "@/src/lib/analytics/analytics";
+import { reportLoginHref } from "../../lib/authRedirect";
 import {
   blobToBase64,
   PhotoPreparationError,
   prepareReportPhoto,
 } from "../../lib/prepareReportPhoto";
+import {
+  clearReportDraft,
+  dataUrlToFile,
+  readReportDraft,
+  writeReportDraft,
+} from "../../lib/reportDraft";
 import {
   isAnimalType,
   isReportType,
@@ -56,8 +63,75 @@ export default function ReportForm({
   const { userId, loading: authLoading } = useCurrentUser();
   const { t } = useTranslation();
   const isLoggedIn = !!userId;
+  const [draftReady, setDraftReady] = useState(false);
 
   const lastSubmitKey = "last_submit_time";
+  const loginTask = isReportType(type) ? type : (initialType ?? "lost");
+  const loginHref = reportLoginHref(loginTask);
+
+  useEffect(() => {
+    const draft = readReportDraft();
+    if (draft && (!initialType || draft.type === initialType)) {
+      setType(draft.type);
+      setAnimalType(draft.animalType);
+      setAnimalName(draft.animalName);
+      setDescription(draft.description);
+      setLatitude(draft.latitude);
+      setLongitude(draft.longitude);
+      setConsent(draft.consent);
+      if (draft.photoDataUrl) {
+        const file = dataUrlToFile(draft.photoDataUrl, draft.photoName);
+        if (file) setPhoto(file);
+      }
+    }
+    setDraftReady(true);
+  }, [initialType]);
+
+  useEffect(() => {
+    if (!draftReady) return;
+    const draftType = isReportType(type) ? type : initialType;
+    if (!draftType) return;
+
+    void writeReportDraft({
+      type: draftType,
+      animalType,
+      animalName,
+      description,
+      latitude,
+      longitude,
+      consent,
+      photo,
+    });
+  }, [
+    animalName,
+    animalType,
+    consent,
+    description,
+    draftReady,
+    initialType,
+    latitude,
+    longitude,
+    photo,
+    type,
+  ]);
+
+  const persistDraftAndGoToLogin = async (
+    event: React.MouseEvent<HTMLAnchorElement>,
+  ) => {
+    event.preventDefault();
+    const draftType = isReportType(type) ? type : (initialType ?? "lost");
+    await writeReportDraft({
+      type: draftType,
+      animalType,
+      animalName,
+      description,
+      latitude,
+      longitude,
+      consent,
+      photo,
+    });
+    window.location.assign(loginHref);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -216,6 +290,7 @@ export default function ReportForm({
       }
 
       localStorage.setItem(lastSubmitKey, Date.now().toString());
+      clearReportDraft();
 
       track("report_created", {
         animal_type: animalType,
@@ -260,7 +335,8 @@ export default function ReportForm({
           {t("reportLoginBody")}
         </p>
         <a
-          href="/login"
+          href={loginHref}
+          onClick={(event) => void persistDraftAndGoToLogin(event)}
           className="mt-3 inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
         >
           {t("reportLoginCta")}
@@ -419,7 +495,8 @@ export default function ReportForm({
               <p>{message}</p>
               {showLoginCta && (
                 <a
-                  href="/login"
+                  href={loginHref}
+                  onClick={(event) => void persistDraftAndGoToLogin(event)}
                   className="mt-3 inline-flex items-center justify-center rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
                 >
                   {t("reportLoginLink")}

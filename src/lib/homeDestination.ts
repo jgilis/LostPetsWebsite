@@ -15,3 +15,12 @@ export function homeDestinationHref(destination: HomeDestination): string {
   if (destination === "report") return "/?tab=report";
   return "/?tab=discover";
 }
+
+export function parseReportTask(value: string | null): "lost" | "found" | null {
+  if (value === "lost" || value === "found") return value;
+  return null;
+}
+
+export function reportTaskHref(task: "lost" | "found"): string {
+  return `/?tab=report&task=${task}`;
+}

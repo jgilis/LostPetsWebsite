@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import ReportForm from "./ReportForm";
 import DiscoverReportCard from "@/src/components/discover/DiscoverReportCard";
 import SightingModal from "@/src/components/sightings/SightingsModal";
 import { homeDestinationHref } from "@/src/lib/homeDestination";
 import { lostReportsInDiscoverCamera } from "@/src/lib/lostReportsInCamera";
+import { readReportDraft } from "@/src/lib/reportDraft";
 import type { MapBoundsBox } from "@/src/lib/geo/reportInBounds";
 import type { Report } from "@/src/lib/reports";
 import { useCurrentUser } from "@/src/hooks/useCurrentUser";
@@ -19,6 +20,7 @@ type ReportWorkspaceProps = {
   reports: Report[];
   bounds: MapBoundsBox | null;
   loading?: boolean;
+  initialTask?: "lost" | "found" | null;
   onReportCreated?: () => void;
   onViewDiscover: () => void;
 };
@@ -27,13 +29,22 @@ export default function ReportWorkspace({
   reports,
   bounds,
   loading = false,
+  initialTask = null,
   onReportCreated,
   onViewDiscover,
 }: ReportWorkspaceProps) {
   const { t } = useTranslation();
   const { user } = useCurrentUser();
-  const [task, setTask] = useState<ReportTask | null>(null);
+  const [task, setTask] = useState<ReportTask | null>(initialTask);
   const [seenReportId, setSeenReportId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialTask) return;
+    const draft = readReportDraft();
+    if (draft?.type === "lost" || draft?.type === "found") {
+      setTask(draft.type);
+    }
+  }, [initialTask]);
 
   const lostInArea = useMemo(() => {
     return lostReportsInDiscoverCamera(reports, bounds).filter(
