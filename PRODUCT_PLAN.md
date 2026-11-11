@@ -1,6 +1,6 @@
 # Lost Pets Map — Product Plan
 
-**Status:** Working product direction. Phases 0–2 are done. Phase 3 slices 1–3 are done in this repository. Next is Phase 3 slice 4 (7-day reopen). Magic-link draft keep is deferred until after Phase 5.  
+**Status:** Working product direction. Phases 0–2 are done. Phase 3 slices 1–4 are done in this repository. Next is Phase 3 slice 5 (flagging sheet). Magic-link draft keep is deferred until after Phase 5.  
 **Scope:** Next version  
 **Primary area:** Mechelen, Belgium  
 **Languages:** English, Dutch and French
@@ -9,7 +9,7 @@
 
 | Need | Place |
 |---|---|
-| What to build next | This file, section 12 (Phase 3 slice 4) |
+| What to build next | This file, section 12 (Phase 3 slice 5) |
 | Activity behaviour | `PRODUCT_STRATEGY.md` sections 5, 7 and 14 |
 | Discover behaviour, layout, sheets | `PRODUCT_STRATEGY.md` sections 5, 6 and 14 |
 | What is true in production | This file, section 15 |
@@ -324,7 +324,7 @@ Work in small, reviewable phases. Complete and test each phase before starting t
 - Slice 3: 14-day reunions and Missing / Found / Sightings / Reunited filter
 - Slice 4: open the report in Activity; View on Discover uses `/?focus=`
 
-**Phase 3 — Report** (slices 1–3 done; next is slice 4)
+**Phase 3 — Report** (slices 1–4 done; next is slice 5)
 - Slice 1: three-task chooser — lost / found / spotted a listed pet
 - Slice 2: pending confirmation, observation time, private sighting photo
 - Slice 3: owner photo + pin edit
@@ -455,11 +455,16 @@ The destination label is **Report** (EN Report / NL Melding / FR Signaler), not 
 
 - Active reports: owner can replace the photo and move the pin on `/edit`. Name and description stay editable on active and resolved, as today.
 - Photo is re-encoded and uploaded by `owner-update-report` (JWT required). Pin is offset on the server. The client does not write `latitude`, `longitude`, or `photo_url`.
-- SQL in `supabase/migrations/20261111100000_owner_photo_pin_via_function.sql` is **not applied** until pasted in the dashboard. Then deploy `owner-update-report` with JWT verification on.
+- SQL in `supabase/migrations/20261111100000_owner_photo_pin_via_function.sql` is applied. `owner-update-report` is deployed with JWT verification on.
+
+**Slice 4 — 7-day reopen (implemented in this repository)**
+
+- Owners may set `resolved` → `active` within 7 days of `resolved_at`. The trigger clears `resolved_at`. After 7 days, or if `resolved_at` is NULL, they file a new report.
+- SQL in `supabase/migrations/20261111140000_owner_seven_day_reopen.sql` is **not applied** until pasted in the dashboard. The client UPDATE only sends `status`; it does not write `resolved_at`.
+- Reopen is on `/edit` and on the owner actions on the report. Photo/pin stay active-only.
 
 **Remaining slices (not started)**
 
-- Slice 4 — 7-day reopen (SQL first).
 - Slice 5 — Flagging sheet (off `window.prompt`).
 
 Magic-link draft keep is **not** a remaining Phase 3 slice. It waits until after Phase 5.
@@ -501,7 +506,7 @@ These should not silently become permanent technical or product assumptions:
 
 ## 15. Live baseline
 
-**As of 11 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phases 0–2 are live. Phase 3 slices 1–2 are live. Slice 3 (owner photo + pin edit) is in this repository; production needs the SQL, `owner-update-report` deploy, and a GitHub push. Next is Phase 3 slice 4 (7-day reopen). Magic-link draft keep is deferred until after Phase 5. Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. `/sightings/[id]` exact-location visibility is separate debt.
+**As of 11 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phases 0–2 are live. Phase 3 slices 1–3 are live. Slice 4 (7-day reopen) is in this repository; production needs the SQL and a GitHub push. Next is Phase 3 slice 5 (flagging sheet). Magic-link draft keep is deferred until after Phase 5. Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. `/sightings/[id]` exact-location visibility is separate debt.
 
 ### How production is updated
 
@@ -511,7 +516,7 @@ These should not silently become permanent technical or product assumptions:
 | `smooth-processor` | `npx supabase functions deploy smooth-processor --project-ref dmubikdkyusadzqngapy --no-verify-jwt` | Deployed |
 | `verify-captcha-v2` | `npx supabase functions deploy verify-captcha-v2 --project-ref dmubikdkyusadzqngapy` | Live; does not write `edit_token` |
 | Database | SQL pasted in the production SQL Editor | Sighting/notification SQL, admin EXECUTE grant, Packages A–C SQL (owner SELECT and `edit_token` drop included). Do not run `supabase db push` |
-| `owner-update-report` | `npx supabase functions deploy owner-update-report --project-ref dmubikdkyusadzqngapy` | Not deployed |
+| `owner-update-report` | `npx supabase functions deploy owner-update-report --project-ref dmubikdkyusadzqngapy` | Deployed |
 | Other Edge Functions | CLI deploy when explicitly done | Unused `verify-captcha` was redeployed with Package C. `flag-report` was not redeployed in this round |
 
 There is no verified automatic Supabase–GitHub integration. Production does not have a trustworthy `schema_migrations` history for the full schema. The database cannot be rebuilt from this repository.
@@ -520,7 +525,7 @@ There is no verified automatic Supabase–GitHub integration. Production does no
 
 - Lost and found reports; sightings linked to lost reports. Ordinary reports are public without pre-approval.
 - Public browse without an account. Sightings can be submitted while logged out; they stay pending until an administrator approves them.
-- Signed-in owners can edit name and description, mark reunited, permanently delete, and read their own hidden rows. They cannot reopen. Admin hide (`removed`) is not the same as delete.
+- Signed-in owners can edit name and description, mark reunited, permanently delete, and read their own hidden rows. Reopen within 7 days is in this repository and needs the slice 4 SQL. Admin hide (`removed`) is not the same as delete.
 - Exact sighting coordinates are not public. Owners and admins use `sighting_exact_coordinates`. Approval writes the owner notification on the server. Web Push on approval is verified.
 - Report pins are offset server-side. Report photos are re-encoded, EXIF-stripped, and stored at public URLs. Hard delete removes the storage object; soft-remove keeps it.
 - `edit_token` is gone. `/edit` uses `?id=` and `owner_user_id`.

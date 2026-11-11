@@ -9,7 +9,9 @@ import LocationPicker from "../../src/components/report/LocationPicker";
 import {
   canOwnerEditPhotoAndPin,
   canOwnerEditReportDetails,
+  canOwnerReopenReport,
   getOwnerReportById,
+  reopenOwnerReport,
   updateOwnerReportDetails,
   type Report,
 } from "../../src/lib/reports";
@@ -40,6 +42,7 @@ export default function EditContent() {
   const [photo, setPhoto] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [reopening, setReopening] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"error" | "success" | "">("");
@@ -188,6 +191,35 @@ export default function EditContent() {
     router.push("/");
   };
 
+  const handleReopen = async () => {
+    if (
+      !report ||
+      !userId ||
+      reopening ||
+      !canOwnerReopenReport(report.status, report.resolved_at)
+    ) {
+      return;
+    }
+
+    if (!window.confirm(t("reportReopenConfirm"))) return;
+
+    setReopening(true);
+    const ok = await reopenOwnerReport(report.id, userId);
+    setReopening(false);
+
+    if (!ok) {
+      setMessage(t("reportReopenFailed"));
+      setMessageType("error");
+      return;
+    }
+
+    setReport((prev) =>
+      prev ? { ...prev, status: "active", resolved_at: null } : prev,
+    );
+    setMessage(t("reportReopened"));
+    setMessageType("success");
+  };
+
   if (authLoading || loading) {
     return (
       <p className="px-6 py-10 text-gray-400">{t("reportDetailLoading")}</p>
@@ -317,6 +349,20 @@ export default function EditContent() {
       ) : (
         <p className="mt-6 text-sm text-gray-400">{t("reportEditUnavailable")}</p>
       )}
+
+      {canOwnerReopenReport(report.status, report.resolved_at) ? (
+        <div className="mt-10 border-t border-gray-800 pt-6">
+          <p className="text-sm text-gray-400">{t("reportReopenHint")}</p>
+          <button
+            type="button"
+            onClick={() => void handleReopen()}
+            disabled={reopening}
+            className="mt-3 rounded-md bg-emerald-800/90 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700/90 disabled:opacity-50"
+          >
+            {reopening ? t("reportReopening") : t("reportReopen")}
+          </button>
+        </div>
+      ) : null}
 
       <div className="mt-10 border-t border-gray-800 pt-6">
         <p className="text-sm text-gray-400">{t("reportDeletePermanentHint")}</p>

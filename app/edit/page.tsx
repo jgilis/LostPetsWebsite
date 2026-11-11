@@ -1,6 +1,6 @@
 "use client";
 
-/** Owner mutation surface: edit description/name, photo, pin, or delete. */
+/** Owner mutation surface: edit description/name, photo, pin, reopen, or delete. */
 import { Suspense } from "react";
 import EditContent from "./EditContent";
 

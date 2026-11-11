@@ -71,6 +71,15 @@ export const en = {
   reportMarkResolvedConfirm:
     "Mark this report as reunited? It will be removed from the map but can still appear in the feed.",
   reportMarkResolvedFailed: "Could not update this report. Please try again.",
+  reportReopen: "Put back on the map",
+  reportReopening: "Reopening...",
+  reportReopenConfirm:
+    "Put this report back on the map? Use this if it was marked reunited by mistake. You can do this for 7 days after it was reunited.",
+  reportReopenFailed:
+    "Could not reopen this report. After 7 days, file a new report instead.",
+  reportReopened: "This report is on the map again.",
+  reportReopenHint:
+    "If this was marked reunited by mistake, you can put it back on the map for 7 days after that.",
   reportPageTitle: "Report a Lost or Found Pet",
   reportChooserLost: "I lost a pet",
   reportChooserFound: "I found an animal",
@@ -198,10 +207,10 @@ export const en = {
   reportEdit: "Edit report",
   reportDelete: "Delete report",
   reportDeleteConfirm:
-    "Delete this report permanently? The public listing and its photo will be removed. This is not the same as an administrator hiding a report.",
-  reportDeleteFailed: "Delete failed.",
+    "Delete this report permanently? The listing and its photo will be removed. This cannot be undone.",
+  reportDeleteFailed: "Could not delete this report. Please try again.",
   reportDeletePermanentHint:
-    "Permanent deletion removes the report and its photo. Administrators can hide a report from the public map without deleting it.",
+    "This removes the listing and its photo. It cannot be undone.",
   reportEditTitle: "Edit report",
   reportEditHint:
     "You can update the name and description. While the report is on the map you can also change the photo and pin. Type and species stay as submitted.",

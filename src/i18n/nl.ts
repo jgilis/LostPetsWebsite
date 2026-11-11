@@ -73,6 +73,15 @@ export const nl: Record<keyof typeof en, string> = {
   reportMarkResolvedConfirm:
     "Deze melding als herenigd markeren? Hij verdwijnt van de kaart maar kan in het overzicht blijven.",
   reportMarkResolvedFailed: "Melding kon niet worden bijgewerkt. Probeer opnieuw.",
+  reportReopen: "Zet terug op de kaart",
+  reportReopening: "Opnieuw openen...",
+  reportReopenConfirm:
+    "Deze melding terug op de kaart zetten? Gebruik dit als ze per vergissing als herenigd is gemarkeerd. Dat kan tot 7 dagen na de hereniging.",
+  reportReopenFailed:
+    "Melding kon niet opnieuw worden geopend. Na 7 dagen dien je een nieuwe melding in.",
+  reportReopened: "Deze melding staat weer op de kaart.",
+  reportReopenHint:
+    "Als deze melding per vergissing als herenigd is gemarkeerd, kun je ze tot 7 dagen daarna terug op de kaart zetten.",
   reportPageTitle: "Meld een vermist of gevonden huisdier",
   reportChooserLost: "Ik ben een huisdier kwijt",
   reportChooserFound: "Ik heb een dier gevonden",
@@ -200,10 +209,10 @@ export const nl: Record<keyof typeof en, string> = {
   reportEdit: "Melding bewerken",
   reportDelete: "Melding verwijderen",
   reportDeleteConfirm:
-    "Deze melding permanent verwijderen? De publieke vermelding en de foto verdwijnen. Dit is niet hetzelfde als een beheerder die een melding verbergt.",
-  reportDeleteFailed: "Verwijderen mislukt.",
+    "Deze melding permanent verwijderen? De vermelding en de foto verdwijnen. Dit kun je niet ongedaan maken.",
+  reportDeleteFailed: "Melding kon niet worden verwijderd. Probeer opnieuw.",
   reportDeletePermanentHint:
-    "Permanent verwijderen wist de melding en de foto. Beheerders kunnen een melding van de publieke kaart halen zonder die te wissen.",
+    "Dit verwijdert de vermelding en de foto. Je kunt het niet ongedaan maken.",
   reportEditTitle: "Melding bewerken",
   reportEditHint:
     "Je kunt naam en beschrijving aanpassen. Zolang de melding op de kaart staat kun je ook de foto en de speld wijzigen. Type en diersoort blijven zoals ingediend.",

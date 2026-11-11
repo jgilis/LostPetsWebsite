@@ -214,6 +214,40 @@ export function canOwnerEditPhotoAndPin(status: ReportStatus): boolean {
   return status === "active";
 }
 
+/** Must stay in sync with the 7-day check in enforce_report_write(). */
+export const OWNER_REOPEN_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+
+export function canOwnerReopenReport(
+  status: ReportStatus,
+  resolvedAt: string | null | undefined,
+  nowMs: number = Date.now(),
+): boolean {
+  if (status !== "resolved" || !resolvedAt) return false;
+  const resolvedMs = Date.parse(resolvedAt);
+  if (!Number.isFinite(resolvedMs)) return false;
+  return resolvedMs <= nowMs && nowMs - resolvedMs <= OWNER_REOPEN_WINDOW_MS;
+}
+
+export async function reopenOwnerReport(
+  reportId: string,
+  ownerUserId: string,
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("reports")
+    .update({ status: "active" })
+    .eq("id", reportId)
+    .eq("owner_user_id", ownerUserId)
+    .eq("status", "resolved")
+    .select("id");
+
+  if (error || !data?.length) {
+    console.error("reopenOwnerReport error:", error);
+    return false;
+  }
+
+  return true;
+}
+
 export async function getOwnerReportById(
   id: string,
   ownerUserId: string,

@@ -4,7 +4,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import type { Report, ReportStatus } from "@/src/lib/reports";
+import {
+  canOwnerReopenReport,
+  reopenOwnerReport,
+  type Report,
+  type ReportStatus,
+} from "@/src/lib/reports";
 import { supabase } from "@/src/lib/supabase";
 import {
   reportBackHref,
@@ -53,6 +58,7 @@ export default function ReportDetailClient({
   const [photoBroken, setPhotoBroken] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [resolving, setResolving] = useState(false);
+  const [reopening, setReopening] = useState(false);
 
   useEffect(() => {
     setReport(initialReport);
@@ -119,7 +125,35 @@ export default function ReportDetailClient({
       report_id: report.id,
     });
 
-    setReport((prev) => ({ ...prev, status: "resolved" }));
+    setReport((prev) => ({
+      ...prev,
+      status: "resolved",
+      resolved_at: new Date().toISOString(),
+    }));
+    router.refresh();
+  };
+
+  const handleReopen = async () => {
+    if (
+      !reportIsOwner ||
+      !user?.id ||
+      reopening ||
+      !canOwnerReopenReport(report.status, report.resolved_at)
+    ) {
+      return;
+    }
+    if (!window.confirm(t("reportReopenConfirm"))) return;
+
+    setReopening(true);
+    const ok = await reopenOwnerReport(report.id, user.id);
+    setReopening(false);
+
+    if (!ok) {
+      window.alert(t("reportReopenFailed"));
+      return;
+    }
+
+    setReport((prev) => ({ ...prev, status: "active", resolved_at: null }));
     router.refresh();
   };
 
@@ -200,6 +234,16 @@ export default function ReportDetailClient({
                   className="rounded-md bg-emerald-800/90 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700/90 disabled:opacity-60"
                 >
                   {t("reportMarkResolved")}
+                </button>
+              ) : null}
+              {canOwnerReopenReport(report.status, report.resolved_at) ? (
+                <button
+                  type="button"
+                  onClick={() => void handleReopen()}
+                  disabled={reopening}
+                  className="rounded-md bg-emerald-800/90 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700/90 disabled:opacity-60"
+                >
+                  {reopening ? t("reportReopening") : t("reportReopen")}
                 </button>
               ) : null}
               {/* Sole in-app entry to /edit (mutation surface). */}

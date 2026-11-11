@@ -75,6 +75,15 @@ export const fr: Record<keyof typeof en, string> = {
     "Marquer ce signalement comme retrouvé ? Il disparaîtra de la carte mais pourra rester dans le fil.",
   reportMarkResolvedFailed:
     "Impossible de mettre à jour ce signalement. Veuillez réessayer.",
+  reportReopen: "Remettre sur la carte",
+  reportReopening: "Réouverture...",
+  reportReopenConfirm:
+    "Remettre ce signalement sur la carte ? Utilisez ceci s'il a été marqué retrouvé par erreur. C'est possible pendant 7 jours après les retrouvailles.",
+  reportReopenFailed:
+    "Impossible de rouvrir ce signalement. Après 7 jours, déposez un nouveau signalement.",
+  reportReopened: "Ce signalement est de nouveau sur la carte.",
+  reportReopenHint:
+    "S'il a été marqué retrouvé par erreur, vous pouvez le remettre sur la carte pendant 7 jours.",
   reportPageTitle: "Signaler un animal perdu ou trouvé",
   reportChooserLost: "J'ai perdu un animal",
   reportChooserFound: "J'ai trouvé un animal",
@@ -203,10 +212,10 @@ export const fr: Record<keyof typeof en, string> = {
   reportEdit: "Modifier le signalement",
   reportDelete: "Supprimer le signalement",
   reportDeleteConfirm:
-    "Supprimer ce signalement définitivement ? L'annonce publique et sa photo seront retirées. Ce n'est pas la même action qu'un administrateur qui masque un signalement.",
-  reportDeleteFailed: "Échec de la suppression.",
+    "Supprimer ce signalement définitivement ? L'annonce et sa photo seront retirées. Cette action est irréversible.",
+  reportDeleteFailed: "Impossible de supprimer ce signalement. Veuillez réessayer.",
   reportDeletePermanentHint:
-    "La suppression définitive retire le signalement et sa photo. Les administrateurs peuvent masquer un signalement de la carte publique sans le supprimer.",
+    "Cela retire l'annonce et sa photo. Cette action est irréversible.",
   reportEditTitle: "Modifier le signalement",
   reportEditHint:
     "Vous pouvez modifier le nom et la description. Tant que le signalement est sur la carte, vous pouvez aussi changer la photo et l'épingle. Le type et l'espèce restent ceux du dépôt.",

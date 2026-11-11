@@ -81,16 +81,15 @@ test("trigger stamps resolved_at on active to resolved and rejects other writes 
   );
 });
 
-test("owner resolve and edit paths do not write resolved_at from the client", () => {
+test("owner resolve, reopen, and edit paths do not write resolved_at from the client", () => {
   assert.match(detail, /status: "resolved"/);
   assert.match(detail, /\.eq\("status", "active"\)/);
-  assert.doesNotMatch(detail, /resolved_at/);
   assert.match(reports, /\.update\(\{ status \}\)/);
   assert.match(reports, /\.update\(\{ description, animal_name \}\)/);
+  assert.match(reports, /\.update\(\{ status: "active" \}\)/);
   assert.doesNotMatch(reports, /\.update\(\{[^}]*resolved_at/);
-  assert.doesNotMatch(edit, /resolved_at/);
-  assert.doesNotMatch(detail, /status:\s*"active"/);
-  assert.doesNotMatch(edit, /status:\s*"active"/);
+  assert.doesNotMatch(detail, /\.update\([^)]*resolved_at/);
+  assert.doesNotMatch(edit, /\.update\(/);
 });
 
 test("Activity 14-day window uses resolved_at and treats NULL as not in the area feed", () => {

@@ -56,7 +56,7 @@ test("successful submit refreshes map and feed without treating errors as succes
   assert.ok(failIdx > 0 && successIdx > failIdx);
 });
 
-test("owners can edit allowed fields and permanently delete; they cannot reopen", () => {
+test("owners can edit allowed fields, permanently delete, and reopen within 7 days", () => {
   assert.match(edit, /updateOwnerReportDetails/);
   assert.match(edit, /animal_name/);
   assert.match(edit, /description/);
@@ -70,8 +70,12 @@ test("owners can edit allowed fields and permanently delete; they cannot reopen"
   assert.match(reports, /!data\?\.length/);
   assert.match(detail, /status: "resolved"/);
   assert.match(detail, /\.eq\("status", "active"\)/);
-  assert.doesNotMatch(edit, /status:\s*"active"/);
-  assert.doesNotMatch(detail, /status:\s*"active"/);
+  assert.match(reports, /canOwnerReopenReport/);
+  assert.match(reports, /reopenOwnerReport/);
+  assert.match(reports, /\.update\(\{ status: "active" \}\)/);
+  assert.match(reports, /\.eq\("status", "resolved"\)/);
+  assert.match(edit, /reopenOwnerReport/);
+  assert.match(detail, /reopenOwnerReport/);
   assert.match(edit, /reportDeletePermanentHint/);
   assert.match(detail, /\.delete\(\)/);
   assert.match(edit, /\.delete\(\)/);
