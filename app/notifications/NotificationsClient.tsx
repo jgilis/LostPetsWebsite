@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import { useNotifications } from "../../src/components/notifications/NotificationsProvider";
+import { AREA_NOTIFICATION_TYPE } from "@/src/lib/areaSubscriptions";
+import { activityEventFocusHref } from "@/src/lib/reportNavigation";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import LocationDisplay from "@/src/components/location/LocationDisplay";
 
@@ -37,7 +39,16 @@ export default function NotificationsClient() {
 
       {events.length === 0 && <p>{t("notificationsEmpty")}</p>}
 
-      {events.map((event) => (
+      {events.map((event) => {
+        const isAreaAlert = event.type === AREA_NOTIFICATION_TYPE;
+        const reportId = event.payload.lost_report_id;
+        const hasCoarsePlace =
+          event.payload.latitude != null &&
+          event.payload.longitude != null &&
+          Number.isFinite(event.payload.latitude) &&
+          Number.isFinite(event.payload.longitude);
+
+        return (
         <div
           key={event.id}
           style={{
@@ -55,7 +66,7 @@ export default function NotificationsClient() {
               marginBottom: "6px",
             }}
           >
-            🐾 {t("notificationsSightingApproved")}
+            🐾 {isAreaAlert ? t("notificationsAreaTitle") : t("notificationsSightingApproved")}
           </p>
 
           <p
@@ -64,10 +75,10 @@ export default function NotificationsClient() {
               color: "#444",
             }}
           >
-            {t("notificationsSightingBody")}
+            {isAreaAlert ? t("notificationsAreaBody") : t("notificationsSightingBody")}
           </p>
 
-          {event.payload.latitude && event.payload.longitude && (
+          {hasCoarsePlace ? (
             <p
               style={{
                 fontSize: "14px",
@@ -81,7 +92,7 @@ export default function NotificationsClient() {
                 longitude={event.payload.longitude}
               />
             </p>
-          )}
+          ) : null}
 
           <p
             style={{
@@ -92,7 +103,22 @@ export default function NotificationsClient() {
             {new Date(event.created_at).toLocaleString()}
           </p>
 
-          {event.payload.sighting_id && (
+          {isAreaAlert && reportId ? (
+            <a
+              href={activityEventFocusHref(reportId)}
+              style={{
+                display: "inline-block",
+                marginTop: "10px",
+                color: "#2563eb",
+                fontWeight: 600,
+                textDecoration: "underline",
+              }}
+            >
+              {t("notificationsViewOnDiscover")} →
+            </a>
+          ) : null}
+
+          {!isAreaAlert && event.payload.sighting_id ? (
             <a
               href={`/sightings/${event.payload.sighting_id}`}
               style={{
@@ -105,9 +131,10 @@ export default function NotificationsClient() {
             >
               {t("notificationsViewSighting")} →
             </a>
-          )}
+          ) : null}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

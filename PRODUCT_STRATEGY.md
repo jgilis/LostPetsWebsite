@@ -1,6 +1,6 @@
 # Lost Pets Map — next-version product specification
 
-**Status:** product specification. Phase 0, Phase 1, Phase 2, and Phase 3 are complete in this repository. Phases 4–5 have not started.  
+**Status:** product specification. Phases 0–4 are complete in this repository. Phase 5 has not started. Phase 4 SQL and push deploy are still pending in production.  
 **Baseline:** live product as of 9 November 2026, hosted on Vercel from GitHub `jgilis/LostPetsWebsite`, Supabase project `dmubikdkyusadzqngapy`. `CURRENT_STATE.md` remains a 7 November inventory of the pre-security commit and is not the live baseline.  
 **This document is the product direction.** What to build next is `PRODUCT_PLAN.md` section 12. What is true in production is `PRODUCT_PLAN.md` section 15. Where this spec and that status disagree on facts about the running system, the plan wins.
 
@@ -507,7 +507,7 @@ Activity lists public facts inside the Discover camera, newest first: active los
 The destination label is **Report**. Slices 1–5 are done in this repository: three-task chooser; lost/found reuse the current form; spotted uses a camera picker then the existing sighting modal; Discover skips the picker; both paths call `submitSighting`; pending confirmation without `alert`; observation time; optional private photo after insert; owner photo/pin edit; 7-day reopen; flagging sheet off `window.prompt`. Magic-link draft keep waits until after Phase 5.
 
 **Phase 4 — zones and push.**  
-`area_subscriptions`, match on new lost reports, new `notification_events` type, extend the push function and the in-app list, unique dedupe. Depends on the webhook actually being installed.
+**Done** in this repository. `area_subscriptions`, match on first publication of a lost report, `lost_report_in_area` on `notification_events`, unique one notice per person per report, extend the existing push function and in-app list. SQL paste and `send-push-on-notification` deploy still required in production.
 
 **Phase 5 — admin queue and audit.**  
 Counts, pending-only sightings, photos on sighting review, `reviewed_by`, `moderation_actions`, expiry job, duplicate hint, storage cleanup on delete.
@@ -563,4 +563,4 @@ Do not track walking paths. Do not add a social graph metric.
 9. **Phase 1 legend.** Compact, must not obstruct map or report controls.
 10. **Phase 1 visual direction.** Keep the existing styling. No redesign.
 
-Phase 0, Phase 1, Phase 2, and Phase 3 are complete in this repository. Next is Phase 4: `PRODUCT_PLAN.md` section 12. `/sightings/[id]` exact-location visibility is separate debt.
+Phases 0–4 are complete in this repository. Next is Phase 5: `PRODUCT_PLAN.md` section 12. `/sightings/[id]` exact-location visibility is separate debt.

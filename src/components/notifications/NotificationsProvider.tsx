@@ -24,6 +24,7 @@ export type NotificationEvent = {
     latitude?: number;
     longitude?: number;
     status?: string;
+    animal_type?: string;
   };
   created_at: string;
   read_at: string | null;

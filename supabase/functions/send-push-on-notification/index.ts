@@ -17,6 +17,7 @@ type NotificationRecord = {
     latitude?: number;
     longitude?: number;
     status?: string;
+    animal_type?: string;
   };
 };
 
@@ -54,6 +55,12 @@ function formatPushContent(record: NotificationRecord) {
       title = "Sighting update";
       body = "A sighting on your report was updated.";
       if (sightingId) url = `/sightings/${sightingId}`;
+      break;
+    case "lost_report_in_area":
+      title = "Lost pet nearby";
+      body = "A lost pet was reported in an area you follow.";
+      if (reportId) url = `/?tab=discover&focus=${encodeURIComponent(reportId)}`;
+      else url = "/notifications";
       break;
     default:
       if (record.type) {
@@ -95,9 +102,12 @@ serve(async (req: Request) => {
   }
 
   const record = body.record ?? (body as NotificationRecord);
-  if (record?.type !== "sighting_approved") {
+  if (
+    record?.type !== "sighting_approved" &&
+    record?.type !== "lost_report_in_area"
+  ) {
     return new Response(
-      JSON.stringify({ sent: 0, skipped: "not an owner-approved sighting event" }),
+      JSON.stringify({ sent: 0, skipped: "not a push notification type" }),
       {
         status: 200,
         headers: { "Content-Type": "application/json" },

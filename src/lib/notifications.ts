@@ -1,4 +1,8 @@
+import { AREA_NOTIFICATION_TYPE } from "./areaSubscriptions";
 import { supabase } from "./supabase";
+
+const NOTIFICATION_TYPES = ["sighting_approved", AREA_NOTIFICATION_TYPE] as const;
+const NOTIFICATION_SELECT = "id, type, payload, created_at, read_at";
 
 async function getAuthUserId(): Promise<string | null> {
   const { data, error } = await supabase.auth.getUser();
@@ -12,9 +16,9 @@ export async function getUnreadNotificationCount() {
 
   const { count, error } = await supabase
     .from("notification_events")
-    .select("*", { count: "exact", head: true })
+    .select("id", { count: "exact", head: true })
     .eq("target_user_id", userId)
-    .eq("type", "sighting_approved")
+    .in("type", [...NOTIFICATION_TYPES])
     .is("read_at", null);
 
   if (error) {
@@ -49,9 +53,9 @@ export async function getOwnerSightingsNotifications() {
 
   const { data, error } = await supabase
     .from("notification_events")
-    .select("*")
+    .select(NOTIFICATION_SELECT)
     .eq("target_user_id", userId)
-    .eq("type", "sighting_approved")
+    .in("type", [...NOTIFICATION_TYPES])
     .order("created_at", { ascending: false });
 
   if (error) {

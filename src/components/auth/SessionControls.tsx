@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import AreaZonesSheet from "@/src/components/account/AreaZonesSheet";
 import { signOut } from "@/src/lib/auth";
 import { useCurrentUser } from "@/src/hooks/useCurrentUser";
 import { useTranslation } from "@/src/i18n/I18nProvider";
@@ -9,6 +10,7 @@ export default function SessionControls() {
   const { user, loading } = useCurrentUser();
   const { t } = useTranslation();
   const [signingOut, setSigningOut] = useState(false);
+  const [zonesOpen, setZonesOpen] = useState(false);
 
   const handleLogout = async () => {
     setSigningOut(true);
@@ -50,6 +52,13 @@ export default function SessionControls() {
         </p>
         <button
           type="button"
+          onClick={() => setZonesOpen(true)}
+          className="mb-2 w-full text-left text-gray-300 underline hover:text-white"
+        >
+          {t("zoneAlerts")}
+        </button>
+        <button
+          type="button"
           onClick={() => void handleLogout()}
           disabled={signingOut}
           className="w-full text-left text-gray-300 underline hover:text-white disabled:opacity-50"
@@ -57,6 +66,9 @@ export default function SessionControls() {
           {signingOut ? t("sessionLoggingOut") : t("sessionLogout")}
         </button>
       </div>
+      {zonesOpen ? (
+        <AreaZonesSheet onClose={() => setZonesOpen(false)} />
+      ) : null}
     </details>
   );
 }
