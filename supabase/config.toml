@@ -24,6 +24,14 @@ verify_jwt = false
 import_map = "./functions/send-push-on-notification/deno.json"
 entrypoint = "./functions/send-push-on-notification/index.ts"
 
+# Owner photo and pin edits. JWT required. Applies the location offset
+# and uploads re-encoded JPEGs with the service role.
+[functions.owner-update-report]
+enabled = true
+verify_jwt = true
+import_map = "./functions/owner-update-report/deno.json"
+entrypoint = "./functions/owner-update-report/index.ts"
+
 # Production sighting submissions already call this name.
 # verify_jwt must stay false: the sighting form sends no Authorization header.
 [functions.smooth-processor]

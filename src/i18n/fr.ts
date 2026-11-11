@@ -208,7 +208,8 @@ export const fr: Record<keyof typeof en, string> = {
   reportDeletePermanentHint:
     "La suppression définitive retire le signalement et sa photo. Les administrateurs peuvent masquer un signalement de la carte publique sans le supprimer.",
   reportEditTitle: "Modifier le signalement",
-  reportEditHint: "Vous pouvez modifier le nom et la description. Le type et l'espèce restent ceux du dépôt.",
+  reportEditHint:
+    "Vous pouvez modifier le nom et la description. Tant que le signalement est sur la carte, vous pouvez aussi changer la photo et l'épingle. Le type et l'espèce restent ceux du dépôt.",
   reportEditSave: "Enregistrer",
   reportEditSaving: "Enregistrement...",
   reportEditSaved: "Modifications enregistrées.",

@@ -203,7 +203,8 @@ export const en = {
   reportDeletePermanentHint:
     "Permanent deletion removes the report and its photo. Administrators can hide a report from the public map without deleting it.",
   reportEditTitle: "Edit report",
-  reportEditHint: "You can update the name and description. Type and species stay as submitted.",
+  reportEditHint:
+    "You can update the name and description. While the report is on the map you can also change the photo and pin. Type and species stay as submitted.",
   reportEditSave: "Save changes",
   reportEditSaving: "Saving...",
   reportEditSaved: "Changes saved.",

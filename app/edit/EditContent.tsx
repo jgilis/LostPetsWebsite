@@ -5,7 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCurrentUser } from "../../src/hooks/useCurrentUser";
 import { isOwner } from "../../src/lib/permissions";
+import LocationPicker from "../../src/components/report/LocationPicker";
 import {
+  canOwnerEditPhotoAndPin,
   canOwnerEditReportDetails,
   getOwnerReportById,
   updateOwnerReportDetails,
@@ -13,6 +15,11 @@ import {
 } from "../../src/lib/reports";
 import { supabase } from "../../src/lib/supabase";
 import { useTranslation } from "@/src/i18n/I18nProvider";
+import {
+  blobToBase64,
+  PhotoPreparationError,
+  prepareReportPhoto,
+} from "../../src/lib/prepareReportPhoto";
 import {
   MAX_ANIMAL_NAME_LENGTH,
   MIN_DESCRIPTION_LENGTH,
@@ -28,6 +35,9 @@ export default function EditContent() {
   const [report, setReport] = useState<Report | null>(null);
   const [animalName, setAnimalName] = useState("");
   const [description, setDescription] = useState("");
+  const [latitude, setLatitude] = useState(51.0206);
+  const [longitude, setLongitude] = useState(4.4756);
+  const [photo, setPhoto] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -63,6 +73,9 @@ export default function EditContent() {
         setReport(data);
         setAnimalName(data.animal_name ?? "");
         setDescription(data.description ?? "");
+        setLatitude(data.latitude);
+        setLongitude(data.longitude);
+        setPhoto(null);
         setMessage("");
         setMessageType("");
       }
@@ -89,14 +102,42 @@ export default function EditContent() {
       return;
     }
 
+    const canMovePin = canOwnerEditPhotoAndPin(report.status);
+    const pinChanged =
+      canMovePin &&
+      (latitude !== report.latitude || longitude !== report.longitude);
+
     setSaving(true);
-    const ok = await updateOwnerReportDetails(report.id, userId, {
+    let photoBase64: string | undefined;
+    if (canMovePin && photo) {
+      try {
+        const prepared = await prepareReportPhoto(photo);
+        photoBase64 = await blobToBase64(prepared);
+      } catch (photoError) {
+        setSaving(false);
+        const code =
+          photoError instanceof PhotoPreparationError
+            ? photoError.code
+            : "invalid-type";
+        setMessage(
+          code === "too-large"
+            ? t("reportErrorPhotoTooLarge")
+            : t("reportErrorPhotoInvalid"),
+        );
+        setMessageType("error");
+        return;
+      }
+    }
+
+    const result = await updateOwnerReportDetails(report.id, userId, {
       description,
       animal_name: animalName,
+      ...(pinChanged ? { latitude, longitude } : {}),
+      ...(photoBase64 ? { photoBase64 } : {}),
     });
     setSaving(false);
 
-    if (!ok) {
+    if (!result.ok) {
       setMessage(t("reportEditSaveFailed"));
       setMessageType("error");
       return;
@@ -108,9 +149,17 @@ export default function EditContent() {
             ...prev,
             description: description.trim(),
             animal_name: animalName.trim(),
+            latitude: result.report?.latitude ?? prev.latitude,
+            longitude: result.report?.longitude ?? prev.longitude,
+            photo_url: result.report?.photo_url ?? prev.photo_url,
           }
         : prev,
     );
+    if (result.report) {
+      setLatitude(result.report.latitude);
+      setLongitude(result.report.longitude);
+    }
+    setPhoto(null);
     setMessage(t("reportEditSaved"));
     setMessageType("success");
   };
@@ -211,6 +260,51 @@ export default function EditContent() {
             placeholder={t("reportDescriptionPlaceholder")}
           />
         </label>
+
+        {canOwnerEditPhotoAndPin(report.status) ? (
+          <>
+            <div className="block space-y-2">
+              <span className="mb-1 block text-sm font-medium">
+                {t("reportPhoto")}
+              </span>
+              {report.photo_url ? (
+                <img
+                  src={report.photo_url}
+                  alt=""
+                  className="max-h-40 rounded border border-gray-700 object-cover"
+                />
+              ) : null}
+              <label className="inline-block">
+                <span className="inline-block cursor-pointer rounded border border-gray-700 bg-gray-800 px-4 py-2 text-white hover:bg-gray-700">
+                  {t("reportChoosePhoto")}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+                  className="hidden"
+                />
+              </label>
+              {photo ? (
+                <p className="text-xs text-gray-400">
+                  {t("reportPhotoSelected")} {photo.name}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="w-full overflow-hidden rounded">
+              <LocationPicker
+                latitude={latitude}
+                longitude={longitude}
+                setLatitude={setLatitude}
+                setLongitude={setLongitude}
+              />
+              <p className="text-xs italic text-gray-400">
+                {t("reportLocationPrivacy")}
+              </p>
+            </div>
+          </>
+        ) : null}
 
         <button
           type="submit"

@@ -1,6 +1,6 @@
 # Lost Pets Map — Product Plan
 
-**Status:** Working product direction. Phases 0–2 are done. Phase 3 slices 1–3 are done in this repository. Next is Phase 3 slice 4.  
+**Status:** Working product direction. Phases 0–2 are done. Phase 3 slices 1–3 are done in this repository. Next is Phase 3 slice 4 (7-day reopen). Magic-link draft keep is deferred until after Phase 5.  
 **Scope:** Next version  
 **Primary area:** Mechelen, Belgium  
 **Languages:** English, Dutch and French
@@ -327,10 +327,9 @@ Work in small, reviewable phases. Complete and test each phase before starting t
 **Phase 3 — Report** (slices 1–3 done; next is slice 4)
 - Slice 1: three-task chooser — lost / found / spotted a listed pet
 - Slice 2: pending confirmation, observation time, private sighting photo
-- Slice 3: magic-link draft keep
-- Slice 4: owner photo + pin edit
-- Slice 5: 7-day reopen (SQL first)
-- Slice 6: flagging sheet (off `window.prompt`)
+- Slice 3: owner photo + pin edit
+- Slice 4: 7-day reopen (SQL first)
+- Slice 5: flagging sheet (off `window.prompt`)
 
 **Phase 4 — Area subscriptions** (not started)
 - Saved areas; alerts for new lost reports
@@ -341,6 +340,10 @@ Work in small, reviewable phases. Complete and test each phase before starting t
 - Review-queue polish (counts, pending sightings, review photos)
 - `moderation_actions` audit trail and `reviewed_by`
 - Expiry job, duplicate hints, storage cleanup on delete
+
+**After Phase 5 — Magic-link draft keep** (deferred)
+- Lost/found form fields survive email login and return the person to the filled Report form
+- Attempted during Phase 3; not reliable enough in production. Do not resume until Phases 3–5 are done.
 
 ### Phase 1 Discover — delivered
 
@@ -440,7 +443,7 @@ The destination label is **Report** (EN Report / NL Melding / FR Signaler), not 
 - Report screen asks only: I lost a pet / I found an animal / I spotted a listed pet. No extra landing copy.
 - Lost and found reuse `ReportForm` with type preset. Login-before-publish banner stays. Do not rebuild the form.
 - Spotted is a picker of active lost reports in the Discover camera, then the existing `SightingsModal`. Discover “I spotted this animal” skips the picker. Both paths call `submitSighting`.
-- Keep the map mounted. Do not start slices 2–6 here.
+- Keep the map mounted. Do not start slices 2–5 here.
 
 **Slice 2 — Sighting confirmation, observation time, optional photo (implemented in this repository)**
 
@@ -448,17 +451,18 @@ The destination label is **Report** (EN Report / NL Melding / FR Signaler), not 
 - Observation time defaults to now and is editable. Optional photo is re-encoded, EXIF-stripped, and uploaded **after** the sighting row exists, to private bucket `sighting-photos`. Do not use `report-photos`. Do not accept a client `photo_url`.
 - SQL is applied in production. `smooth-processor` is deployed with observation time and private `sighting-photos` upload.
 
-**Slice 3 — Magic-link draft keep (implemented in this repository)**
+**Slice 3 — Owner photo + pin edit (implemented in this repository)**
 
-- Lost/found form fields, pin, consent, and optional photo stay in `localStorage` while the person logs in.
-- Login from the form sends the magic link back to `/?tab=report&task=lost|found`, not the site origin.
-- After sign-in they land on the same Report form with the draft restored. Sightings are unchanged (no account). Header login still goes to `/login` without a next path.
+- Active reports: owner can replace the photo and move the pin on `/edit`. Name and description stay editable on active and resolved, as today.
+- Photo is re-encoded and uploaded by `owner-update-report` (JWT required). Pin is offset on the server. The client does not write `latitude`, `longitude`, or `photo_url`.
+- SQL in `supabase/migrations/20261111100000_owner_photo_pin_via_function.sql` is **not applied** until pasted in the dashboard. Then deploy `owner-update-report` with JWT verification on.
 
 **Remaining slices (not started)**
 
-- Slice 4 — Owner photo + pin edit.
-- Slice 5 — 7-day reopen (SQL first).
-- Slice 6 — Flagging sheet (off `window.prompt`).
+- Slice 4 — 7-day reopen (SQL first).
+- Slice 5 — Flagging sheet (off `window.prompt`).
+
+Magic-link draft keep is **not** a remaining Phase 3 slice. It waits until after Phase 5.
 
 ## 13. Explicitly out of scope
 
@@ -497,7 +501,7 @@ These should not silently become permanent technical or product assumptions:
 
 ## 15. Live baseline
 
-**As of 11 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phases 0–2 are live. Phase 3 slices 1–2 are live (chooser, pending confirmation, `observed_at`, private `sighting-photos`; SQL applied and `smooth-processor` deployed). Phase 3 slice 3 (magic-link draft keep) is in this repository; production is whatever Vercel last deployed from GitHub. Next is Phase 3 slice 4 (owner photo + pin edit). Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. `/sightings/[id]` exact-location visibility is separate debt.
+**As of 11 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phases 0–2 are live. Phase 3 slices 1–2 are live. Slice 3 (owner photo + pin edit) is in this repository; production needs the SQL, `owner-update-report` deploy, and a GitHub push. Next is Phase 3 slice 4 (7-day reopen). Magic-link draft keep is deferred until after Phase 5. Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. `/sightings/[id]` exact-location visibility is separate debt.
 
 ### How production is updated
 
@@ -507,6 +511,7 @@ These should not silently become permanent technical or product assumptions:
 | `smooth-processor` | `npx supabase functions deploy smooth-processor --project-ref dmubikdkyusadzqngapy --no-verify-jwt` | Deployed |
 | `verify-captcha-v2` | `npx supabase functions deploy verify-captcha-v2 --project-ref dmubikdkyusadzqngapy` | Live; does not write `edit_token` |
 | Database | SQL pasted in the production SQL Editor | Sighting/notification SQL, admin EXECUTE grant, Packages A–C SQL (owner SELECT and `edit_token` drop included). Do not run `supabase db push` |
+| `owner-update-report` | `npx supabase functions deploy owner-update-report --project-ref dmubikdkyusadzqngapy` | Not deployed |
 | Other Edge Functions | CLI deploy when explicitly done | Unused `verify-captcha` was redeployed with Package C. `flag-report` was not redeployed in this round |
 
 There is no verified automatic Supabase–GitHub integration. Production does not have a trustworthy `schema_migrations` history for the full schema. The database cannot be rebuilt from this repository.

@@ -205,7 +205,8 @@ export const nl: Record<keyof typeof en, string> = {
   reportDeletePermanentHint:
     "Permanent verwijderen wist de melding en de foto. Beheerders kunnen een melding van de publieke kaart halen zonder die te wissen.",
   reportEditTitle: "Melding bewerken",
-  reportEditHint: "Je kunt naam en beschrijving aanpassen. Type en diersoort blijven zoals ingediend.",
+  reportEditHint:
+    "Je kunt naam en beschrijving aanpassen. Zolang de melding op de kaart staat kun je ook de foto en de speld wijzigen. Type en diersoort blijven zoals ingediend.",
   reportEditSave: "Wijzigingen opslaan",
   reportEditSaving: "Opslaan...",
   reportEditSaved: "Wijzigingen opgeslagen.",

@@ -210,6 +210,10 @@ export function canOwnerEditReportDetails(status: ReportStatus): boolean {
   return status === "active" || status === "resolved";
 }
 
+export function canOwnerEditPhotoAndPin(status: ReportStatus): boolean {
+  return status === "active";
+}
+
 export async function getOwnerReportById(
   id: string,
   ownerUserId: string,
@@ -236,8 +240,21 @@ export async function getOwnerReportById(
 export async function updateOwnerReportDetails(
   reportId: string,
   ownerUserId: string,
-  fields: { description: string; animal_name: string },
-) {
+  fields: {
+    description: string;
+    animal_name: string;
+    latitude?: number;
+    longitude?: number;
+    photoBase64?: string;
+  },
+): Promise<{
+  ok: boolean;
+  report?: {
+    latitude: number;
+    longitude: number;
+    photo_url: string | null;
+  };
+}> {
   const description = fields.description.trim();
   const animal_name = fields.animal_name.trim();
   if (
@@ -245,7 +262,55 @@ export async function updateOwnerReportDetails(
     description.length > MAX_DESCRIPTION_LENGTH ||
     animal_name.length > MAX_ANIMAL_NAME_LENGTH
   ) {
-    return false;
+    return { ok: false };
+  }
+
+  const pinChanged =
+    typeof fields.latitude === "number" &&
+    typeof fields.longitude === "number";
+  const photoChanged = Boolean(fields.photoBase64);
+
+  if (pinChanged || photoChanged) {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) {
+      return { ok: false };
+    }
+
+    const res = await fetch(
+      "https://dmubikdkyusadzqngapy.supabase.co/functions/v1/owner-update-report",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          report_id: reportId,
+          description,
+          animal_name,
+          ...(pinChanged
+            ? { latitude: fields.latitude, longitude: fields.longitude }
+            : {}),
+          ...(photoChanged ? { photo_base64: fields.photoBase64 } : {}),
+        }),
+      },
+    );
+
+    const payload = await res.json().catch(() => null);
+    if (!res.ok || !payload?.success || !payload.report) {
+      console.error("updateOwnerReportDetails function error:", payload);
+      return { ok: false };
+    }
+
+    return {
+      ok: true,
+      report: {
+        latitude: Number(payload.report.latitude),
+        longitude: Number(payload.report.longitude),
+        photo_url: payload.report.photo_url ?? null,
+      },
+    };
   }
 
   const { data, error } = await supabase
@@ -258,10 +323,10 @@ export async function updateOwnerReportDetails(
 
   if (error || !data?.length) {
     console.error("updateOwnerReportDetails error:", error);
-    return false;
+    return { ok: false };
   }
 
-  return true;
+  return { ok: true };
 }
 
 export async function updateReportStatus(
