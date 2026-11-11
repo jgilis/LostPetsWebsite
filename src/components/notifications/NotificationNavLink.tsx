@@ -18,7 +18,7 @@ export default function NotificationNavLink() {
   return (
     <Link
       href="/notifications"
-      className="inline-flex h-11 min-w-11 items-center justify-center gap-1.5 font-medium text-gray-300 hover:text-white md:h-auto md:min-w-0"
+      className="inline-flex h-11 min-w-11 items-center justify-center gap-1.5 font-medium text-lp-ink-muted hover:text-lp-ink md:h-auto md:min-w-0"
       aria-label={t("navNotifications")}
     >
       <svg
@@ -38,7 +38,7 @@ export default function NotificationNavLink() {
       <span className="hidden md:inline">{t("navNotifications")}</span>
       {unreadCount > 0 && (
         <span
-          className="inline-flex min-w-[1.1rem] h-[1.1rem] items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold leading-none text-white"
+          className="inline-flex min-w-[1.1rem] h-[1.1rem] items-center justify-center rounded-full bg-lp-coral px-1 text-[10px] font-bold leading-none text-white"
           aria-label={`${unreadCount} unread notification${unreadCount === 1 ? "" : "s"}`}
         >
           {unreadCount > 99 ? "99+" : unreadCount}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { FilterIcon } from "@/src/components/icons/NavIcons";
 import ReportFiltersBar, {
   type AnimalFilter,
   type TypeFilter,
@@ -64,14 +65,15 @@ export default function DiscoverMobileFilters({
     <>
       <button
         type="button"
-        className="discover-filters-btn inline-flex min-h-11 items-center gap-2 rounded-md border border-gray-700 bg-gray-900 px-3 text-sm font-medium text-gray-100"
+        className="discover-filters-btn inline-flex min-h-11 items-center gap-2 rounded-full border border-lp-line bg-lp-paper/95 px-3 text-sm font-medium text-lp-ink shadow-[0_4px_14px_rgb(61_52_44_/_0.08)]"
         aria-expanded={open}
         aria-controls="discover-filter-sheet"
         onClick={() => (open ? onClose() : onOpen())}
       >
+        <FilterIcon className="h-4 w-4" />
         {t("discoverFilters")}
         {filtersActive ? (
-          <span className="rounded-full bg-gray-700 px-2 py-0.5 text-xs font-medium text-gray-100">
+          <span className="rounded-full bg-lp-sage-soft px-2 py-0.5 text-xs font-medium text-lp-sage-dark">
             {summary}
           </span>
         ) : null}
@@ -89,18 +91,18 @@ export default function DiscoverMobileFilters({
             role="dialog"
             aria-modal="true"
             aria-labelledby="discover-filter-title"
-            className="absolute inset-x-0 bottom-0 max-h-[min(70dvh,32rem)] overflow-y-auto rounded-t-xl border border-gray-800 bg-gray-950 pb-[max(1rem,env(safe-area-inset-bottom))]"
+            className="absolute inset-x-0 bottom-0 max-h-[min(70dvh,32rem)] overflow-y-auto rounded-t-2xl border border-lp-line bg-lp-paper pb-[max(1rem,env(safe-area-inset-bottom))]"
           >
-            <div className="flex items-center justify-between border-b border-gray-800 px-3 py-2">
+            <div className="flex items-center justify-between border-b border-lp-line px-3 py-2">
               <h2
                 id="discover-filter-title"
-                className="text-sm font-medium text-gray-100"
+                className="text-sm font-medium text-lp-ink"
               >
                 {t("discoverFilters")}
               </h2>
               <button
                 type="button"
-                className="min-h-11 px-3 text-sm font-medium text-gray-200"
+                className="min-h-11 px-3 text-sm font-medium text-lp-ink-muted"
                 onClick={onClose}
               >
                 {t("discoverDetailClose")}

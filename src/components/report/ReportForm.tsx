@@ -357,25 +357,25 @@ export default function ReportForm({
   return (
     <form onSubmit={handleSubmit} className="w-full">
       {!authLoading && !isLoggedIn && (
-      <div className="mb-6 rounded-lg border border-gray-700 bg-gray-900/50 px-4 py-3 text-sm">
-        <p className="leading-relaxed text-gray-200">
-          <span className="font-medium text-white">{t("reportLoginTitle")}</span>{" "}
+      <div className="mb-6 rounded-2xl border border-lp-line bg-lp-paper px-4 py-3 text-sm">
+        <p className="leading-relaxed text-lp-ink-muted">
+          <span className="font-medium text-lp-ink">{t("reportLoginTitle")}</span>{" "}
           {t("reportLoginBody")}
         </p>
         <a
           href={loginHref}
           onClick={(event) => void persistDraftAndGoToLogin(event)}
-          className="mt-3 inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+          className="mt-3 inline-flex items-center justify-center rounded-full bg-lp-sage px-4 py-2 text-sm font-semibold text-white hover:bg-lp-sage-dark"
         >
           {t("reportLoginCta")}
         </a>
       </div>
       )}
 
-      <div className="grid md:grid-cols-2 gap-8 items-start bg-gray-900 text-white rounded-lg p-6 shadow-lg border border-gray-800">
+      <div className="grid md:grid-cols-2 gap-8 items-start bg-lp-paper text-lp-ink rounded-2xl p-6 shadow-[0_10px_28px_rgb(61_52_44_/_0.08)] border border-lp-line">
 
         {/* ================= LEFT COLUMN ================= */}
-        <div className="space-y-6 md:border-r md:border-gray-700 md:pr-8">
+        <div className="space-y-6 md:border-r md:border-lp-line md:pr-8">
 
           {/* TYPE */}
           <label className="block">
@@ -383,7 +383,7 @@ export default function ReportForm({
             <select
               value={type}
               onChange={(e) => setType(e.target.value as "lost" | "found" | "")}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-lp-paper-muted border border-lp-line rounded-xl p-2 text-lp-ink"
             >
               <option value="" disabled>
                 {t("reportSelectStatus")}
@@ -400,7 +400,7 @@ export default function ReportForm({
             <select
               value={animalType}
               onChange={(e) => setAnimalType(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-lp-paper-muted border border-lp-line rounded-xl p-2 text-lp-ink"
             >
               <option value="" disabled>
                 {t("reportSelectAnimal")}
@@ -422,7 +422,7 @@ export default function ReportForm({
             <input
               value={animalName ?? ""}
               onChange={(e) => setAnimalName(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-lp-paper-muted border border-lp-line rounded-xl p-2 text-lp-ink"
               placeholder={t("reportAnimalNamePlaceholder")}
             />
           </label>
@@ -433,7 +433,7 @@ export default function ReportForm({
             <textarea
               value={description ?? ""}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded p-2 min-h-[120px] text-white"
+              className="w-full bg-lp-paper-muted border border-lp-line rounded-xl p-2 min-h-[120px] text-lp-ink"
               placeholder={t("reportDescriptionPlaceholder")}
             />
           </label>
@@ -443,7 +443,7 @@ export default function ReportForm({
             <span className="block text-sm font-medium">{t("reportPhoto")}</span>
             
             <label className="inline-block">
-              <span className="cursor-pointer inline-block bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded hover:bg-gray-700">
+              <span className="cursor-pointer inline-block bg-lp-sage-soft border border-lp-line text-lp-sage-dark px-4 py-2 rounded-full hover:bg-lp-sage/20">
                 {t("reportChoosePhoto")}
               </span>
 
@@ -456,7 +456,7 @@ export default function ReportForm({
             </label>
 
             {photo && (
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-lp-ink-subtle">
                 {t("reportPhotoSelected")} {photo.name}
               </p>
             )}
@@ -475,13 +475,13 @@ export default function ReportForm({
               setLatitude={setLatitude}
               setLongitude={setLongitude}
             />
-            <p className="text-xs italic text-gray-400">
+            <p className="text-xs italic text-lp-ink-subtle">
               {t("reportLocationPrivacy")}
             </p>
             {duplicateHints.length > 0 ? (
-              <div className="mt-3 rounded-md border border-amber-800/70 bg-amber-950/40 px-3 py-2 text-sm text-amber-100">
+              <div className="mt-3 rounded-xl border border-lp-gold/70 bg-lp-gold-soft px-3 py-2 text-sm text-lp-ink">
                 <p>{t("reportDuplicateHint")}</p>
-                <ul className="mt-1 list-inside list-disc text-amber-100/90">
+                <ul className="mt-1 list-inside list-disc text-lp-ink-muted">
                   {duplicateHints.slice(0, 3).map((match) => (
                     <li key={match.id}>
                       {match.animal_type}
@@ -489,7 +489,7 @@ export default function ReportForm({
                     </li>
                   ))}
                 </ul>
-                <p className="mt-1 text-xs text-amber-200/80">
+                <p className="mt-1 text-xs text-lp-ink-subtle">
                   {t("reportDuplicateHintContinue")}
                 </p>
               </div>
@@ -519,7 +519,7 @@ export default function ReportForm({
           {/* SUBMIT */}
           <button
             type="submit"
-            className="w-full bg-white text-black py-2 rounded hover:opacity-90 disabled:opacity-50 font-medium"
+            className="w-full bg-lp-sage text-white py-2 rounded-full hover:bg-lp-sage-dark disabled:opacity-50 font-medium"
             disabled={isSubmitting}
           >
             {isSubmitting ? t("reportSubmitting") : t("reportSubmit")}
@@ -530,10 +530,10 @@ export default function ReportForm({
             <div
               className={`mt-4 text-sm p-3 rounded border transition-all duration-300 animate-fade-in ${
                 messageType === "success"
-                  ? "bg-green-900/30 border-green-700 text-green-300"
+                  ? "bg-lp-teal-soft border-lp-teal text-lp-teal"
                   : messageType === "error"
-                  ? "bg-red-900/30 border-red-700 text-red-300"
-                  : "bg-gray-800 border-gray-700 text-gray-300"
+                  ? "bg-lp-coral-soft border-lp-coral text-lp-coral"
+                  : "bg-lp-paper-muted border-lp-line text-lp-ink"
               }`}
             >
               <p>{message}</p>
@@ -541,7 +541,7 @@ export default function ReportForm({
                 <a
                   href={loginHref}
                   onClick={(event) => void persistDraftAndGoToLogin(event)}
-                  className="mt-3 inline-flex items-center justify-center rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+                  className="mt-3 inline-flex items-center justify-center rounded-full bg-lp-sage px-4 py-2 text-sm font-semibold text-white hover:bg-lp-sage-dark"
                 >
                   {t("reportLoginLink")}
                 </a>
@@ -551,11 +551,11 @@ export default function ReportForm({
 
           {/* POST-SUBMIT SUCCESS */}
           {submittedReportId && (
-            <div className="mt-6 p-4 rounded-lg border bg-green-900/20 border-green-600 text-green-200 space-y-3">
+            <div className="mt-6 p-4 rounded-2xl border bg-lp-teal-soft border-lp-teal text-lp-ink space-y-3">
               
               <div>
                 <p className="font-medium">✓ {t("reportSuccessTitle")}</p>
-                <p className="text-sm text-green-300">
+                <p className="text-sm text-lp-ink-muted">
                   {t("reportSuccessBody")}
                 </p>
               </div>
@@ -563,7 +563,7 @@ export default function ReportForm({
               <div className="flex flex-col gap-2">
                 <a
                   href={`/edit?id=${submittedReportId}`}
-                  className="text-sm underline text-green-300 text-left"
+                  className="text-sm underline text-lp-teal text-left"
                 >
                   {t("reportManage")}
                 </a>
@@ -571,7 +571,7 @@ export default function ReportForm({
                 <button
                   type="button"
                   onClick={onViewMap}
-                  className="text-sm underline text-green-300 hover:text-green-200 text-left"
+                  className="text-sm underline text-lp-teal hover:text-lp-sage-dark text-left"
                 >
                   → {t("reportViewMap")}
                 </button>

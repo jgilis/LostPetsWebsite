@@ -22,7 +22,7 @@ export default function PwaInstallButton() {
       type="button"
       onClick={() => void install()}
       disabled={installing}
-      className="text-gray-400 underline hover:text-gray-200 disabled:opacity-50"
+      className="text-lp-ink-muted underline hover:text-lp-ink disabled:opacity-50"
     >
       {installing ? t("pwaInstalling") : `${t("pwaInstall")} 📱`}
     </button>

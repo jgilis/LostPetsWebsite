@@ -154,7 +154,7 @@ function AdminSightingsContent() {
         {visibleSightings.map((s) => (
           <div
             key={s.id}
-            className="rounded-lg border border-gray-700 bg-gray-900 p-4 text-gray-200"
+            className="rounded-2xl border border-lp-line bg-lp-paper p-4 text-lp-ink"
           >
             <p className="text-sm text-gray-400">
               {s.latitude != null && s.longitude != null

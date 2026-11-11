@@ -141,36 +141,36 @@ function NearbyAwareness({
 
   return (
     <section
-      className="nearby-awareness-panel mt-3 rounded-lg border border-gray-700/80 bg-gray-900/90 px-3 py-2"
+      className="nearby-awareness-panel mt-3 rounded-2xl border border-lp-line bg-lp-paper px-3 py-2"
       aria-label="Nearby awareness"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <h3 className="text-sm font-medium text-gray-400">
+        <h3 className="text-sm font-medium text-lp-ink-muted">
           Nearby reports
         </h3>
         <button
           type="button"
           onClick={handleRefresh}
           disabled={isRefreshing || !awarenessCenter || isWaitingForGps}
-          className="nearby-refresh-btn min-h-11 rounded-md bg-gray-800 px-3 py-1.5 text-xs text-gray-200 hover:bg-gray-700 disabled:opacity-50"
+          className="nearby-refresh-btn min-h-11 rounded-full bg-lp-sage-soft px-3 py-1.5 text-xs text-lp-sage-dark hover:bg-lp-sage/20 disabled:opacity-50"
         >
           Refresh nearby
         </button>
       </div>
 
-      <p className="mt-2 text-sm text-gray-400" role="status">
+      <p className="mt-2 text-sm text-lp-ink-muted" role="status">
         {systemStatusMessage}
       </p>
 
       {isWalkingModeEnabled && hasActiveUserLocation ? (
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-lp-ink-subtle">
           Session: {sessionStats.elapsedLabel} ·{" "}
           {formatProximityDistance(sessionStats.distanceMeters)} walked
         </p>
       ) : null}
 
       {showEmpty ? (
-        <p className="mt-2 text-sm text-gray-500">No nearby reports</p>
+        <p className="mt-2 text-sm text-lp-ink-subtle">No nearby reports</p>
       ) : null}
 
       {showList ? (

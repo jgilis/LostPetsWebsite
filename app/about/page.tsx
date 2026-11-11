@@ -1,6 +1,6 @@
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-gray-950 text-white px-6 py-10 max-w-3xl mx-auto space-y-6">
+    <main className="min-h-screen bg-lp-bg text-lp-ink px-6 py-10 max-w-3xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold">About — beta</h1>
 
       <p>
@@ -10,13 +10,13 @@ export default function AboutPage() {
       </p>
 
       <h2 className="text-xl font-semibold">Map</h2>
-      <ul className="list-disc pl-6 space-y-1 text-gray-300">
+      <ul className="list-disc pl-6 space-y-1 text-lp-ink-muted">
         <li>
-          <strong>Lost</strong> — pin markers (by animal type color)
+          <strong>Lost</strong> — rounded animal silhouettes (by species colour)
         </li>
         <li>
-          <strong>Found</strong> — small colored dots; light area halos appear
-          when zoomed in (detail mode)
+          <strong>Found</strong> — circular animal silhouettes; light area
+          halos appear when zoomed in (detail mode)
         </li>
         <li>
           Clustering at lower zoom; filters for animal type and lost/found
@@ -27,7 +27,7 @@ export default function AboutPage() {
       </ul>
 
       <h2 className="text-xl font-semibold">Reports &amp; sightings</h2>
-      <ul className="list-disc pl-6 space-y-1 text-gray-300">
+      <ul className="list-disc pl-6 space-y-1 text-lp-ink-muted">
         <li>
           Browsing the map works without signing in; <strong>submitting a
           report</strong> requires email magic-link login (no password)
@@ -70,7 +70,7 @@ export default function AboutPage() {
       </p>
 
       <h2 className="text-xl font-semibold">What to test &amp; report</h2>
-      <ul className="list-disc pl-6 space-y-1 text-gray-300">
+      <ul className="list-disc pl-6 space-y-1 text-lp-ink-muted">
         <li>Map interaction — especially found dots and popups on mobile</li>
         <li>Sign-in flow and editing your own reports</li>
         <li>Sighting submission (GPS vs pick on map) and owner notifications</li>

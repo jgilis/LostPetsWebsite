@@ -14,7 +14,7 @@ export default function LanguageSwitcher() {
 
   return (
     <div
-      className="inline-flex items-center gap-1 rounded-md border border-gray-700/80 bg-gray-900/60 p-0.5 text-[11px]"
+      className="inline-flex items-center gap-1 rounded-full border border-lp-line bg-lp-paper p-0.5 text-[11px]"
       role="group"
       aria-label={t("languageLabel")}
     >
@@ -27,8 +27,8 @@ export default function LanguageSwitcher() {
             onClick={() => setLanguage(code)}
             className={`min-w-[2rem] rounded px-1.5 py-0.5 font-medium transition-colors ${
               active
-                ? "bg-gray-700 text-white"
-                : "text-gray-400 hover:text-gray-200"
+                ? "bg-lp-sage text-white"
+                : "text-lp-ink-muted hover:text-lp-ink"
             }`}
             aria-pressed={active}
             aria-label={LABELS[code]}

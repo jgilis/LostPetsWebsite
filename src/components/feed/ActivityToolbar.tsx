@@ -29,10 +29,10 @@ type ActivityToolbarProps = {
 };
 
 function menuButtonClass(active: boolean) {
-  return `inline-flex min-h-[36px] items-center gap-1.5 rounded-md border px-2.5 text-left text-sm ${
+  return `inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-2.5 text-left text-sm ${
     active
-      ? "border-gray-500 bg-gray-800 text-white"
-      : "border-gray-700 bg-gray-900 text-gray-200 hover:border-gray-500"
+      ? "border-lp-sage bg-lp-sage-soft text-lp-sage-dark"
+      : "border-lp-line bg-lp-paper text-lp-ink hover:border-lp-line-strong"
   }`;
 }
 
@@ -88,16 +88,16 @@ export default function ActivityToolbar({
 
   return (
     <>
-      <div className="shrink-0 border-b border-gray-800/80">
+      <div className="shrink-0 border-b border-lp-line">
         {!mineOn ? (
-          <p className="px-3 pt-2 text-xs font-medium text-gray-500">
+          <p className="px-3 pt-2 text-xs font-medium text-lp-ink-subtle">
             {t("activityAreaScope")}
           </p>
         ) : null}
         <div className="flex items-center gap-2 px-3 py-2 md:hidden">
           <button
             type="button"
-            className="inline-flex min-h-11 min-w-0 flex-1 items-center rounded-md border border-gray-700 bg-gray-900 px-3 text-left text-sm font-medium text-gray-100"
+            className="inline-flex min-h-11 min-w-0 flex-1 items-center rounded-full border border-lp-line bg-lp-paper px-3 text-left text-sm font-medium text-lp-ink"
             aria-expanded={typeSheetOpen}
             aria-controls="activity-type-sheet"
             onClick={() => setTypeSheetOpen((open) => !open)}
@@ -139,18 +139,18 @@ export default function ActivityToolbar({
             role="dialog"
             aria-modal="true"
             aria-labelledby="activity-type-title"
-            className="absolute inset-x-0 bottom-0 max-h-[min(70dvh,32rem)] overflow-y-auto rounded-t-xl border border-gray-800 bg-gray-950 pb-[max(1rem,env(safe-area-inset-bottom))]"
+            className="absolute inset-x-0 bottom-0 max-h-[min(70dvh,32rem)] overflow-y-auto rounded-t-2xl border border-lp-line bg-lp-paper pb-[max(1rem,env(safe-area-inset-bottom))]"
           >
-            <div className="flex items-center justify-between border-b border-gray-800 px-3 py-2">
+            <div className="flex items-center justify-between border-b border-lp-line px-3 py-2">
               <h2
                 id="activity-type-title"
-                className="text-sm font-medium text-gray-100"
+                className="text-sm font-medium text-lp-ink"
               >
                 {t("activityEventType")}
               </h2>
               <button
                 type="button"
-                className="min-h-11 px-3 text-sm font-medium text-gray-200"
+                className="min-h-11 px-3 text-sm font-medium text-lp-ink-muted"
                 onClick={() => setTypeSheetOpen(false)}
               >
                 {t("discoverDetailClose")}
@@ -167,8 +167,8 @@ export default function ActivityToolbar({
                       aria-selected={selected}
                       className={`flex min-h-11 w-full px-4 text-left text-sm ${
                         selected
-                          ? "bg-gray-800 font-medium text-white"
-                          : "text-gray-200"
+                          ? "bg-lp-sage-soft font-medium text-lp-ink"
+                          : "text-lp-ink"
                       }`}
                       onClick={() => {
                         onEventTypeChange(option.value);
@@ -205,8 +205,8 @@ function MineToggle({
         compact
           ? `inline-flex min-h-11 shrink-0 items-center rounded-md border px-3 text-sm font-medium ${
               pressed
-                ? "border-gray-500 bg-gray-800 text-white"
-                : "border-gray-700 bg-gray-900 text-gray-200"
+                ? "border-lp-sage bg-lp-sage-soft text-lp-sage-dark"
+                : "border-lp-line bg-lp-paper text-lp-ink"
             }`
           : menuButtonClass(pressed)
       }
@@ -246,14 +246,14 @@ function TypeMenu({
         aria-controls={listId}
         onClick={onToggle}
       >
-        <span className="text-gray-400">{t("activityEventType")}</span>
+        <span className="text-lp-ink-subtle">{t("activityEventType")}</span>
         <span className="font-medium">{valueLabel}</span>
       </button>
       {open ? (
         <ul
           id={listId}
           role="listbox"
-          className="absolute left-0 z-30 mt-1 min-w-full rounded-md border border-gray-700 bg-gray-900 py-1 shadow-lg"
+          className="absolute left-0 z-30 mt-1 min-w-full rounded-xl border border-lp-line bg-lp-paper py-1 shadow-lg"
         >
           {ACTIVITY_EVENT_OPTIONS.map((option) => {
             const selected = option.value === value;
@@ -265,8 +265,8 @@ function TypeMenu({
                   aria-selected={selected}
                   className={`flex w-full px-3 py-1.5 text-left text-sm ${
                     selected
-                      ? "bg-gray-800 font-medium text-white"
-                      : "text-gray-200 hover:bg-gray-800"
+                      ? "bg-lp-sage-soft font-medium text-lp-ink"
+                      : "text-lp-ink hover:bg-lp-paper-muted"
                   }`}
                   onClick={() => onChange(option.value)}
                 >

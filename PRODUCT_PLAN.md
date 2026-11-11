@@ -1,6 +1,6 @@
 # Lost Pets Map — Product Plan
 
-**Status:** Working product direction. Phases 0–5 are done in this repository. Phases 0–4 are live in production. Phase 5 SQL must be pasted before audit, reviewer stamps, expiry, and sighting-photo cleanup are live. Magic-link draft keep is in this repository.  
+**Status:** Working product direction. Phases 0–5 are live in production. Magic-link draft keep is in this repository; text fields were checked after logged-out fill then login. Recheck pin and photo retention later. Custom SMTP is not set up yet (built-in Auth email stays at 2/hour until then). `/sightings/[id]` exact pin is owner/admin only; everyone else gets the coarse “seen nearby” treatment.  
 **Scope:** Next version  
 **Primary area:** Mechelen, Belgium  
 **Languages:** English, Dutch and French
@@ -9,7 +9,7 @@
 
 | Need | Place |
 |---|---|
-| What to build next | This file, section 12 (Phase 5 SQL paste, then `/sightings/[id]` visibility) |
+| What to build next | This file, section 12 (recheck pin/photo draft; SMTP then lower the email cap). Later option: share a report, including visitors without an account. |
 | Activity behaviour | `PRODUCT_STRATEGY.md` sections 5, 7 and 14 |
 | Discover behaviour, layout, sheets | `PRODUCT_STRATEGY.md` sections 5, 6 and 14 |
 | What is true in production | This file, section 15 |
@@ -145,6 +145,7 @@ There are three roles:
 - Can use Nearby and Walking Mode.
 - Can submit a sighting.
 - Can flag a report.
+- Later: can share a public report without an account (section 12).
 - Cannot create or manage reports or save area subscriptions.
 
 **Signed-in user**
@@ -336,14 +337,14 @@ Work in small, reviewable phases. Complete and test each phase before starting t
 - In-app notification list + existing push pipeline
 - Deduplicate one notice per person per report, not per zone
 
-**Phase 5 — Admin, expiry, cleanup** (done in this repository; SQL paste pending)
+**Phase 5 — Admin, expiry, cleanup** (live in production)
 - Review-queue polish (counts, pending sightings, review photos)
 - `moderation_actions` audit trail and `reviewed_by`
 - Expiry job, duplicate hints, storage cleanup on delete
 
-**After Phase 5 — Magic-link draft keep** (in this repository)
-- Lost/found form fields survive email login and return the person to the filled Report form.
-- Return path is stored in `localStorage` so a Site URL landing still opens Report. Hosted Auth email sending is temporarily 10/hour for development; reduce to 2 or 3/hour before a wider launch.
+**After Phase 5 — Magic-link draft keep** (in this repository; text fields checked)
+- Lost/found text fields survive email login and return the person to the filled Report form. Recheck pin and photo retention later (logged out → fill → magic link).
+- Return path is stored in `localStorage` so a Site URL landing still opens Report. Custom SMTP is later; until then the built-in Auth email cap stays 2/hour. After SMTP, set emails/hour to 10 for development, then back to 2 or 3 before a wider launch.
 
 ### Phase 1 Discover — delivered
 
@@ -514,7 +515,7 @@ Signed-in users save a few named zones and get an in-app notice when a **new los
 
 ### Phase 5 Admin, expiry, cleanup — delivered in this repository
 
-Detail: `PRODUCT_STRATEGY.md` section 12. SQL in `supabase/migrations/20261111170000_phase5_moderation_expiry_cleanup.sql` must be pasted. Do not run `supabase db push`.
+Detail: `PRODUCT_STRATEGY.md` section 12. SQL in `supabase/migrations/20261111170000_phase5_moderation_expiry_cleanup.sql` is pasted in production. Do not run `supabase db push`.
 
 **Slice 1 — Admin home as a queue** (in this repository)
 
@@ -527,12 +528,12 @@ Detail: `PRODUCT_STRATEGY.md` section 12. SQL in `supabase/migrations/2026111117
 - The reviewer sees the photo, the note, when it was seen, and how far it is from the lost report, then Approves or Rejects. Pending is the default list.
 - Approve/reject stamps `reviewed_by` and `moderated_at` in `enforce_sighting_write`. A rejected sighting stays silent to the owner.
 
-**Slice 3 — A private paper trail** (SQL paste pending)
+**Slice 3 — A private paper trail** (live)
 
 - One `moderation_actions` log: who, which report or sighting, what they did (approve, reject, hide, restore, resolve), when.
 - Written by a `SECURITY DEFINER` trigger. Administrators can read `/admin/log`. It is not a public feed.
 
-**Slice 4 — Time, duplicates, leftover cleanup** (in this repository; expiry SQL paste pending)
+**Slice 4 — Time, duplicates, leftover cleanup** (live)
 
 - `expire_due_listings()` sets overdue active reports and pending sightings to `expired`. Optional `pg_cron` after the extension is enabled. The public map already hides overdue rows in the client.
 - Duplicate hint: same species, about 300 m, last 48 hours, on the report form and admin report cards. Submit is not blocked. Not a merge tool.
@@ -541,13 +542,25 @@ Detail: `PRODUCT_STRATEGY.md` section 12. SQL in `supabase/migrations/2026111117
 
 ### Magic-link draft keep — in this repository
 
-Lost/found fields stay in `localStorage` (`lostpets.reportDraft.v1`) across the magic-link email. The intended return (`/?tab=report&task=lost|found`) is stored separately (`lostpets.authReturnTo.v1`) so Auth can land on the Site URL and the app still opens Report with the draft. Sightings still do not need an account. Do not bundle `/sightings/[id]` into this.
+Lost/found fields stay in `localStorage` (`lostpets.reportDraft.v1`) across the magic-link email. The intended return (`/?tab=report&task=lost|found`) is stored separately (`lostpets.authReturnTo.v1`) so Auth can land on the Site URL and the app still opens Report with the draft. Sightings still do not need an account. Captcha is not kept (one-use token). Do not bundle `/sightings/[id]` into this.
 
-**Development auth email limit — must be reduced later.** Hosted Supabase Auth email sending is temporarily **10 magic links per hour** so login can be tested. This is a safety measure and **must be reduced to 2 or 3 per hour again** before a wider launch. Set it in the Supabase Dashboard → Authentication → Rate Limits (`rate_limit_email_sent`). It is not an application table. The built-in Auth email provider stays capped at 2/hour until custom SMTP (or the Send Email hook) is in use; the dashboard value of 10 only applies once that is true.
+**Checked:** after filling a lost/found report logged out, then logging in, the text fields come back.
 
-### What to build next — Phase 5 SQL, then sighting location visibility
+**Recheck later:** pin and photo after the same logged-out fill → magic-link login. They did not come back on the first check. The draft tries to store lat/lng and a small photo data URL; the map camera still opens on Mechelen, and large photos are dropped when they exceed the `localStorage` cap.
 
-Paste `20261111170000_phase5_moderation_expiry_cleanup.sql` before audit, reviewer stamps, expiry, and sighting-photo cleanup are live. Then `/sightings/[id]` exact-location visibility (owner/admin only, or the same coarse public treatment as Discover). Do not start the sighting-location work until asked.
+**Development auth email limit — SMTP later, then reduce again.** Login copy says 10/hour. That Dashboard field is Authentication → Rate Limits → “Rate limit for sending emails” (`rate_limit_email_sent`). Custom SMTP (or the Send Email hook) is **not set up yet**; the built-in Auth email service stays at **2/hour** until then. After SMTP, set that field to **10** for development, then **must reduce to 2 or 3 per hour again** before a wider launch. It is not an application table.
+
+### `/sightings/[id]` exact-location visibility — in this repository
+
+The detail page matches Discover/Activity. The exact sighting pin loads only for the report owner or an administrator (`canSeeExactSightings` + `sighting_exact_coordinates`). Everyone else sees “Seen nearby” plus the linked report’s coarse place, not a sighting map. Notifications and push may still open this URL; the page decides what to show.
+
+### What to build next
+
+Recheck pin and photo draft retention after a logged-out fill then magic-link login. Set up custom SMTP, then 10 emails/hour for development, later 2 or 3. Do not start other work until asked.
+
+### Later option — share a report
+
+A visitor without an account must be able to share a public lost or found report (system share and/or copy link). Signed-in users get the same control. This is not a social feature: no followers, no share-to-feed, no comments. Do not start until asked.
 
 ## 13. Explicitly out of scope
 
@@ -582,12 +595,12 @@ These should not silently become permanent technical or product assumptions:
 
 ### Outstanding technical debt (not Phase 5)
 
-- `/sightings/[id]` can still show an exact location to whoever can load the row. Fix visibility (owner/admin only, or the same coarse public treatment as Discover) as a separate privacy task. Do not bundle it into admin/expiry work and do not change production for it in Phase 5.
-- Hosted Auth magic-link email sending is temporarily 10 per hour for development. Reduce this to 2 or 3 per hour again before a wider launch (Dashboard → Authentication → Rate Limits).
+- **Recheck later:** after filling a report logged out, then logging in, confirm the **pin** and **photo** come back. Text fields already do. Captcha should not.
+- Custom SMTP is not set up yet, so hosted Auth email sending stays at 2/hour. After SMTP, set “Rate limit for sending emails” to 10 for development, then reduce to 2 or 3 per hour again before a wider launch.
 
 ## 15. Live baseline
 
-**As of 11 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phases 0–4 are live in production. **Phase 5 is in this repository; paste `20261111170000_phase5_moderation_expiry_cleanup.sql` before audit, reviewer stamps, expiry, and sighting-photo cleanup are live.** Magic-link draft keep is in this repository (return path in `localStorage`; Auth email sending temporarily 10/hour for development — reduce to 2 or 3/hour later). Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. **Phase 3:** Report is lost / found / spotted; pending sighting confirmation, observation time, and private sighting photo; owner photo/pin via `owner-update-report`; 7-day reopen; flagging sheet (thank-you after submit, not `window.prompt`). **Phase 4:** named alert zones and one in-app notice per person per new lost report (`lost_report_in_area`), with coarsened coordinates for the place line; push reuses `send-push-on-notification` v11. **Phase 5:** admin home is a queue (pending sightings, flagged reports, out-of-area); sighting review stamps `reviewed_by`/`moderated_at`; `moderation_actions` log; duplicate hint (300 m / 48 h); `expire_due_listings()` and sighting-photo cleanup on hard delete. `/sightings/[id]` exact-location visibility is separate debt.
+**As of 11 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. **Phases 0–5 are live in production** (Phase 5 SQL `20261111170000_phase5_moderation_expiry_cleanup.sql` is pasted). Magic-link draft keep is in this repository: return path in `localStorage`; text fields checked after logged-out fill then login; **recheck pin and photo later**. Custom SMTP not set up yet (built-in Auth email stays 2/hour); after SMTP, 10/hour for development then back to 2 or 3. `/sightings/[id]` shows the exact pin only to the owner or an admin; everyone else gets “Seen nearby”. Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. **Phase 3:** Report is lost / found / spotted; pending sighting confirmation, observation time, and private sighting photo; owner photo/pin via `owner-update-report`; 7-day reopen; flagging sheet (thank-you after submit, not `window.prompt`). **Phase 4:** named alert zones and one in-app notice per person per new lost report (`lost_report_in_area`), with coarsened coordinates for the place line; push reuses `send-push-on-notification` v11. **Phase 5:** admin home is a queue (pending sightings, flagged reports, out-of-area); sighting review stamps `reviewed_by`/`moderated_at`; `moderation_actions` log; duplicate hint (300 m / 48 h); `expire_due_listings()` and sighting-photo cleanup on hard delete. `/sightings/[id]` exact pin is owner/admin only.
 
 ### How production is updated
 
@@ -596,7 +609,7 @@ These should not silently become permanent technical or product assumptions:
 | Next.js app | Push to GitHub; Vercel deploys automatically | Live |
 | `smooth-processor` | `npx supabase functions deploy smooth-processor --project-ref dmubikdkyusadzqngapy --no-verify-jwt` | Deployed |
 | `verify-captcha-v2` | `npx supabase functions deploy verify-captcha-v2 --project-ref dmubikdkyusadzqngapy` | Live; does not write `edit_token` |
-| Database | SQL pasted in the production SQL Editor | Sighting/notification SQL, admin EXECUTE grant, Packages A–C SQL (owner SELECT and `edit_token` drop included), Phase 4 `area_subscriptions` and lost-in-area notify. Phase 5 moderation/expiry/sighting-photo SQL not pasted yet. Do not run `supabase db push` |
+| Database | SQL pasted in the production SQL Editor | Sighting/notification SQL, admin EXECUTE grant, Packages A–C SQL (owner SELECT and `edit_token` drop included), Phase 4 `area_subscriptions` and lost-in-area notify, Phase 5 moderation/expiry/sighting-photo. Do not run `supabase db push` |
 | `owner-update-report` | `npx supabase functions deploy owner-update-report --project-ref dmubikdkyusadzqngapy` | Deployed |
 | `send-push-on-notification` | `npx supabase functions deploy send-push-on-notification --project-ref dmubikdkyusadzqngapy --no-verify-jwt` | Live for `sighting_approved` and `lost_report_in_area` (v11) |
 | Other Edge Functions | CLI deploy when explicitly done | Unused `verify-captcha` was redeployed with Package C. `flag-report` was not redeployed in this round |

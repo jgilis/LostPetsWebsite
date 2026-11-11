@@ -135,19 +135,19 @@ export default function AreaZonesSheet({ onClose }: AreaZonesSheetProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative z-10 max-h-[min(90dvh,calc(100%-2rem))] w-full max-w-lg overflow-y-auto rounded-t-xl border border-gray-800 bg-gray-950 p-6 text-white md:rounded-xl"
+        className="relative z-10 max-h-[min(90dvh,calc(100%-2rem))] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-lp-line bg-lp-paper p-6 text-lp-ink md:rounded-2xl"
       >
         <h2 id={titleId} className="text-lg font-semibold">
           {t("zoneAlertsTitle")}
         </h2>
-        <p className="mt-2 text-sm text-gray-400">{t("zoneAlertsHint")}</p>
+        <p className="mt-2 text-sm text-lp-ink-muted">{t("zoneAlertsHint")}</p>
 
         {loading ? (
-          <p className="mt-4 text-sm text-gray-400">{t("zoneLoading")}</p>
+          <p className="mt-4 text-sm text-lp-ink-muted">{t("zoneLoading")}</p>
         ) : (
           <ul className="mt-4 space-y-2">
             {zones.length === 0 ? (
-              <li className="text-sm text-gray-400">{t("zoneEmpty")}</li>
+              <li className="text-sm text-lp-ink-muted">{t("zoneEmpty")}</li>
             ) : (
               zones.map((zone) => (
                 <li
@@ -156,7 +156,7 @@ export default function AreaZonesSheet({ onClose }: AreaZonesSheetProps) {
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{zone.label}</p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-lp-ink-muted">
                       {t(RADIUS_LABELS[zone.radius_m])}
                       {" · "}
                       {zone.animal_type
@@ -173,7 +173,7 @@ export default function AreaZonesSheet({ onClose }: AreaZonesSheetProps) {
                         if (ok) void refresh();
                       })
                     }
-                    className="rounded-md bg-gray-800 px-3 py-2 text-xs text-white hover:bg-gray-700"
+                    className="rounded-full bg-lp-sage-soft px-3 py-2 text-xs text-lp-sage-dark hover:bg-lp-sage/20"
                   >
                     {zone.enabled ? t("zoneOn") : t("zoneOff")}
                   </button>
@@ -185,7 +185,7 @@ export default function AreaZonesSheet({ onClose }: AreaZonesSheetProps) {
                         if (ok) void refresh();
                       });
                     }}
-                    className="rounded-md bg-red-900/80 px-3 py-2 text-xs text-white hover:bg-red-800"
+                    className="rounded-full bg-lp-coral px-3 py-2 text-xs text-white hover:bg-lp-coral/80"
                   >
                     {t("zoneDelete")}
                   </button>
@@ -205,24 +205,24 @@ export default function AreaZonesSheet({ onClose }: AreaZonesSheetProps) {
             className="mt-4 space-y-3 border-t border-gray-800 pt-4"
           >
             <label className="block text-sm">
-              <span className="mb-1 block text-gray-300">{t("zoneLabel")}</span>
+              <span className="mb-1 block text-lp-ink-muted">{t("zoneLabel")}</span>
               <input
                 value={label}
                 maxLength={MAX_AREA_LABEL_LENGTH}
                 onChange={(event) => setLabel(event.target.value)}
                 placeholder={t("zoneLabelPlaceholder")}
-                className="w-full rounded border border-gray-700 bg-gray-800 p-2 text-sm text-white"
+                className="w-full rounded-xl border border-lp-line bg-lp-paper-muted p-2 text-sm text-lp-ink"
                 required
               />
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block text-gray-300">{t("zoneRadius")}</span>
+              <span className="mb-1 block text-lp-ink-muted">{t("zoneRadius")}</span>
               <select
                 value={radius}
                 onChange={(event) =>
                   setRadius(Number(event.target.value) as AreaRadiusMeters)
                 }
-                className="w-full rounded border border-gray-700 bg-gray-800 p-2 text-sm text-white"
+                className="w-full rounded-xl border border-lp-line bg-lp-paper-muted p-2 text-sm text-lp-ink"
               >
                 {AREA_RADIUS_METERS.map((value) => (
                   <option key={value} value={value}>
@@ -232,7 +232,7 @@ export default function AreaZonesSheet({ onClose }: AreaZonesSheetProps) {
               </select>
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block text-gray-300">{t("zoneSpecies")}</span>
+              <span className="mb-1 block text-lp-ink-muted">{t("zoneSpecies")}</span>
               <select
                 value={animalType}
                 onChange={(event) =>
@@ -242,7 +242,7 @@ export default function AreaZonesSheet({ onClose }: AreaZonesSheetProps) {
                       : (event.target.value as AreaAnimalType),
                   )
                 }
-                className="w-full rounded border border-gray-700 bg-gray-800 p-2 text-sm text-white"
+                className="w-full rounded-xl border border-lp-line bg-lp-paper-muted p-2 text-sm text-lp-ink"
               >
                 <option value="">{t("zoneSpeciesAll")}</option>
                 {AREA_ANIMAL_TYPES.map((value) => (
@@ -256,7 +256,7 @@ export default function AreaZonesSheet({ onClose }: AreaZonesSheetProps) {
               type="button"
               onClick={handleUseMyLocation}
               disabled={locating}
-              className="inline-flex min-h-[44px] items-center rounded-md bg-gray-700 px-4 text-sm text-white hover:bg-gray-600 disabled:opacity-60"
+              className="inline-flex min-h-[44px] items-center rounded-full bg-lp-sage px-4 text-sm text-white hover:bg-lp-sage-dark disabled:opacity-60"
             >
               {locating ? t("zoneLocating") : t("zoneUseMyLocation")}
             </button>
@@ -278,7 +278,7 @@ export default function AreaZonesSheet({ onClose }: AreaZonesSheetProps) {
               <button
                 type="button"
                 onClick={() => setAdding(false)}
-                className="inline-flex min-h-[44px] items-center rounded-md bg-gray-700 px-4 text-sm text-white hover:bg-gray-600"
+                className="inline-flex min-h-[44px] items-center rounded-full bg-lp-paper-muted px-4 text-sm text-lp-ink hover:bg-lp-line"
               >
                 {t("sightingCancel")}
               </button>
@@ -298,7 +298,7 @@ export default function AreaZonesSheet({ onClose }: AreaZonesSheetProps) {
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex min-h-[44px] items-center rounded-md bg-gray-700 px-4 text-sm text-white hover:bg-gray-600"
+              className="inline-flex min-h-[44px] items-center rounded-full bg-lp-paper-muted px-4 text-sm text-lp-ink hover:bg-lp-line"
             >
               {t("sightingClose")}
             </button>

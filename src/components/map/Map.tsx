@@ -30,8 +30,10 @@ import { useReportSightings } from "./useReportSightings";
 import type { MapProps } from "./mapTypes";
 import AdminMapLegend from "./AdminMapLegend";
 import DiscoverMapLegend from "./DiscoverMapLegend";
+import { WalkIcon } from "@/src/components/icons/NavIcons";
 import PopupViewGuard from "./PopupViewGuard";
 import { useTranslation } from "@/src/i18n/I18nProvider";
+import { SPECIES_COLORS } from "@/src/lib/theme/colors";
 import type { TranslationKey } from "@/src/i18n/types";
 
 const ANIMAL_FILTER_LABELS: Record<
@@ -179,13 +181,7 @@ export default function Map({
 
   type AnimalType = "dog" | "cat" | "bird" | "rodent" | "other";
 
-  const animalColors: Record<AnimalType, string> = {
-    dog: "#3b82f6",
-    cat: "#f59e0b",
-    bird: "#a855f7",
-    rodent: "#ef4444",
-    other: "#111827",
-  };
+  const animalColors: Record<AnimalType, string> = SPECIES_COLORS;
 
   const focusSighting = searchParams.get("focusSighting");
 
@@ -357,7 +353,7 @@ export default function Map({
           position: "sticky",
           top: 0,
           zIndex: 400,
-          backgroundColor: "black",
+          backgroundColor: "var(--lp-bg)",
         }}
       >
 
@@ -396,7 +392,7 @@ export default function Map({
 
             const color =
               a === "all"
-                ? "#6b7280"
+                ? "#8a7c6e"
                 : animalColors[a as keyof typeof animalColors];
 
             return (
@@ -413,11 +409,10 @@ export default function Map({
 
                   border: `4px solid ${color}`,
 
-                  backgroundColor: isActive ? color : "#ffffff",
-                  color: isActive ? "#ffffff" : "#000000",
+                  backgroundColor: isActive ? color : "#fffbf6",
+                  color: isActive ? "#fffbf6" : "#3d342c",
 
-                  // 🔥 FIX: replaces fragile outline system
-                  boxShadow: "0 0 0 2px #ffffff",
+                  boxShadow: "0 0 0 2px #fffbf6",
 
                   lineHeight: "normal",
                   display: "inline-flex",
@@ -443,7 +438,7 @@ export default function Map({
         >
           {(["all", "lost", "found"] as const).map((typeKey) => {
             const isActive = typeFilter === typeKey;
-            const color = "#000000";
+            const color = "#3d342c";
 
             return (
               <button
@@ -463,10 +458,10 @@ export default function Map({
 
                   border: `4px solid ${color}`,
 
-                  backgroundColor: isActive ? "#000000" : "#ffffff",
-                  color: isActive ? "#ffffff" : "#000000",
+                  backgroundColor: isActive ? "#3d342c" : "#fffbf6",
+                  color: isActive ? "#fffbf6" : "#3d342c",
 
-                  boxShadow: "0 0 0 2px #ffffff",
+                  boxShadow: "0 0 0 2px #fffbf6",
                 }}
               >
                 {t(TYPE_FILTER_LABELS[typeKey]).toUpperCase()}
@@ -594,7 +589,7 @@ export default function Map({
         <button
           type="button"
           onClick={handleRecenter}
-          className="walking-recenter-btn absolute right-3 z-[500] min-h-11 rounded-md bg-gray-900/90 px-3 py-2 text-xs font-medium text-gray-100 shadow ring-1 ring-gray-600 hover:bg-gray-800"
+          className="walking-recenter-btn absolute right-3 z-[500] min-h-11 rounded-full bg-lp-paper px-3 py-2 text-xs font-medium text-lp-ink shadow ring-1 ring-lp-line hover:bg-lp-sage-soft"
           aria-label="Recenter on your location"
         >
           Recenter
@@ -622,6 +617,7 @@ export default function Map({
                   }
                 }}
               >
+                <WalkIcon className="h-4 w-4" />
                 {t("discoverWalking")}
               </button>
             </div>

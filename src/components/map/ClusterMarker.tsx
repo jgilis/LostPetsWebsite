@@ -35,15 +35,15 @@ function createClusterIcon(count: number) {
         width:${size}px;
         height:${size}px;
         border-radius:50%;
-        background: rgba(107,114,128,${intensity});;
-        color:white;
+        background: rgba(95,138,104,${intensity});
+        color:#fffbf6;
         display:flex;
         align-items:center;
         justify-content:center;
         font-weight:600;
         font-size:12px;
-        border: 2px solid rgba(255,255,255,0.6);
-        box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        border: 2px solid rgba(255,251,246,0.9);
+        box-shadow: 0 2px 6px rgba(61,52,44,0.22);
         transform: translate(-50%, -50%);
       ">
         ${count}

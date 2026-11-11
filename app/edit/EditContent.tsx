@@ -222,18 +222,18 @@ export default function EditContent() {
 
   if (authLoading || loading) {
     return (
-      <p className="px-6 py-10 text-gray-400">{t("reportDetailLoading")}</p>
+      <p className="px-6 py-10 text-lp-ink-muted">{t("reportDetailLoading")}</p>
     );
   }
 
   if (!userId) {
     return (
-      <div className="mx-auto max-w-lg px-6 py-10 text-white">
+      <div className="mx-auto max-w-lg px-6 py-10 text-lp-ink">
         <h1 className="text-2xl font-bold">{t("reportEditTitle")}</h1>
-        <p className="mt-3 text-gray-300">{t("reportEditLogin")}</p>
+        <p className="mt-3 text-lp-ink">{t("reportEditLogin")}</p>
         <Link
           href="/login"
-          className="mt-4 inline-flex rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+          className="mt-4 inline-flex rounded-full bg-lp-sage px-4 py-2 text-sm font-semibold text-white hover:bg-lp-sage-dark"
         >
           {t("reportLoginLink")}
         </Link>
@@ -243,9 +243,9 @@ export default function EditContent() {
 
   if (!reportId || !report) {
     return (
-      <div className="mx-auto max-w-lg px-6 py-10 text-white">
+      <div className="mx-auto max-w-lg px-6 py-10 text-lp-ink">
         <h1 className="text-2xl font-bold">{t("reportEditTitle")}</h1>
-        <p className="mt-3 text-gray-300">
+        <p className="mt-3 text-lp-ink">
           {message || t("reportEditNotFound")}
         </p>
       </div>
@@ -253,20 +253,20 @@ export default function EditContent() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-6 py-10 text-white">
+    <div className="mx-auto max-w-lg px-6 py-10 text-lp-ink">
       <h1 className="text-2xl font-bold">{t("reportEditTitle")}</h1>
-      <p className="mt-2 text-sm text-gray-400">{t("reportEditHint")}</p>
+      <p className="mt-2 text-sm text-lp-ink-muted">{t("reportEditHint")}</p>
 
       {canOwnerEditReportDetails(report.status) ? (
       <form onSubmit={(e) => void handleSave(e)} className="mt-6 space-y-4">
-        <p className="text-sm text-gray-400">
-          <span className="text-gray-500">{t("reportType")}:</span>{" "}
+        <p className="text-sm text-lp-ink-muted">
+          <span className="text-lp-ink-subtle">{t("reportType")}:</span>{" "}
           {report.type === "lost" ? t("reportLost") : t("reportFound")}
           <span className="mx-2 text-gray-700">·</span>
-          <span className="text-gray-500">{t("reportAnimalType")}:</span>{" "}
+          <span className="text-lp-ink-subtle">{t("reportAnimalType")}:</span>{" "}
           {report.animal_type}
         </p>
-        <p className="text-xs text-gray-500">{t("reportEditTypeReadonly")}</p>
+        <p className="text-xs text-lp-ink-subtle">{t("reportEditTypeReadonly")}</p>
 
         <label className="block">
           <span className="mb-1 block text-sm font-medium">
@@ -276,7 +276,7 @@ export default function EditContent() {
             value={animalName}
             maxLength={MAX_ANIMAL_NAME_LENGTH}
             onChange={(e) => setAnimalName(e.target.value)}
-            className="w-full rounded border border-gray-700 bg-gray-800 p-2 text-white"
+            className="w-full rounded-xl border border-lp-line bg-lp-paper p-2 text-lp-ink"
             placeholder={t("reportAnimalNamePlaceholder")}
           />
         </label>
@@ -288,7 +288,7 @@ export default function EditContent() {
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="min-h-[120px] w-full rounded border border-gray-700 bg-gray-800 p-2 text-white"
+            className="min-h-[120px] w-full rounded-xl border border-lp-line bg-lp-paper p-2 text-lp-ink"
             placeholder={t("reportDescriptionPlaceholder")}
           />
         </label>
@@ -307,7 +307,7 @@ export default function EditContent() {
                 />
               ) : null}
               <label className="inline-block">
-                <span className="inline-block cursor-pointer rounded border border-gray-700 bg-gray-800 px-4 py-2 text-white hover:bg-gray-700">
+                <span className="inline-block cursor-pointer rounded-full border border-lp-line bg-lp-sage-soft px-4 py-2 text-lp-sage-dark hover:bg-lp-sage/20">
                   {t("reportChoosePhoto")}
                 </span>
                 <input
@@ -318,7 +318,7 @@ export default function EditContent() {
                 />
               </label>
               {photo ? (
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-lp-ink-muted">
                   {t("reportPhotoSelected")} {photo.name}
                 </p>
               ) : null}
@@ -331,7 +331,7 @@ export default function EditContent() {
                 setLatitude={setLatitude}
                 setLongitude={setLongitude}
               />
-              <p className="text-xs italic text-gray-400">
+              <p className="text-xs italic text-lp-ink-muted">
                 {t("reportLocationPrivacy")}
               </p>
             </div>
@@ -347,17 +347,17 @@ export default function EditContent() {
         </button>
       </form>
       ) : (
-        <p className="mt-6 text-sm text-gray-400">{t("reportEditUnavailable")}</p>
+        <p className="mt-6 text-sm text-lp-ink-muted">{t("reportEditUnavailable")}</p>
       )}
 
       {canOwnerReopenReport(report.status, report.resolved_at) ? (
         <div className="mt-10 border-t border-gray-800 pt-6">
-          <p className="text-sm text-gray-400">{t("reportReopenHint")}</p>
+          <p className="text-sm text-lp-ink-muted">{t("reportReopenHint")}</p>
           <button
             type="button"
             onClick={() => void handleReopen()}
             disabled={reopening}
-            className="mt-3 rounded-md bg-emerald-800/90 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700/90 disabled:opacity-50"
+            className="mt-3 rounded-full bg-lp-teal px-4 py-2 text-sm font-medium text-white hover:bg-lp-sage-dark disabled:opacity-50"
           >
             {reopening ? t("reportReopening") : t("reportReopen")}
           </button>
@@ -365,12 +365,12 @@ export default function EditContent() {
       ) : null}
 
       <div className="mt-10 border-t border-gray-800 pt-6">
-        <p className="text-sm text-gray-400">{t("reportDeletePermanentHint")}</p>
+        <p className="text-sm text-lp-ink-muted">{t("reportDeletePermanentHint")}</p>
         <button
           type="button"
           onClick={() => void handleDelete()}
           disabled={deleting}
-          className="mt-3 rounded-md bg-red-900/80 px-4 py-2 text-sm text-white hover:bg-red-800 disabled:opacity-50"
+          className="mt-3 rounded-full bg-lp-coral px-4 py-2 text-sm text-white hover:bg-lp-coral/80 disabled:opacity-50"
         >
           {deleting ? t("reportSubmitting") : t("reportDelete")}
         </button>

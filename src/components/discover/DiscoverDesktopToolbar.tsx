@@ -49,10 +49,10 @@ type DiscoverDesktopToolbarProps = {
 };
 
 function menuButtonClass(active: boolean) {
-  return `inline-flex min-h-[36px] items-center gap-1.5 rounded-md border px-2.5 text-left text-sm ${
+  return `inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-2.5 text-left text-sm ${
     active
-      ? "border-gray-500 bg-gray-800 text-white"
-      : "border-gray-700 bg-gray-900 text-gray-200 hover:border-gray-500"
+      ? "border-lp-sage bg-lp-sage-soft text-lp-sage-dark"
+      : "border-lp-line bg-lp-paper text-lp-ink hover:border-lp-line-strong"
   }`;
 }
 
@@ -158,7 +158,7 @@ export default function DiscoverDesktopToolbar({
         }}
       />
       {nearbyError ? (
-        <p className="w-full text-xs text-amber-200" role="status">
+        <p className="w-full text-xs text-lp-coral" role="status">
           {nearbyError}
         </p>
       ) : null}
@@ -200,14 +200,14 @@ function FilterMenu<T extends string>({
         aria-controls={listId}
         onClick={onToggle}
       >
-        <span className="text-gray-400">{label}</span>
+        <span className="text-lp-ink-subtle">{label}</span>
         <span className="font-medium">{valueLabel}</span>
       </button>
       {open ? (
         <ul
           id={listId}
           role="listbox"
-          className="absolute left-0 z-30 mt-1 min-w-full rounded-md border border-gray-700 bg-gray-900 py-1 shadow-lg"
+          className="absolute left-0 z-30 mt-1 min-w-full rounded-xl border border-lp-line bg-lp-paper py-1 shadow-lg"
         >
           {options.map((option) => {
             const selected = option.value === value;
@@ -219,8 +219,8 @@ function FilterMenu<T extends string>({
                   aria-selected={selected}
                   className={`flex w-full px-3 py-1.5 text-left text-sm ${
                     selected
-                      ? "bg-gray-800 font-medium text-white"
-                      : "text-gray-200 hover:bg-gray-800"
+                      ? "bg-lp-sage-soft font-medium text-lp-ink"
+                      : "text-lp-ink hover:bg-lp-paper-muted"
                   }`}
                   onClick={() => onChange(option.value)}
                 >

@@ -105,8 +105,8 @@ export default function WalkingModeMapLayers({
         center={[livePosition.lat, livePosition.lng]}
         radius={accuracy}
         pathOptions={{
-          color: "#60a5fa",
-          fillColor: "#3b82f6",
+          color: "#5f8a68",
+          fillColor: "#5f8a68",
           fillOpacity: 0.12,
           weight: 1,
         }}
@@ -115,8 +115,8 @@ export default function WalkingModeMapLayers({
         center={[livePosition.lat, livePosition.lng]}
         radius={9}
         pathOptions={{
-          color: "#ffffff",
-          fillColor: "#2563eb",
+          color: "#fffbf6",
+          fillColor: "#5f8a68",
           fillOpacity: 1,
           weight: 3,
         }}

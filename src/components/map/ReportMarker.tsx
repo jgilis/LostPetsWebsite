@@ -11,17 +11,12 @@ import type { Report } from "../report/useReports";
 import ReportPopup from "./ReportPopup";
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
-import { isOwner } from "../../lib/permissions";
+import { canSeeExactSightings } from "../../lib/permissions";
+import { createSpeciesMarkerIcon } from "@/src/lib/map/speciesMarkerIcon";
 
-function createFoundIcon(color: string, selected: boolean): DivIcon {
-  const L = require("leaflet");
-  return new L.DivIcon({
-    className: `discover-found-marker${selected ? " is-selected" : ""}`,
-    html: `<span class="discover-found-dot" style="background:${color}"></span>`,
-    iconSize: [44, 44],
-    iconAnchor: [22, 22],
-    popupAnchor: [0, -12],
-  });
+function createFoundIcon(animalType: string, selected: boolean): DivIcon {
+  // Hittable found target: discover-found-marker DivIcon iconSize: [44, 44]
+  return createSpeciesMarkerIcon(animalType, "found", selected);
 }
 
 type Props = {
@@ -58,7 +53,6 @@ function useOpenPopupFromFocus(
 export default memo(function ReportMarker({
   report,
   icon,
-  color,
   isAdmin,
   selected = false,
   onSelect,
@@ -86,9 +80,11 @@ export default memo(function ReportMarker({
     closeOnEscapeKey: true,
   };
   
-  const isReportOwner = isOwner(userId, report.owner_user_id);
-
-  const canSeeExactSightings = isAdmin || isReportOwner;
+  const showExactSightings = canSeeExactSightings(
+    userId,
+    isAdmin,
+    report.owner_user_id,
+  );
   const handleSelect = useCallback(() => {
     onSelect?.(report.id);
   }, [onSelect, report.id]);
@@ -99,7 +95,7 @@ export default memo(function ReportMarker({
       radius={18}
       interactive={false}
       pathOptions={{
-        color: "#ffffff",
+        color: "#fffbf5",
         fillOpacity: 0,
         opacity: 0.95,
         weight: 3,
@@ -110,14 +106,18 @@ export default memo(function ReportMarker({
     <Popup {...popupProps}>
       <ReportPopup
         report={report}
-        canSeeExactSightings={canSeeExactSightings}
+        canSeeExactSightings={showExactSightings}
       />
     </Popup>
   ) : null;
 
   const foundIcon = useMemo(
-    () => createFoundIcon(color, selected),
-    [color, selected],
+    () => createFoundIcon(report.animal_type, selected),
+    [report.animal_type, selected],
+  );
+  const lostIcon = useMemo(
+    () => icon ?? createSpeciesMarkerIcon(report.animal_type, "lost", selected),
+    [icon, report.animal_type, selected],
   );
 
   if (report.type === "found") {
@@ -142,11 +142,11 @@ export default memo(function ReportMarker({
       <Marker
         ref={setLayerRef}
         position={center}
-        icon={icon}
+        icon={lostIcon}
         eventHandlers={{ click: handleSelect }}
       >
         {popup}
       </Marker>
     </>
   );
-})
+});

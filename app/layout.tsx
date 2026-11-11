@@ -26,7 +26,7 @@ const geistMono = Geist_Mono({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0a",
+  themeColor: "#F4EDE2",
 };
 
 export const metadata: Metadata = {
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "Lost Pets",
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
   },
   icons: {
     icon: "/icons/icon.svg",
@@ -51,7 +51,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang={DEFAULT_LANGUAGE} suppressHydrationWarning>
-      <body className="bg-gray-950 text-white">
+      <body
+          className={`${geistSans.variable} ${geistMono.variable} bg-lp-bg text-lp-ink antialiased`}
+        >
         <AnalyticsBootstrap />
 
         <I18nProvider>

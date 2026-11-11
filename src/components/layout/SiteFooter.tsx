@@ -14,20 +14,20 @@ export default function SiteFooter() {
   const { t } = useTranslation();
 
   return (
-    <footer className="mt-10 border-t border-gray-800 py-6 text-center">
+    <footer className="mt-10 border-t border-lp-line py-6 text-center text-lp-ink">
       <nav
         aria-label="Main navigation"
         className="mb-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm"
       >
         <a
           href="/?tab=discover"
-          className="font-medium text-gray-300 hover:text-white"
+          className="font-medium text-lp-ink-muted hover:text-lp-ink"
         >
           {t("navHomeMap")}
         </a>
         <a
           href="/?tab=report"
-          className="font-medium text-gray-300 hover:text-white"
+          className="font-medium text-lp-ink-muted hover:text-lp-ink"
         >
           {t("navReport")}
         </a>
@@ -36,7 +36,7 @@ export default function SiteFooter() {
 
       <div
         aria-label="App actions"
-        className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-gray-400"
+        className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-lp-ink-muted"
       >
         <LanguageSwitcher />
         <PwaInstallButton />
@@ -46,15 +46,15 @@ export default function SiteFooter() {
 
       <nav
         aria-label="Legal"
-        className="flex flex-wrap items-center justify-center gap-x-4 text-[11px] text-gray-500"
+        className="flex flex-wrap items-center justify-center gap-x-4 text-[11px] text-lp-ink-subtle"
       >
-        <a href="/about" className="hover:text-gray-300">
+          <a href="/about" className="hover:text-lp-ink">
           {t("navAbout")}
         </a>
-        <a href="/privacy" className="hover:text-gray-300">
+          <a href="/privacy" className="hover:text-lp-ink">
           {t("navPrivacy")}
         </a>
-        <a href="/terms" className="hover:text-gray-300">
+          <a href="/terms" className="hover:text-lp-ink">
           {t("navTerms")}
         </a>
       </nav>

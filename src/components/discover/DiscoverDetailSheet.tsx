@@ -52,13 +52,13 @@ export default function DiscoverDetailSheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby="discover-detail-title"
-        className="relative z-10 flex max-h-[min(85dvh,calc(100%-4rem))] w-full max-w-lg flex-col overflow-hidden rounded-t-xl border border-gray-800 bg-gray-950 md:rounded-xl"
+        className="relative z-10 flex max-h-[min(85dvh,calc(100%-4rem))] w-full max-w-lg flex-col overflow-hidden rounded-t-2xl border border-lp-line bg-lp-paper md:rounded-2xl"
       >
-        <div className="flex shrink-0 justify-end border-b border-gray-800 px-3 py-2">
+        <div className="flex shrink-0 justify-end border-b border-lp-line px-3 py-2">
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex min-h-[44px] items-center px-3 text-sm text-gray-300 hover:text-white"
+            className="inline-flex min-h-[44px] items-center px-3 text-sm text-lp-ink-muted hover:text-lp-ink"
           >
             {t("discoverDetailClose")}
           </button>
@@ -75,7 +75,7 @@ export default function DiscoverDetailSheet({
                 href={discoverHref}
                 scroll={false}
                 onClick={onDiscoverNavigate}
-                className="rounded-md bg-blue-700 px-3 py-2 text-sm font-medium text-white hover:bg-blue-600"
+                className="rounded-full bg-lp-sage px-3 py-2 text-sm font-medium text-white hover:bg-lp-sage-dark"
               >
                 {t("activityViewOnDiscover")}
               </Link>
@@ -84,7 +84,7 @@ export default function DiscoverDetailSheet({
               <button
                 type="button"
                 onClick={() => setShowSightingModal(true)}
-                className="rounded-md bg-blue-700 px-3 py-2 text-sm font-medium text-white hover:bg-blue-600"
+                className="rounded-full bg-lp-sage px-3 py-2 text-sm font-medium text-white hover:bg-lp-sage-dark"
               >
                 I spotted this animal
               </button>

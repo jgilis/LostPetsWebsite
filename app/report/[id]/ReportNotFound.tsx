@@ -22,16 +22,16 @@ export default function ReportNotFound({
   const { t } = useTranslation();
 
   return (
-    <main className="min-h-screen bg-gray-950 px-6 py-10 text-white">
+    <main className="min-h-screen bg-lp-bg px-6 py-10 text-lp-ink">
       <div className="mx-auto max-w-lg">
         <Link
           href={reportBackHref(from)}
-          className="mb-6 inline-flex min-h-[44px] items-center gap-1 text-sm text-gray-400 underline-offset-2 hover:text-gray-300 hover:underline"
+          className="mb-6 inline-flex min-h-[44px] items-center gap-1 text-sm text-lp-ink-muted underline-offset-2 hover:text-lp-ink hover:underline"
         >
           <span aria-hidden>←</span>
           {t(backLabelKey(from))}
         </Link>
-        <p className="text-center text-gray-300">{t("reportDetailNotFound")}</p>
+        <p className="text-center text-lp-ink-muted">{t("reportDetailNotFound")}</p>
       </div>
     </main>
   );

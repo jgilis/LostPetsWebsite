@@ -41,17 +41,17 @@ function ProximityEventRow({ event }: ProximityEventRowProps) {
 
   const rowClass =
     showAsSeen
-      ? "text-sm text-gray-500 opacity-60"
+      ? "text-sm text-lp-ink-subtle opacity-70"
       : attention === "very-close"
-        ? "text-sm font-medium text-gray-100"
-        : "text-sm text-gray-300";
+        ? "text-sm font-medium text-lp-ink"
+        : "text-sm text-lp-ink";
 
   const linkClass =
     showAsSeen
-      ? "text-gray-500 hover:text-gray-400 hover:underline"
+      ? "text-lp-ink-subtle hover:text-lp-ink hover:underline"
       : attention === "very-close"
-        ? "text-gray-100 hover:text-white hover:underline"
-        : "text-gray-300 hover:text-gray-200 hover:underline";
+        ? "text-lp-coral hover:text-lp-ink hover:underline"
+        : "text-lp-ink hover:text-lp-sage-dark hover:underline";
 
   const attentionLabel =
     attention === "very-close"

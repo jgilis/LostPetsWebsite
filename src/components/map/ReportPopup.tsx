@@ -127,7 +127,7 @@ export default function ReportPopup({
             }
             style={{
               padding: "6px 10px",
-              backgroundColor: "#2563eb",
+              backgroundColor: "#5f8a68",
               color: "white",
               border: "none",
               borderRadius: "6px",

@@ -65,7 +65,7 @@ function HomePageContent() {
   const walking = walkingMode.isWalkingModeEnabled;
 
   return (
-    <main className="home-main flex h-dvh flex-col overflow-hidden bg-gray-950 text-white">
+    <main className="home-main flex h-dvh flex-col overflow-hidden bg-lp-bg text-lp-ink">
       <DiscoverDestinationNav destination={destination} />
       <WalkingModeExitBar
         visible={walking && !isDesktop}
@@ -120,7 +120,7 @@ function HomePageContent() {
 
         {destination === "activity" ? (
           <div
-            className={`absolute inset-0 z-[545] flex flex-col overflow-hidden bg-gray-950 px-3 pb-16 md:px-4 md:pb-6 ${
+            className={`absolute inset-0 z-[545] flex flex-col overflow-hidden bg-lp-bg px-3 pb-16 md:px-4 md:pb-6 ${
               walking && !isDesktop ? "pt-[4.75rem]" : "pt-3"
             } md:pt-12`}
           >
@@ -137,7 +137,7 @@ function HomePageContent() {
 
         {destination === "report" ? (
           <div
-            className={`absolute inset-0 z-[545] overflow-y-auto bg-gray-950 px-4 py-6 pb-16 md:pb-6 ${
+            className={`absolute inset-0 z-[545] overflow-y-auto bg-lp-bg px-4 py-6 pb-16 md:pb-6 ${
               walking && !isDesktop ? "pt-[4.75rem]" : "pt-6"
             } md:pt-24`}
           >
@@ -164,7 +164,7 @@ export default function HomePage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-gray-950 px-4 py-10 text-center text-gray-400">
+        <main className="min-h-screen bg-lp-bg px-4 py-10 text-center text-lp-ink-muted">
           Loading…
         </main>
       }

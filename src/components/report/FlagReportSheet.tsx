@@ -81,7 +81,7 @@ export default function FlagReportSheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative z-10 w-full max-w-lg rounded-t-xl border border-gray-800 bg-gray-950 p-6 text-white md:rounded-xl"
+        className="relative z-10 w-full max-w-lg rounded-t-2xl border border-lp-line bg-lp-paper p-6 text-lp-ink md:rounded-2xl"
       >
         <h2 id={titleId} className="text-lg font-semibold">
           {submitted ? t("flagSuccess") : t("flagSheetTitle")}
@@ -98,14 +98,14 @@ export default function FlagReportSheet({
         ) : (
           <form onSubmit={(event) => void handleSubmit(event)} className="mt-4 space-y-4">
             <fieldset>
-              <legend className="mb-2 text-sm text-gray-300">
+              <legend className="mb-2 text-sm text-lp-ink-muted">
                 {t("flagSheetWhy")}
               </legend>
               <div className="space-y-2">
                 {FLAG_REASON_CATEGORIES.map((value) => (
                   <label
                     key={value}
-                    className="flex min-h-[44px] cursor-pointer items-center gap-3 rounded-md border border-gray-800 px-3 text-sm hover:bg-gray-900"
+                    className="flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border border-lp-line px-3 text-sm hover:bg-lp-paper-muted"
                   >
                     <input
                       type="radio"
@@ -124,7 +124,7 @@ export default function FlagReportSheet({
             </fieldset>
 
             <label className="block">
-              <span className="mb-1 block text-sm text-gray-300">
+              <span className="mb-1 block text-sm text-lp-ink-muted">
                 {t("flagNoteLabel")}
               </span>
               <textarea
@@ -132,24 +132,24 @@ export default function FlagReportSheet({
                 maxLength={MAX_FLAG_NOTE_LENGTH}
                 onChange={(event) => setNote(event.target.value)}
                 placeholder={t("flagNotePlaceholder")}
-                className="min-h-[88px] w-full rounded border border-gray-700 bg-gray-800 p-2 text-sm text-white"
+                className="min-h-[88px] w-full rounded-xl border border-lp-line bg-lp-paper-muted p-2 text-sm text-lp-ink"
               />
             </label>
 
-            {error ? <p className="text-sm text-red-300">{error}</p> : null}
+            {error ? <p className="text-sm text-lp-coral">{error}</p> : null}
 
             <div className="flex flex-wrap gap-2">
               <button
                 type="submit"
                 disabled={submitting || !category}
-                className="inline-flex min-h-[44px] items-center rounded-md bg-red-800 px-4 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
+                className="inline-flex min-h-[44px] items-center rounded-full bg-lp-coral px-4 text-sm font-medium text-white hover:bg-lp-coral/80 disabled:opacity-60"
               >
                 {submitting ? t("flagSubmitting") : t("flagSubmit")}
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-flex min-h-[44px] items-center rounded-md bg-gray-700 px-4 text-sm text-white hover:bg-gray-600"
+                className="inline-flex min-h-[44px] items-center rounded-full bg-lp-paper-muted px-4 text-sm text-lp-ink hover:bg-lp-line"
               >
                 {t("sightingCancel")}
               </button>

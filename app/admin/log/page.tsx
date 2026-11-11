@@ -72,7 +72,7 @@ export default function AdminModerationLogPage() {
         {rows.map((row) => (
           <article
             key={row.id}
-            className="rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-sm text-gray-200"
+            className="rounded-2xl border border-lp-line bg-lp-paper px-4 py-3 text-sm text-lp-ink"
           >
             <p className="font-medium">
               {t(actionKey(row.action))} · {t(targetKey(row.target_type))}

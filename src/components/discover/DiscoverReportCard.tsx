@@ -11,8 +11,10 @@ import {
 } from "@/src/lib/geo/proximityAttention";
 import { isSeen, markSeen } from "@/src/lib/geo/proximityMemory";
 import LocationDisplay from "@/src/components/location/LocationDisplay";
+import SpeciesGlyph from "@/src/components/icons/SpeciesGlyph";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import type { TranslationKey } from "@/src/i18n/types";
+import { speciesColor } from "@/src/lib/theme/colors";
 
 const ANIMAL_LABEL_KEYS: Record<Report["animal_type"], TranslationKey> = {
   dog: "animalDog",
@@ -20,14 +22,6 @@ const ANIMAL_LABEL_KEYS: Record<Report["animal_type"], TranslationKey> = {
   bird: "animalBird",
   rodent: "animalRodent",
   other: "animalOther",
-};
-
-const ANIMAL_COLORS: Record<Report["animal_type"], string> = {
-  dog: "#3b82f6",
-  cat: "#f59e0b",
-  bird: "#a855f7",
-  rodent: "#ef4444",
-  other: "#111827",
 };
 
 type DiscoverReportCardProps = {
@@ -76,14 +70,15 @@ export default function DiscoverReportCard({
         : showAsSeen
           ? "Seen"
           : null;
+  const accent = speciesColor(report.animal_type);
 
   return (
     <article
       data-report-id={report.id}
-      className={`overflow-hidden rounded-xl border bg-gray-900/80 ${
+      className={`overflow-hidden rounded-2xl border bg-lp-paper ${
         selected
-          ? "border-white ring-1 ring-white"
-          : "border-gray-800/90"
+          ? "border-lp-sage ring-1 ring-lp-sage"
+          : "border-lp-line"
       }`}
     >
       <button
@@ -91,9 +86,9 @@ export default function DiscoverReportCard({
         onClick={() => onSelect(report.id)}
         aria-pressed={selected}
         className="flex w-full gap-3 p-2.5 text-left"
-        style={{ borderLeft: `4px solid ${ANIMAL_COLORS[report.animal_type]}` }}
+        style={{ borderLeft: `4px solid ${accent}` }}
       >
-        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-gray-800">
+        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-lp-paper-muted">
           {hasPhoto ? (
             <img
               src={report.photo_url!}
@@ -102,17 +97,17 @@ export default function DiscoverReportCard({
               onError={() => setPhotoBroken(true)}
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-lg text-gray-500">
-              {report.type === "lost" ? "📍" : "●"}
+            <div className="flex h-full w-full items-center justify-center">
+              <SpeciesGlyph animalType={report.animal_type} size={28} />
             </div>
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-white">{title}</p>
-          <p className="truncate text-xs text-gray-400">
+          <p className="truncate text-sm font-semibold text-lp-ink">{title}</p>
+          <p className="truncate text-xs text-lp-ink-muted">
             {t(ANIMAL_LABEL_KEYS[report.animal_type])} · {typeLabel}
           </p>
-          <div className="mt-0.5 truncate text-[11px] text-gray-500">
+          <div className="mt-0.5 truncate text-[11px] text-lp-ink-subtle">
             <LocationDisplay
               latitude={report.latitude}
               longitude={report.longitude}
@@ -120,14 +115,14 @@ export default function DiscoverReportCard({
             {reportedAt ? <span> · {reportedAt}</span> : null}
           </div>
           {proximity ? (
-            <p className="mt-0.5 truncate text-[11px] text-gray-400">
+            <p className="mt-0.5 truncate text-[11px] text-lp-ink-muted">
               {formatProximityDistance(proximity.distanceMeters)}
               {attentionLabel ? (
                 <span
                   className={
                     attention === "very-close"
-                      ? "ml-1 font-medium text-gray-200"
-                      : "ml-1 text-gray-500"
+                      ? "ml-1 font-medium text-lp-coral"
+                      : "ml-1 text-lp-ink-subtle"
                   }
                 >
                   · {attentionLabel}

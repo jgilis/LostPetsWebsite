@@ -77,10 +77,10 @@ export default function DiscoverSheetNearbyControl({
             ref={menuRef}
             id={listId}
             role="listbox"
-            className="fixed z-[535] min-w-[11.5rem] rounded-md border border-gray-700 bg-gray-900 py-1 shadow-lg"
+            className="fixed z-[535] min-w-[11.5rem] rounded-xl border border-lp-line bg-lp-paper py-1 shadow-lg"
             style={{ bottom: menuBox.bottom, right: menuBox.right }}
           >
-            <li className="px-3 py-1 text-[10px] font-medium uppercase tracking-wide text-gray-500">
+            <li className="px-3 py-1 text-[10px] font-medium uppercase tracking-wide text-lp-ink-subtle">
               {t("discoverWithin500m")}
             </li>
             {NEARBY_OPTIONS.map((option) => {
@@ -93,8 +93,8 @@ export default function DiscoverSheetNearbyControl({
                     aria-selected={selected}
                     className={`flex min-h-11 w-full items-center px-3 text-left text-sm ${
                       selected
-                        ? "bg-gray-800 font-medium text-white"
-                        : "text-gray-200 hover:bg-gray-800"
+                        ? "bg-lp-sage-soft font-medium text-lp-ink"
+                        : "text-lp-ink hover:bg-lp-paper-muted"
                     }`}
                     onClick={() => {
                       onNearbySourceChange(option.value);
@@ -107,7 +107,7 @@ export default function DiscoverSheetNearbyControl({
               );
             })}
             {nearbyError ? (
-              <li className="px-3 py-2 text-xs text-amber-200" role="status">
+              <li className="px-3 py-2 text-xs text-lp-coral" role="status">
                 {nearbyError}
               </li>
             ) : null}
@@ -123,8 +123,8 @@ export default function DiscoverSheetNearbyControl({
         type="button"
         className={`inline-flex h-11 max-w-[7.5rem] items-center justify-center rounded-md border px-2 text-left text-[11px] leading-tight ${
           active
-            ? "border-gray-500 bg-gray-800 text-white"
-            : "border-gray-700 bg-gray-900 text-gray-300"
+            ? "border-lp-sage bg-lp-sage-soft text-lp-sage-dark"
+            : "border-lp-line bg-lp-paper text-lp-ink-muted"
         }`}
         aria-haspopup="listbox"
         aria-expanded={open}

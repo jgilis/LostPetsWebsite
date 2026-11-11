@@ -18,16 +18,16 @@ export default function WalkingModeExitBar({
   if (!visible) return null;
 
   return (
-    <div className="walking-mode-exit-bar fixed inset-x-0 top-0 z-[560] border-b border-amber-700/80 bg-gray-900 pt-[env(safe-area-inset-top)] md:hidden">
+    <div className="walking-mode-exit-bar fixed inset-x-0 top-0 z-[560] border-b border-lp-gold/70 bg-lp-gold-soft pt-[env(safe-area-inset-top)] md:hidden">
       <button
         type="button"
         onClick={onExit}
-        className="flex min-h-[44px] w-full items-center justify-center px-4 py-2 text-sm font-semibold text-amber-100 hover:bg-gray-800"
+        className="flex min-h-[44px] w-full items-center justify-center px-4 py-2 text-sm font-semibold text-lp-ink hover:bg-lp-gold/30"
       >
         {t("walkingModeExit")}
       </button>
       {statusLabel ? (
-        <p className="px-4 pb-2 text-center text-xs text-amber-100/80" role="status">
+        <p className="px-4 pb-2 text-center text-xs text-lp-ink-muted" role="status">
           {statusLabel}
         </p>
       ) : null}

@@ -52,7 +52,7 @@ export default function AdminHome() {
     <div className="mx-auto max-w-3xl px-6 py-8">
       <AdminHeader />
 
-      <p className="mb-4 text-sm text-gray-400">{t("adminQueueHint")}</p>
+      <p className="mb-4 text-sm text-lp-ink-muted">{t("adminQueueHint")}</p>
 
       <nav className="flex flex-col gap-2">
         <Link
@@ -90,25 +90,25 @@ export default function AdminHome() {
         </Link>
       </nav>
 
-      <nav className="mt-8 flex flex-col gap-2 border-t border-gray-800 pt-6">
-        <p className="mb-1 text-xs uppercase tracking-wide text-gray-500">
+      <nav className="mt-8 flex flex-col gap-2 border-t border-lp-line pt-6">
+        <p className="mb-1 text-xs uppercase tracking-wide text-lp-ink-subtle">
           {t("adminAllLists")}
         </p>
         <Link
           href="/admin/reports"
-          className="rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-gray-200 hover:border-gray-600 hover:bg-gray-800"
+          className="rounded-2xl border border-lp-line bg-lp-paper px-4 py-3 text-lp-ink hover:border-lp-line-strong hover:bg-lp-paper-muted"
         >
           {t("adminAllReports")}
         </Link>
         <Link
           href="/admin/sightings?filter=all"
-          className="rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-gray-200 hover:border-gray-600 hover:bg-gray-800"
+          className="rounded-2xl border border-lp-line bg-lp-paper px-4 py-3 text-lp-ink hover:border-lp-line-strong hover:bg-lp-paper-muted"
         >
           {t("adminAllSightings")}
         </Link>
         <Link
           href="/admin/log"
-          className="rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-gray-200 hover:border-gray-600 hover:bg-gray-800"
+          className="rounded-2xl border border-lp-line bg-lp-paper px-4 py-3 text-lp-ink hover:border-lp-line-strong hover:bg-lp-paper-muted"
         >
           {t("adminModerationLog")}
         </Link>

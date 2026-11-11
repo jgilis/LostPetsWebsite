@@ -69,7 +69,7 @@ export default function ReportWorkspace({
         <button
           type="button"
           onClick={goChooser}
-          className="mb-4 inline-flex min-h-[44px] items-center text-sm text-gray-300 hover:text-white"
+          className="mb-4 inline-flex min-h-[44px] items-center text-sm text-lp-ink-muted hover:text-lp-ink"
         >
           {t("reportBack")}
         </button>
@@ -89,27 +89,27 @@ export default function ReportWorkspace({
         <button
           type="button"
           onClick={goChooser}
-          className="mb-2 inline-flex min-h-[44px] w-fit items-center text-sm text-gray-300 hover:text-white"
+          className="mb-2 inline-flex min-h-[44px] w-fit items-center text-sm text-lp-ink-muted hover:text-lp-ink"
         >
           {t("reportBack")}
         </button>
-        <h1 className="mb-4 text-lg font-semibold text-white">
+        <h1 className="mb-4 text-lg font-semibold text-lp-ink">
           {t("reportSeenPickerTitle")}
         </h1>
         {loading || bounds == null ? (
-          <p className="text-sm text-gray-400">{t("reportsLoading")}</p>
+          <p className="text-sm text-lp-ink-muted">{t("reportsLoading")}</p>
         ) : lostInArea.length === 0 ? (
           <div className="flex flex-col items-center px-2 py-8 text-center">
-            <p className="text-base font-medium text-gray-300">
+            <p className="text-base font-medium text-lp-ink">
               {t("reportSeenPickerEmpty")}
             </p>
-            <p className="mt-2 max-w-sm text-sm text-gray-500">
+            <p className="mt-2 max-w-sm text-sm text-lp-ink-muted">
               {t("reportSeenPickerEmptyHint")}
             </p>
             <Link
               href={homeDestinationHref("discover")}
               scroll={false}
-              className="mt-5 inline-flex min-h-11 items-center justify-center rounded-md border border-gray-600 bg-gray-900 px-4 text-sm font-medium text-gray-100 hover:border-gray-500"
+              className="mt-5 inline-flex min-h-11 items-center justify-center rounded-full border border-lp-line bg-lp-paper px-4 text-sm font-medium text-lp-ink hover:border-lp-sage"
             >
               {t("activityEmptyOpenDiscover")}
             </Link>
@@ -142,21 +142,21 @@ export default function ReportWorkspace({
       <button
         type="button"
         onClick={() => setTask("lost")}
-        className="min-h-[44px] w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-left text-base font-medium text-white hover:border-gray-500"
+        className="min-h-[44px] w-full rounded-2xl border border-lp-line bg-lp-paper px-4 py-3 text-left text-base font-medium text-lp-ink shadow-[0_6px_18px_rgb(61_52_44_/_0.06)] hover:border-lp-sage"
       >
         {t("reportChooserLost")}
       </button>
       <button
         type="button"
         onClick={() => setTask("found")}
-        className="min-h-[44px] w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-left text-base font-medium text-white hover:border-gray-500"
+        className="min-h-[44px] w-full rounded-2xl border border-lp-line bg-lp-paper px-4 py-3 text-left text-base font-medium text-lp-ink shadow-[0_6px_18px_rgb(61_52_44_/_0.06)] hover:border-lp-sage"
       >
         {t("reportChooserFound")}
       </button>
       <button
         type="button"
         onClick={() => setTask("seen")}
-        className="min-h-[44px] w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-left text-base font-medium text-white hover:border-gray-500"
+        className="min-h-[44px] w-full rounded-2xl border border-lp-line bg-lp-paper px-4 py-3 text-left text-base font-medium text-lp-ink shadow-[0_6px_18px_rgb(61_52_44_/_0.06)] hover:border-lp-sage"
       >
         {t("reportChooserSeen")}
       </button>

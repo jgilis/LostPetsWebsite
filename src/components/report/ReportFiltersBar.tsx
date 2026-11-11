@@ -2,17 +2,12 @@
 
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import type { TranslationKey } from "@/src/i18n/types";
+import { SPECIES_COLORS } from "@/src/lib/theme/colors";
 
 export type TypeFilter = "all" | "lost" | "found";
 export type AnimalFilter = "all" | "dog" | "cat" | "bird" | "rodent" | "other";
 
-const animalColors: Record<Exclude<AnimalFilter, "all">, string> = {
-  dog: "#3b82f6",
-  cat: "#f59e0b",
-  bird: "#a855f7",
-  rodent: "#ef4444",
-  other: "#111827",
-};
+const animalColors: Record<Exclude<AnimalFilter, "all">, string> = SPECIES_COLORS;
 
 const ANIMAL_FILTER_LABELS: Record<AnimalFilter, TranslationKey> = {
   all: "filterAll",
@@ -50,7 +45,7 @@ export default function ReportFiltersBar({
     <div
       className={
         sticky
-          ? "report-filters-bar sticky top-0 z-[400] flex w-full min-w-0 max-w-full flex-col gap-1.5 bg-gray-950 pt-1"
+          ? "report-filters-bar sticky top-0 z-[400] flex w-full min-w-0 max-w-full flex-col gap-1.5 bg-lp-paper pt-1"
           : "report-filters-bar flex w-full min-w-0 max-w-full flex-col gap-1.5"
       }
     >
@@ -59,7 +54,7 @@ export default function ReportFiltersBar({
         {(["all", "dog", "cat", "bird", "rodent", "other"] as const).map((a) => {
           const isActive = animalFilter === a;
           const color =
-            a === "all" ? "#6b7280" : animalColors[a];
+            a === "all" ? "#8a7c6e" : animalColors[a];
 
           return (
             <button
@@ -70,7 +65,7 @@ export default function ReportFiltersBar({
               style={{
                 borderColor: color,
                 backgroundColor: isActive ? color : "transparent",
-                color: isActive ? "#ffffff" : "#e5e7eb",
+                color: isActive ? "#fffbf6" : "#3d342c",
               }}
             >
               {t(ANIMAL_FILTER_LABELS[a])}
@@ -89,10 +84,10 @@ export default function ReportFiltersBar({
               key={typeKey}
               type="button"
               onClick={() => onTypeFilterChange(typeKey)}
-              className="inline-flex items-center whitespace-nowrap rounded-full border border-gray-500 px-2.5 py-1 text-xs font-medium leading-normal"
+              className="inline-flex items-center whitespace-nowrap rounded-full border border-lp-line-strong px-2.5 py-1 text-xs font-medium leading-normal"
               style={{
-                backgroundColor: isActive ? "#e5e7eb" : "transparent",
-                color: isActive ? "#111827" : "#e5e7eb",
+                backgroundColor: isActive ? "#3d342c" : "transparent",
+                color: isActive ? "#fffbf6" : "#3d342c",
               }}
             >
               {t(TYPE_FILTER_LABELS[typeKey])}

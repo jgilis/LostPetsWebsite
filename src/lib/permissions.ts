@@ -10,3 +10,12 @@ export function isOwner(
 
   return userId === ownerUserId;
 }
+
+/** Exact sighting coordinates: report owner or administrator only. */
+export function canSeeExactSightings(
+  userId: string | null | undefined,
+  isAdmin: boolean,
+  ownerUserId: string | null | undefined,
+): boolean {
+  return isAdmin || isOwner(userId, ownerUserId);
+}

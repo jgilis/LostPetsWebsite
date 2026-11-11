@@ -26,7 +26,7 @@ export default function SessionControls() {
     return (
       <a
         href="/login"
-        className="inline-flex h-11 min-w-11 items-center justify-center text-gray-400 hover:text-gray-200 md:h-auto md:min-w-0 md:underline"
+        className="inline-flex h-11 min-w-11 items-center justify-center text-lp-ink-muted hover:text-lp-ink md:h-auto md:min-w-0 md:underline"
         aria-label={t("navAccount")}
       >
         <AccountIcon />
@@ -40,20 +40,20 @@ export default function SessionControls() {
   return (
     <details className="group relative text-left">
       <summary
-        className="inline-flex h-11 min-w-11 cursor-pointer list-none items-center justify-center text-gray-400 hover:text-gray-200 md:h-auto md:min-w-0 md:underline [&::-webkit-details-marker]:hidden"
+        className="inline-flex h-11 min-w-11 cursor-pointer list-none items-center justify-center text-lp-ink-muted hover:text-lp-ink md:h-auto md:min-w-0 md:underline [&::-webkit-details-marker]:hidden"
         aria-label={t("navAccount")}
       >
         <AccountIcon />
         <span className="hidden md:inline">{t("navAccount")}</span>
       </summary>
-      <div className="absolute top-full right-0 z-10 mt-2 min-w-[12rem] max-w-[16rem] rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-left shadow-lg md:left-1/2 md:right-auto md:-translate-x-1/2">
-        <p className="mb-2 truncate text-xs text-gray-400" title={email}>
+      <div className="absolute top-full right-0 z-10 mt-2 min-w-[12rem] max-w-[16rem] rounded-xl border border-lp-line bg-lp-paper px-3 py-2 text-left shadow-lg md:left-1/2 md:right-auto md:-translate-x-1/2">
+        <p className="mb-2 truncate text-xs text-lp-ink-muted" title={email}>
           {email}
         </p>
         <button
           type="button"
           onClick={() => setZonesOpen(true)}
-          className="mb-2 w-full text-left text-gray-300 underline hover:text-white"
+          className="mb-2 w-full text-left text-lp-ink underline hover:text-lp-sage-dark"
         >
           {t("zoneAlerts")}
         </button>
@@ -61,7 +61,7 @@ export default function SessionControls() {
           type="button"
           onClick={() => void handleLogout()}
           disabled={signingOut}
-          className="w-full text-left text-gray-300 underline hover:text-white disabled:opacity-50"
+          className="w-full text-left text-lp-ink underline hover:text-lp-sage-dark disabled:opacity-50"
         >
           {signingOut ? t("sessionLoggingOut") : t("sessionLogout")}
         </button>

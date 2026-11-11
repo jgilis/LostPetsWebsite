@@ -108,7 +108,7 @@ function DiscoverReportList({
 
   if (reports.length === 0) {
     return (
-      <p className="px-3 py-6 text-center text-sm text-gray-400">{emptyLabel}</p>
+      <p className="px-3 py-6 text-center text-sm text-lp-ink-muted">{emptyLabel}</p>
     );
   }
 
@@ -309,11 +309,11 @@ export default function DiscoverReportsPane({
   return (
     <>
       <aside
-        className="discover-reports-desktop hidden min-h-0 w-80 shrink-0 flex-col border-l border-gray-800 bg-gray-950 md:flex lg:w-96"
+        className="discover-reports-desktop hidden min-h-0 w-80 shrink-0 flex-col border-l border-lp-line bg-lp-bg-soft md:flex lg:w-96"
         aria-label={label}
       >
-        <div className="shrink-0 space-y-2 border-b border-gray-800 px-3 py-3">
-          <div className="text-sm font-medium text-gray-300">{label}</div>
+        <div className="shrink-0 space-y-2 border-b border-lp-line px-3 py-3">
+          <div className="text-sm font-medium text-lp-ink">{label}</div>
           <DiscoverDesktopToolbar
             typeFilter={typeFilter}
             animalFilter={animalFilter}
@@ -338,7 +338,7 @@ export default function DiscoverReportsPane({
 
       <div
         ref={sheetRef}
-        className="discover-report-sheet absolute inset-x-0 bottom-0 z-[520] flex flex-col overflow-hidden rounded-t-xl border-t border-gray-800 bg-gray-950 md:hidden"
+        className="discover-report-sheet absolute inset-x-0 bottom-0 z-[520] flex flex-col overflow-hidden rounded-t-2xl border-t border-lp-line bg-lp-paper shadow-[0_-12px_32px_rgb(61_52_44_/_0.12)] md:hidden"
         style={{ height: sheetHeight }}
       >
         <div className="relative flex shrink-0 items-center gap-1 pr-2">
@@ -353,8 +353,8 @@ export default function DiscoverReportsPane({
             onPointerCancel={onHandlePointerUp}
             onClick={onHandleClick}
           >
-            <span className="mb-2 block h-1 w-10 rounded-full bg-gray-600" />
-            <span className="truncate text-xs font-medium text-gray-300">
+            <span className="mb-2 block h-1 w-10 rounded-full bg-lp-line-strong" />
+            <span className="truncate text-xs font-medium text-lp-ink-muted">
               {label}
               {reports.length > 0 ? ` · ${reports.length}` : ""}
             </span>
@@ -366,7 +366,7 @@ export default function DiscoverReportsPane({
           />
         </div>
         {nearbyError && snap !== "collapsed" ? (
-          <p className="px-3 pb-1 text-xs text-amber-200" role="status">
+          <p className="px-3 pb-1 text-xs text-lp-coral" role="status">
             {nearbyError}
           </p>
         ) : null}

@@ -66,10 +66,10 @@ export default function AdminReportRow({
 
   return (
     <article
-      className={`rounded-lg border p-4 text-gray-200 ${
+      className={`rounded-2xl border p-4 text-lp-ink ${
         outOfArea
-          ? "border-red-700/80 bg-red-950/35"
-          : "border-gray-700 bg-gray-900"
+          ? "border-lp-coral/50 bg-lp-coral-soft"
+          : "border-lp-line bg-lp-paper"
       }`}
     >
       <div className="flex items-start gap-3">
@@ -180,7 +180,7 @@ export default function AdminReportRow({
             <button
               type="button"
               onClick={() => void onStatusChange(report.id, "active")}
-              className={`${actionButtonClass} border-gray-600 hover:bg-gray-800`}
+              className={`${actionButtonClass} border-lp-line hover:bg-lp-paper-muted`}
             >
               {t("adminRestore")}
             </button>
