@@ -31,15 +31,6 @@ export function useMapIcons(L: any) {
     };
   }, [L]);
 
-  const getIcon = (
-    animal: AnimalType,
-    reportType: "lost" | "found" = "lost",
-    selected = false,
-  ) => {
-    if (!L) return undefined;
-    return createSpeciesMarkerIcon(animal, reportType, selected);
-  };
-
   const sightingIcon = useMemo(() => {
     if (!L) return null;
     return createSightingDivIcon(L, STATUS_COLORS.lost);
@@ -57,7 +48,6 @@ export function useMapIcons(L: any) {
 
   return {
     icons,
-    getIcon,
     sightingIcon,
     reportOriginIcon,
     currentSightingIcon,

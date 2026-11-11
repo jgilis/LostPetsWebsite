@@ -11,6 +11,7 @@ import {
   browserGetCurrentPosition,
   browserWatchPosition,
   isBrowserGeolocationAvailable,
+  isGeolocationPermissionDenied,
   WALKING_GEO_OPTIONS,
   WALKING_WATCH_OPTIONS,
   type GeolocationWatchId,
@@ -69,6 +70,7 @@ export function useWalkingMode() {
   const recoveryFailureCountRef = useRef(0);
   const nextRecoveryAllowedAtRef = useRef(0);
   const attemptGpsRecoveryRef = useRef<() => void>(() => {});
+  const stopWalkingModeRef = useRef<() => void>(() => {});
 
   const clearRecoveryBackoff = useCallback(() => {
     recoveryFailureCountRef.current = 0;
@@ -142,11 +144,15 @@ export function useWalkingMode() {
           if (session !== sessionRef.current) return;
           applyPositionUpdate(update);
         },
-        () => {
+        (error) => {
           if (session !== sessionRef.current) return;
           clearWatch();
           setLivePosition(null);
           lastLocationAtRef.current = 0;
+          if (isGeolocationPermissionDenied(error)) {
+            stopWalkingModeRef.current();
+            return;
+          }
           scheduleRecoveryBackoff();
           if (!isRecoveryBackoffActive()) {
             attemptGpsRecoveryRef.current();
@@ -188,7 +194,12 @@ export function useWalkingMode() {
         applyPositionUpdate(position);
         startWatch(session);
       },
-      () => {
+      (error) => {
+        if (isGeolocationPermissionDenied(error)) {
+          releaseRecoveryLock();
+          stopWalkingModeRef.current();
+          return;
+        }
         scheduleRecoveryBackoff();
         releaseRecoveryLock();
       },
@@ -231,12 +242,14 @@ export function useWalkingMode() {
     resetSessionStats();
   }, [clearRecoveryBackoff, clearWatch, releaseRecoveryLock, resetSessionStats]);
 
+  stopWalkingModeRef.current = stopWalkingMode;
+
   const startWalkingMode = useCallback(() => {
     if (!isBrowserGeolocationAvailable()) return;
-    if (recoveryInFlightRef.current) return;
 
     const session = sessionRef.current + 1;
     sessionRef.current = session;
+    recoveryInFlightRef.current = false;
     isWalkingModeEnabledRef.current = true;
     sessionStartAtRef.current = Date.now();
     lastRawPositionRef.current = null;
@@ -251,32 +264,10 @@ export function useWalkingMode() {
     });
     track("walking_mode_enabled");
 
-    recoveryInFlightRef.current = true;
-
-    browserGetCurrentPosition(
-      (position) => {
-        if (session !== sessionRef.current) {
-          releaseRecoveryLock();
-          return;
-        }
-        clearRecoveryBackoff();
-        applyPositionUpdate(position);
-        startWatch(session);
-      },
-      () => {
-        releaseRecoveryLock();
-        if (session !== sessionRef.current) return;
-        stopWalkingMode();
-      },
-      WALKING_GEO_OPTIONS,
-    );
-  }, [
-    applyPositionUpdate,
-    clearRecoveryBackoff,
-    releaseRecoveryLock,
-    startWatch,
-    stopWalkingMode,
-  ]);
+    // Start watch from the tap so Android keeps the user-gesture permission
+    // prompt. A timeout/unavailable error must not abort the session.
+    startWatch(session);
+  }, [clearRecoveryBackoff, startWatch]);
 
   const hasActiveUserLocation =
     isWalkingModeEnabled &&

@@ -22,9 +22,15 @@ export function isBrowserGeolocationAvailable(): boolean {
   return typeof navigator !== "undefined" && !!navigator.geolocation;
 }
 
+export function isGeolocationPermissionDenied(
+  error?: GeolocationPositionError | null,
+): boolean {
+  return error?.code === 1;
+}
+
 export function browserGetCurrentPosition(
   onSuccess: (position: GeolocationPosition) => void,
-  onError: () => void,
+  onError: (error?: GeolocationPositionError) => void,
   options: PositionOptions = WALKING_GEO_OPTIONS,
 ): void {
   navigator.geolocation.getCurrentPosition(onSuccess, onError, options);
@@ -32,7 +38,7 @@ export function browserGetCurrentPosition(
 
 export function browserWatchPosition(
   onSuccess: (position: GeolocationPosition) => void,
-  onError: () => void,
+  onError: (error?: GeolocationPositionError) => void,
   options: PositionOptions = WALKING_GEO_OPTIONS,
 ): GeolocationWatchId | null {
   if (!isBrowserGeolocationAvailable()) return null;

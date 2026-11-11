@@ -345,6 +345,12 @@ body {
   cursor: pointer;
 }
 
+html:has(body.discover-fullbleed),
+body.discover-fullbleed {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 body.discover-fullbleed footer {
   display: none;
 }
@@ -361,6 +367,12 @@ body.discover-fullbleed footer {
   height: 100% !important;
   width: 100%;
   min-height: 0;
+  overscroll-behavior: none;
+}
+
+.walking-map-host {
+  isolation: isolate;
+  overscroll-behavior: none;
 }
 
 [inert] .leaflet-control-container,
@@ -403,6 +415,9 @@ body.walking-mode-active .nearby-awareness-panel {
   font-weight: 650;
   color: var(--lp-ink);
   box-shadow: var(--lp-shadow-soft);
+  touch-action: manipulation;
+  position: relative;
+  z-index: 1;
 }
 
 .discover-map-tool-btn[aria-pressed="true"] {

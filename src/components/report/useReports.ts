@@ -30,8 +30,6 @@ export function useReports(options?: {
   const [loading, setLoading] = useState(true);
 
   const fetchReports = useCallback(async () => {
-    setLoading(true);
-
     let query = supabase.from("reports").select(REPORT_PUBLIC_SELECT);
 
     if (reportId) {

@@ -187,7 +187,6 @@ export default function Map({
 
   const {
     icons,
-    getIcon,
     sightingIcon,
     reportOriginIcon,
     currentSightingIcon,
@@ -320,6 +319,11 @@ export default function Map({
     window.dispatchEvent(new Event("walking-map-recenter"));
   }, [map, walkingMode]);
 
+  const handleSelectReport = useCallback(
+    (id: string) => onSelectedReportChange?.(id),
+    [onSelectedReportChange],
+  );
+
   if (!isMounted) return null;
   if (!L || !icons || !sightingIcon) return <p>{t("mapLoading")}</p>;
   if (
@@ -328,9 +332,11 @@ export default function Map({
   ) {
     return <p>{t("mapLoading")}</p>;
   }
-  const loading = reportsLoading || (isAdminScoped && sightingsLoading);
+  const blockingLoad =
+    (reportsLoading && reports.length === 0) ||
+    (isAdminScoped && sightingsLoading && sightingMarkers.length === 0);
 
-  if (loading) return <p>{t("reportsLoading")}</p>;
+  if (blockingLoad) return <p>{t("reportsLoading")}</p>;
 
   return (
     <div
@@ -478,7 +484,6 @@ export default function Map({
         className={`walking-map-host relative ${
           fillContainer ? "min-h-0 flex-1" : ""
         }`}
-        style={{ position: "relative" }}
       >
       <MapContainer
         center={[51.025, 4.477]} // Mechelen
@@ -554,7 +559,6 @@ export default function Map({
         <ReportsLayer
           items={clusters}
           animalColors={animalColors}
-          getIcon={getIcon}
           reportIconOverride={
             isAdminScoped ? reportOriginIcon : undefined
           }
@@ -564,7 +568,7 @@ export default function Map({
           popupOpenToken={isAdminScoped ? popupOpenToken : 0}
           enablePopup={isAdminScoped}
           selectedReportId={selectedReportId}
-          onSelectReport={(id) => onSelectedReportChange?.(id)}
+          onSelectReport={handleSelectReport}
           onClusterClick={(id, lat, lng) => {
             if (!map) return;
 
@@ -599,17 +603,19 @@ export default function Map({
       {isAdminScoped ? (
         <AdminMapLegend />
       ) : (
-        <div className="discover-map-tool-stack pointer-events-none absolute top-2 right-2 z-[510] flex flex-col items-end gap-2">
-          <div className="pointer-events-auto flex w-fit max-w-[min(11.75rem,calc(100%-3.5rem))] justify-end">
+        <div className="discover-map-tool-stack absolute top-2 right-2 z-[510] flex flex-col items-end gap-2">
+          <div className="flex w-fit max-w-[min(11.75rem,calc(100%-3.5rem))] justify-end">
             <DiscoverMapLegend />
           </div>
           {fillContainer ? (
-            <div className="pointer-events-auto flex flex-col items-end gap-2 md:hidden">
+            <div className="flex flex-col items-end gap-2 md:hidden">
               <button
                 type="button"
                 className="discover-map-tool-btn"
                 aria-pressed={walkingMode.isWalkingModeEnabled}
-                onClick={() => {
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={(event) => {
+                  event.stopPropagation();
                   if (walkingMode.isWalkingModeEnabled) {
                     walkingMode.stopWalkingMode();
                   } else {

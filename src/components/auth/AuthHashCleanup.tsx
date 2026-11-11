@@ -54,7 +54,9 @@ function canApplyStoredReturn(pathname: string, search: string): boolean {
   );
   if (params.has("code")) return true;
   const tab = params.get("tab");
-  return tab == null || tab === "report" || tab === "help";
+  // Bare `/` is Discover (PWA start_url). Do not yank it to a leftover
+  // Report return path — that looks like a full-screen refresh.
+  return tab === "report" || tab === "help";
 }
 
 function draftReturnPath(): string | null {

@@ -8,7 +8,6 @@ import { useCurrentUser } from "../../hooks/useCurrentUser";
 type Props = {
   items: any[];
   animalColors: Record<string, string>;
-  getIcon: (animal: any) => any;
   reportIconOverride?: any;
   index: any;
   map: any;
@@ -23,7 +22,6 @@ type Props = {
 export default function ReportsLayer({
   items,
   animalColors,
-  getIcon,
   reportIconOverride,
   index,
   map,
@@ -68,7 +66,7 @@ export default function ReportsLayer({
       return null;
     }
 
-    const icon = reportIconOverride ?? getIcon(report.animal_type);
+    const icon = reportIconOverride;
     const color = animalColors[report.animal_type];
 
     return (

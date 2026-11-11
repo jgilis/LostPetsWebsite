@@ -65,7 +65,7 @@ function HomePageContent() {
   const walking = walkingMode.isWalkingModeEnabled;
 
   return (
-    <main className="home-main flex h-dvh flex-col overflow-hidden bg-lp-bg text-lp-ink">
+    <main className="home-main flex h-dvh flex-col overflow-hidden overscroll-none bg-lp-bg text-lp-ink">
       <DiscoverDestinationNav destination={destination} />
       <WalkingModeExitBar
         visible={walking && !isDesktop}
