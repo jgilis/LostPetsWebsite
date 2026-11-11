@@ -39,7 +39,10 @@ export default function ReportWorkspace({
   const [seenReportId, setSeenReportId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (initialTask) return;
+    if (initialTask) {
+      setTask(initialTask);
+      return;
+    }
     const draft = readReportDraft();
     if (draft?.type === "lost" || draft?.type === "found") {
       setTask(draft.type);

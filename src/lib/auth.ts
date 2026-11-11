@@ -1,5 +1,5 @@
 import type { AuthError, User } from "@supabase/supabase-js";
-import { safeAuthRedirectPath } from "./authRedirect";
+import { safeAuthRedirectPath, writeAuthReturnPath } from "./authRedirect";
 import { supabase } from "./supabase";
 
 export async function getUser(): Promise<User | null> {
@@ -14,11 +14,10 @@ export async function signInWithEmail(
 ): Promise<{ error: AuthError | null }> {
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const next = safeAuthRedirectPath(nextPath);
-  const emailRedirectTo = origin
-    ? next
-      ? `${origin}${next}`
-      : origin
-    : undefined;
+  // Query strings on emailRedirectTo are often dropped by the Auth allow-list.
+  // Keep the intended return path in localStorage; land on the Site URL.
+  writeAuthReturnPath(next);
+  const emailRedirectTo = origin || undefined;
 
   const { error } = await supabase.auth.signInWithOtp({
     email,

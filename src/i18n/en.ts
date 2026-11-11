@@ -115,7 +115,7 @@ export const en = {
   loginSending: "Sending…",
   loginCheckEmail: "Check your email for the login link.",
   loginRateLimit:
-    "Email rate limit exceeded — limited to 2 magic links per hour. Please wait before trying again. This helps prevent spam and protects your account.",
+    "Email rate limit exceeded — limited to 10 magic links per hour. Please wait before trying again. This helps prevent spam and protects your account.",
 
   sessionSignedIn: "Signed in",
   sessionLoggingOut: "Logging out…",

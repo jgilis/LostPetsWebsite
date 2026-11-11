@@ -117,7 +117,7 @@ export const nl: Record<keyof typeof en, string> = {
   loginSending: "Verzenden…",
   loginCheckEmail: "Controleer je e-mail voor de inloglink.",
   loginRateLimit:
-    "E-maillimiet bereikt — maximaal 2 magic links per uur. Wacht even en probeer opnieuw. Dit helpt spam te voorkomen en beschermt je account.",
+    "E-maillimiet bereikt — maximaal 10 magic links per uur. Wacht even en probeer opnieuw. Dit helpt spam te voorkomen en beschermt je account.",
 
   sessionSignedIn: "Ingelogd",
   sessionLoggingOut: "Uitloggen…",

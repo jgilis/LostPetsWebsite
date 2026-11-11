@@ -7,7 +7,8 @@ import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import { track } from "@/src/lib/analytics/analytics";
-import { reportLoginHref } from "../../lib/authRedirect";
+import { reportLoginHref, writeAuthReturnPath } from "../../lib/authRedirect";
+import { reportTaskHref } from "../../lib/homeDestination";
 import {
   blobToBase64,
   PhotoPreparationError,
@@ -146,6 +147,7 @@ export default function ReportForm({
   ) => {
     event.preventDefault();
     const draftType = isReportType(type) ? type : (initialType ?? "lost");
+    writeAuthReturnPath(reportTaskHref(draftType));
     await writeReportDraft({
       type: draftType,
       animalType,

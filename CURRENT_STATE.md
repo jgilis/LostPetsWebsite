@@ -4,7 +4,7 @@
 
 **Live status (11 November 2026):** Vercel hosts the site and deploys from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`.
 
-**Phases 0–4 are live in production. Phase 5 is in this repository** (admin queue, sighting review stamps, moderation log, duplicate hint, expiry function, sighting-photo cleanup). **Next: paste Phase 5 SQL, then magic-link draft keep** (`PRODUCT_PLAN.md` section 12). Do not start magic-link draft keep until the user asks. Phase 5 SQL `20261111170000_phase5_moderation_expiry_cleanup.sql` is not live until pasted.
+**Phases 0–4 are live in production. Phase 5 is in this repository** (admin queue, sighting review stamps, moderation log, duplicate hint, expiry function, sighting-photo cleanup). **Magic-link draft keep is in this repository** (report draft + return path in `localStorage`; after the email link, open Report even if Auth lands on `/`). Hosted Auth email sending is temporarily 10/hour for development and must later go back to 2 or 3/hour. **Next: paste Phase 5 SQL, then `/sightings/[id]` visibility** (`PRODUCT_PLAN.md` section 12). Phase 5 SQL `20261111170000_phase5_moderation_expiry_cleanup.sql` is not live until pasted.
 
 Phase 1 Discover is the home:
 
@@ -21,7 +21,7 @@ Phase 1 Discover is the home:
 - **Flagging sheet (Phase 3 slice 5, live):** “Report this post” opens a sheet (spam / wrong animal / unsafe / other, optional note) instead of `window.prompt`. After submit, the heading is “Thank you for reporting this post.” Still calls `flag-report`. No login required. Owners do not see it.
 - **Area subscriptions (Phase 4, live):** Account → Alert zones (up to five). A new **lost** report matching an enabled zone creates one in-app `lost_report_in_area` notice per person, even with push off. Unique on (user, report id), not zone id. Payload keeps a ~1.1 km grid for the place line. SQL, Vercel UI, and `send-push-on-notification` v11 are in production. Found, sightings, reunions, and edits do not notify.
 - **Admin queue (Phase 5, in this repository):** `/admin` shows counts for pending sightings, flagged reports, and out-of-area actives. All reports / all sightings / moderation log stay secondary. Sighting approve/reject will stamp `reviewed_by` and `moderated_at` after SQL. `/admin/log` reads `moderation_actions`. Duplicate hint (same species, ~300 m, 48 h) on the report form and admin cards. `expire_due_listings()` and sighting-photo cleanup need the SQL paste. `/sightings/[id]` was not changed.
-- **Magic-link draft (deferred):** filling a lost/found report, then logging in, is meant to return to Report with the same fields. Not treated as current work.
+- **Magic-link draft (in this repository):** filling a lost/found report, then logging in, stores the fields and a return path in `localStorage` and should open Report after the email link. Hosted Auth email sending is temporarily 10/hour for development; reduce to 2 or 3/hour later.
 - `/sightings/[id]` exact-location visibility is separate debt, not Phase 5.
 
 Live baseline: `PRODUCT_PLAN.md` section 15.
@@ -433,7 +433,7 @@ All of the following are available to `is_admin` only in the UI. None of them wr
 
 - hCaptcha on report submit only.
 - 30-second localStorage cooldown on report submit.
-- Supabase’s own magic-link rate limit, surfaced on the login page (copy says 2 per hour; that limit is not set in this repo).
+- Supabase’s own magic-link rate limit, surfaced on the login page (copy says 10 per hour for development; must later be 2 or 3. That limit is hosted Auth `rate_limit_email_sent`, not an app table).
 - Mechelen-bounds warning, not a block.
 - Client minimum description length of 5 characters.
 - User flag via `FlagReportSheet` (`ReportPopup` / report detail → `flagReport`).

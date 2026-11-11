@@ -120,7 +120,7 @@ export const fr: Record<keyof typeof en, string> = {
   loginSending: "Envoi…",
   loginCheckEmail: "Vérifiez votre e-mail pour le lien de connexion.",
   loginRateLimit:
-    "Limite d'e-mails atteinte — 2 liens magiques par heure maximum. Patientez avant de réessayer. Cela limite le spam et protège votre compte.",
+    "Limite d'e-mails atteinte — 10 liens magiques par heure maximum. Patientez avant de réessayer. Cela limite le spam et protège votre compte.",
 
   sessionSignedIn: "Connecté",
   sessionLoggingOut: "Déconnexion…",

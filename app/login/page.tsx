@@ -1,9 +1,10 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { AuthError } from "@supabase/supabase-js";
 import { signInWithEmail } from "@/src/lib/auth";
+import { writeAuthReturnPath } from "@/src/lib/authRedirect";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 import type { TranslationKey } from "@/src/i18n/types";
 
@@ -40,6 +41,10 @@ function LoginPageContent() {
   const [error, setError] = useState<string | null>(null);
 
   const hasEmail = email.trim().length > 0;
+
+  useEffect(() => {
+    writeAuthReturnPath(nextPath);
+  }, [nextPath]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

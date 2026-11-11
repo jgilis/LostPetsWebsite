@@ -1,6 +1,6 @@
 # Lost Pets Map — Product Plan
 
-**Status:** Working product direction. Phases 0–5 are done in this repository. Phases 0–4 are live in production. Phase 5 SQL must be pasted before audit, reviewer stamps, expiry, and sighting-photo cleanup are live. Magic-link draft keep is next and stays deferred until asked.  
+**Status:** Working product direction. Phases 0–5 are done in this repository. Phases 0–4 are live in production. Phase 5 SQL must be pasted before audit, reviewer stamps, expiry, and sighting-photo cleanup are live. Magic-link draft keep is in this repository.  
 **Scope:** Next version  
 **Primary area:** Mechelen, Belgium  
 **Languages:** English, Dutch and French
@@ -9,7 +9,7 @@
 
 | Need | Place |
 |---|---|
-| What to build next | This file, section 12 (magic-link draft keep, after Phase 5 SQL) |
+| What to build next | This file, section 12 (Phase 5 SQL paste, then `/sightings/[id]` visibility) |
 | Activity behaviour | `PRODUCT_STRATEGY.md` sections 5, 7 and 14 |
 | Discover behaviour, layout, sheets | `PRODUCT_STRATEGY.md` sections 5, 6 and 14 |
 | What is true in production | This file, section 15 |
@@ -341,9 +341,9 @@ Work in small, reviewable phases. Complete and test each phase before starting t
 - `moderation_actions` audit trail and `reviewed_by`
 - Expiry job, duplicate hints, storage cleanup on delete
 
-**After Phase 5 — Magic-link draft keep** (deferred)
-- Lost/found form fields survive email login and return the person to the filled Report form
-- Attempted during Phase 3; not reliable enough in production. Do not resume until Phases 3–5 are done.
+**After Phase 5 — Magic-link draft keep** (in this repository)
+- Lost/found form fields survive email login and return the person to the filled Report form.
+- Return path is stored in `localStorage` so a Site URL landing still opens Report. Hosted Auth email sending is temporarily 10/hour for development; reduce to 2 or 3/hour before a wider launch.
 
 ### Phase 1 Discover — delivered
 
@@ -470,7 +470,7 @@ The destination label is **Report** (EN Report / NL Melding / FR Signaler), not 
 
 Phase 3 is complete in production.
 
-Magic-link draft keep is **not** a remaining Phase 3 slice. It waits until after Phase 5.
+Magic-link draft keep is **not** a remaining Phase 3 slice. It is in this repository after Phase 5 (section 12).
 
 ### Phase 4 Area subscriptions — live in production
 
@@ -511,7 +511,6 @@ Signed-in users save a few named zones and get an in-app notice when a **new los
 - Alert zone subscribers about sightings, found reports, or reunions.
 - Use anonymous auth, PostGIS, background GPS, quiet hours, or a native rewrite.
 - Fix `/sightings/[id]` exact-location visibility (separate debt).
-- Start magic-link draft keep until asked.
 
 ### Phase 5 Admin, expiry, cleanup — delivered in this repository
 
@@ -540,9 +539,15 @@ Detail: `PRODUCT_STRATEGY.md` section 12. SQL in `supabase/migrations/2026111117
 - Hard-delete of a report already cascades sightings; a new trigger removes `sighting-photos` objects, using the same `storage.allow_delete_query` pattern as report photos.
 - `/sightings/[id]` exact-location visibility is unchanged.
 
-### What to build next — Magic-link draft keep
+### Magic-link draft keep — in this repository
 
-Deferred. Lost/found form fields should survive email login and return the person to the filled Report form. Attempted during Phase 3; not reliable enough in production. Do not start until asked. Do not bundle `/sightings/[id]` into this.
+Lost/found fields stay in `localStorage` (`lostpets.reportDraft.v1`) across the magic-link email. The intended return (`/?tab=report&task=lost|found`) is stored separately (`lostpets.authReturnTo.v1`) so Auth can land on the Site URL and the app still opens Report with the draft. Sightings still do not need an account. Do not bundle `/sightings/[id]` into this.
+
+**Development auth email limit — must be reduced later.** Hosted Supabase Auth email sending is temporarily **10 magic links per hour** so login can be tested. This is a safety measure and **must be reduced to 2 or 3 per hour again** before a wider launch. Set it in the Supabase Dashboard → Authentication → Rate Limits (`rate_limit_email_sent`). It is not an application table. The built-in Auth email provider stays capped at 2/hour until custom SMTP (or the Send Email hook) is in use; the dashboard value of 10 only applies once that is true.
+
+### What to build next — Phase 5 SQL, then sighting location visibility
+
+Paste `20261111170000_phase5_moderation_expiry_cleanup.sql` before audit, reviewer stamps, expiry, and sighting-photo cleanup are live. Then `/sightings/[id]` exact-location visibility (owner/admin only, or the same coarse public treatment as Discover). Do not start the sighting-location work until asked.
 
 ## 13. Explicitly out of scope
 
@@ -578,10 +583,11 @@ These should not silently become permanent technical or product assumptions:
 ### Outstanding technical debt (not Phase 5)
 
 - `/sightings/[id]` can still show an exact location to whoever can load the row. Fix visibility (owner/admin only, or the same coarse public treatment as Discover) as a separate privacy task. Do not bundle it into admin/expiry work and do not change production for it in Phase 5.
+- Hosted Auth magic-link email sending is temporarily 10 per hour for development. Reduce this to 2 or 3 per hour again before a wider launch (Dashboard → Authentication → Rate Limits).
 
 ## 15. Live baseline
 
-**As of 11 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phases 0–4 are live in production. **Phase 5 is in this repository; paste `20261111170000_phase5_moderation_expiry_cleanup.sql` before audit, reviewer stamps, expiry, and sighting-photo cleanup are live.** Magic-link draft keep is next and stays deferred until asked. Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. **Phase 3:** Report is lost / found / spotted; pending sighting confirmation, observation time, and private sighting photo; owner photo/pin via `owner-update-report`; 7-day reopen; flagging sheet (thank-you after submit, not `window.prompt`). **Phase 4:** named alert zones and one in-app notice per person per new lost report (`lost_report_in_area`), with coarsened coordinates for the place line; push reuses `send-push-on-notification` v11. **Phase 5:** admin home is a queue (pending sightings, flagged reports, out-of-area); sighting review stamps `reviewed_by`/`moderated_at`; `moderation_actions` log; duplicate hint (300 m / 48 h); `expire_due_listings()` and sighting-photo cleanup on hard delete. `/sightings/[id]` exact-location visibility is separate debt.
+**As of 11 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phases 0–4 are live in production. **Phase 5 is in this repository; paste `20261111170000_phase5_moderation_expiry_cleanup.sql` before audit, reviewer stamps, expiry, and sighting-photo cleanup are live.** Magic-link draft keep is in this repository (return path in `localStorage`; Auth email sending temporarily 10/hour for development — reduce to 2 or 3/hour later). Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. **Phase 3:** Report is lost / found / spotted; pending sighting confirmation, observation time, and private sighting photo; owner photo/pin via `owner-update-report`; 7-day reopen; flagging sheet (thank-you after submit, not `window.prompt`). **Phase 4:** named alert zones and one in-app notice per person per new lost report (`lost_report_in_area`), with coarsened coordinates for the place line; push reuses `send-push-on-notification` v11. **Phase 5:** admin home is a queue (pending sightings, flagged reports, out-of-area); sighting review stamps `reviewed_by`/`moderated_at`; `moderation_actions` log; duplicate hint (300 m / 48 h); `expire_due_listings()` and sighting-photo cleanup on hard delete. `/sightings/[id]` exact-location visibility is separate debt.
 
 ### How production is updated
 
