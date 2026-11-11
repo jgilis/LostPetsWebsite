@@ -1,6 +1,6 @@
 # Lost Pets Map — next-version product specification
 
-**Status:** product specification. Phase 0, Phase 1, Phase 2, and Phase 3 slices 1–3 are complete in this repository. Remaining Phase 3 slices and Phases 4–5 have not started.  
+**Status:** product specification. Phase 0, Phase 1, Phase 2, and Phase 3 are complete in this repository. Phases 4–5 have not started.  
 **Baseline:** live product as of 9 November 2026, hosted on Vercel from GitHub `jgilis/LostPetsWebsite`, Supabase project `dmubikdkyusadzqngapy`. `CURRENT_STATE.md` remains a 7 November inventory of the pre-security commit and is not the live baseline.  
 **This document is the product direction.** What to build next is `PRODUCT_PLAN.md` section 12. What is true in production is `PRODUCT_PLAN.md` section 15. Where this spec and that status disagree on facts about the running system, the plan wins.
 
@@ -305,7 +305,7 @@ Fix before calling the form “redesigned”:
 
 ### Flagging
 
-Move off `window.prompt`. A sheet with a short reason list (spam, wrong animal, unsafe, other) plus optional note, still calling `flag-report`. Flagging stays available without an account. The reporter is not notified. The administrator sees it in the queue.
+A sheet with a short reason list (spam, wrong animal, unsafe, other) plus optional note, still calling `flag-report`. No `window.prompt`. Flagging stays available without an account. The reporter is not notified. The administrator sees it in the queue.
 
 ---
 
@@ -504,7 +504,7 @@ Full-screen map. Android / PWA: map-first default (compact top bar, on-demand Fi
 Activity lists public facts inside the Discover camera, newest first: active lost, active found, approved sightings (coarse place only), reunions for 14 days. Keep Mine (ignores the area filter). Persist camera when switching destinations. Tap an event to read it in Activity. View on Discover focuses that report and opens the detail sheet — do not go to `/report/[id]`. A new focus replaces any previously open Discover sheet. Mobile: list with a way back to the map. Desktop: map can remain. Reuse loaded reports and existing bounds helpers. No activity table, no PostGIS, no production schema/security change unless the user asks. Do not put Activity events into the Discover report sheet. Do not move Nearby or Walking Mode. Do not fix `/sightings/[id]`.
 
 **Phase 3 — Help as three tasks.**  
-The destination label is **Report**. Slices 1–4 are done in this repository: three-task chooser; lost/found reuse the current form; spotted uses a camera picker then the existing sighting modal; Discover skips the picker; both paths call `submitSighting`; pending confirmation without `alert`; observation time; optional private photo after insert; owner photo/pin edit; 7-day reopen. Remaining: flagging sheet. Magic-link draft keep waits until after Phase 5.
+The destination label is **Report**. Slices 1–5 are done in this repository: three-task chooser; lost/found reuse the current form; spotted uses a camera picker then the existing sighting modal; Discover skips the picker; both paths call `submitSighting`; pending confirmation without `alert`; observation time; optional private photo after insert; owner photo/pin edit; 7-day reopen; flagging sheet off `window.prompt`. Magic-link draft keep waits until after Phase 5.
 
 **Phase 4 — zones and push.**  
 `area_subscriptions`, match on new lost reports, new `notification_events` type, extend the push function and the in-app list, unique dedupe. Depends on the webhook actually being installed.
@@ -563,4 +563,4 @@ Do not track walking paths. Do not add a social graph metric.
 9. **Phase 1 legend.** Compact, must not obstruct map or report controls.
 10. **Phase 1 visual direction.** Keep the existing styling. No redesign.
 
-Phase 0, Phase 1, Phase 2, and Phase 3 slices 1–3 are complete in this repository. Remaining Phase 3 slices: `PRODUCT_PLAN.md` section 12. `/sightings/[id]` exact-location visibility is separate debt.
+Phase 0, Phase 1, Phase 2, and Phase 3 are complete in this repository. Next is Phase 4: `PRODUCT_PLAN.md` section 12. `/sightings/[id]` exact-location visibility is separate debt.

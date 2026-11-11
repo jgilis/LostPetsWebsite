@@ -16,6 +16,7 @@ import {
   type ReportFromContext,
 } from "@/src/lib/reportNavigation";
 import { formatReportTimestampDisplay } from "@/src/lib/reportTimestamps";
+import { FlagReportButton } from "@/src/components/report/FlagReportSheet";
 import LocationDisplay from "@/src/components/location/LocationDisplay";
 import PopupPhoto from "@/src/components/map/PopupPhoto";
 import { useCurrentUser } from "@/src/hooks/useCurrentUser";
@@ -263,6 +264,15 @@ export default function ReportDetailClient({
               </button>
             </div>
           </section>
+        ) : null}
+
+        {!reportIsOwner ? (
+          <div className="flex flex-wrap gap-2">
+            <FlagReportButton
+              reportId={report.id}
+              className="rounded-md bg-red-800 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+            />
+          </div>
         ) : null}
 
         {reportedAt ? (

@@ -1,6 +1,6 @@
 # Lost Pets Map — Product Plan
 
-**Status:** Working product direction. Phases 0–2 are done. Phase 3 slices 1–4 are done in this repository. Next is Phase 3 slice 5 (flagging sheet). Magic-link draft keep is deferred until after Phase 5.  
+**Status:** Working product direction. Phases 0–2 are done. Phase 3 slices 1–5 are done in this repository. Next is Phase 4 (area subscriptions). Magic-link draft keep is deferred until after Phase 5.  
 **Scope:** Next version  
 **Primary area:** Mechelen, Belgium  
 **Languages:** English, Dutch and French
@@ -9,7 +9,7 @@
 
 | Need | Place |
 |---|---|
-| What to build next | This file, section 12 (Phase 3 slice 5) |
+| What to build next | This file, section 12 (Phase 4) |
 | Activity behaviour | `PRODUCT_STRATEGY.md` sections 5, 7 and 14 |
 | Discover behaviour, layout, sheets | `PRODUCT_STRATEGY.md` sections 5, 6 and 14 |
 | What is true in production | This file, section 15 |
@@ -324,7 +324,7 @@ Work in small, reviewable phases. Complete and test each phase before starting t
 - Slice 3: 14-day reunions and Missing / Found / Sightings / Reunited filter
 - Slice 4: open the report in Activity; View on Discover uses `/?focus=`
 
-**Phase 3 — Report** (slices 1–4 done; next is slice 5)
+**Phase 3 — Report** (done)
 - Slice 1: three-task chooser — lost / found / spotted a listed pet
 - Slice 2: pending confirmation, observation time, private sighting photo
 - Slice 3: owner photo + pin edit
@@ -463,9 +463,11 @@ The destination label is **Report** (EN Report / NL Melding / FR Signaler), not 
 - SQL in `supabase/migrations/20261111140000_owner_seven_day_reopen.sql` is **not applied** until pasted in the dashboard. The client UPDATE only sends `status`; it does not write `resolved_at`.
 - Reopen is on `/edit` and on the owner actions on the report. Photo/pin stay active-only.
 
-**Remaining slices (not started)**
+**Slice 5 — Flagging sheet (implemented in this repository)**
 
-- Slice 5 — Flagging sheet (off `window.prompt`).
+- `window.prompt` is gone. A sheet lists spam / wrong animal / unsafe / other, plus an optional note, and still POSTs to `flag-report`. No account required. Owners do not see the control. The report owner is not notified.
+
+Phase 3 is complete in this repository. Next is Phase 4.
 
 Magic-link draft keep is **not** a remaining Phase 3 slice. It waits until after Phase 5.
 
@@ -506,7 +508,7 @@ These should not silently become permanent technical or product assumptions:
 
 ## 15. Live baseline
 
-**As of 11 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phases 0–2 are live. Phase 3 slices 1–3 are live. Slice 4 (7-day reopen) is in this repository; production needs the SQL and a GitHub push. Next is Phase 3 slice 5 (flagging sheet). Magic-link draft keep is deferred until after Phase 5. Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. `/sightings/[id]` exact-location visibility is separate debt.
+**As of 11 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phases 0–2 are live. Phase 3 slices 1–4 are in this repository (reopen and owner delete SQL may still need a dashboard paste). Slice 5 (flagging sheet) is in this repository and needs a GitHub push. Next is Phase 4 (area subscriptions). Magic-link draft keep is deferred until after Phase 5. Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. `/sightings/[id]` exact-location visibility is separate debt.
 
 ### How production is updated
 

@@ -4,7 +4,7 @@
 
 **Live status (11 November 2026):** Vercel hosts the site and deploys from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`.
 
-We are in **Phase 3**. Phases 0–2 are done. Slices 1–3 are live. Slice 4 (7-day reopen) is done in this repository. **Next: Phase 3 slice 5 — flagging sheet.** Magic-link draft keep waits until after Phase 5. Full phase map: `PRODUCT_PLAN.md` section 12.
+We are in **Phase 3**. Phases 0–2 are done. Slices 1–5 are done in this repository. **Next: Phase 4 — area subscriptions.** Magic-link draft keep waits until after Phase 5. Full phase map: `PRODUCT_PLAN.md` section 12.
 
 Phase 1 Discover is the home:
 
@@ -18,6 +18,7 @@ Phase 1 Discover is the home:
 - **Owner photo + pin (Phase 3 slice 3, live):** on `/edit`, an active report can get a new photo and a moved pin. Name and description still edit on active and resolved. Photo/pin go through `owner-update-report` (server offset, re-encoded JPEG).
 - **7-day reopen (Phase 3 slice 4):** owners can put a recently reunited report back on the map within 7 days of `resolved_at`. SQL in `20261111140000_owner_seven_day_reopen.sql` must be pasted before the button persists. After 7 days they file a new report. Flagging is not this slice.
 - **Owner delete:** live `storage.protect_delete()` blocks direct `DELETE FROM storage.objects`, so a report with a photo could not be deleted. SQL in `20261111150000_report_photo_cleanup_allow_storage_delete.sql` must be pasted so cleanup can run. Owner copy no longer mentions admin hide.
+- **Flagging sheet (Phase 3 slice 5):** “Report this post” opens a sheet (spam / wrong animal / unsafe / other, optional note) instead of `window.prompt`. Still calls `flag-report`. No login required. Owners do not see it.
 - **Magic-link draft (deferred until after Phase 5):** filling a lost/found report, then logging in, is meant to return to Report with the same fields. Not treated as current work.
 - `/sightings/[id]` exact-location visibility is separate debt, not Phase 2.
 
@@ -190,7 +191,7 @@ The public popup does **not** list exact sighting coordinates. If any sighting r
 | Push opt-in | The control is not rendered (`PushNotificationControls` returns null without a user) |
 | Admin URLs | `useAdmin` sends the browser to `/login` |
 | Submit a sighting | **Not gated** in the client |
-| Flag a post | **Not gated** in the client. `prompt()` asks for a reason |
+| Flag a post | **Not gated** in the client. A sheet asks for a reason (spam / wrong animal / unsafe / other, optional note) |
 
 There is no interstitial that saves the attempted report and resumes it after the magic link. The user returns to `window.location.origin` (`signInWithEmail` in `src/lib/auth.ts`).
 
@@ -433,7 +434,7 @@ All of the following are available to `is_admin` only in the UI. None of them wr
 - Supabase’s own magic-link rate limit, surfaced on the login page (copy says 2 per hour; that limit is not set in this repo).
 - Mechelen-bounds warning, not a block.
 - Client minimum description length of 5 characters.
-- User flag via `window.prompt` (`ReportPopup` → `flagReport`).
+- User flag via `FlagReportSheet` (`ReportPopup` / report detail → `flagReport`).
 
 Not in this repo: upload inspection before publication, MIME/size enforcement, image moderation, link denylist, duplicate detection, IP hashing (claimed on the privacy page; only an unused TypeScript field here), rate limits on sightings or flags, audit log.
 

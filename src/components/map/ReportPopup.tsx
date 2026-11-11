@@ -9,7 +9,7 @@ import { useTranslation } from "@/src/i18n/I18nProvider";
 import { useVisibilitySyncRegister } from "../sync/VisibilitySyncProvider";
 import { useRealtimeResyncRegister } from "../sync/RealtimeResyncProvider";
 import type { Report } from "../report/useReports";
-import { flagReport } from "../../lib/flags";
+import FlagReportSheet from "../report/FlagReportSheet";
 import SightingModal from "../sightings/SightingsModal";
 import {
   getApprovedSightings,
@@ -33,6 +33,7 @@ export default function ReportPopup({
   const reportIsOwner = isOwner(user?.id, report.owner_user_id);
   const [showSightingModal, setShowSightingModal] =
     useState(false);
+  const [showFlagSheet, setShowFlagSheet] = useState(false);
 
   const [sightings, setSightings] = useState<Sighting[]>(
     []
@@ -140,28 +141,8 @@ export default function ReportPopup({
         {/* REPORT BUTTON */}
         {!reportIsOwner && (
         <button
-          onClick={async () => {
-            const reason = prompt(
-              "Why are you reporting this post?"
-            );
-
-            if (!reason) return;
-
-            const ok = await flagReport(
-              report.id,
-              reason
-            );
-
-            if (ok) {
-              alert(
-                "Report submitted. Thank you."
-              );
-            } else {
-              alert(
-                "Failed to submit report."
-              );
-            }
-          }}
+          type="button"
+          onClick={() => setShowFlagSheet(true)}
           style={{
             padding: "6px 10px",
             backgroundColor: "#dc2626",
@@ -171,7 +152,7 @@ export default function ReportPopup({
             cursor: "pointer",
           }}
         >
-          Report this post
+          {t("flagPost")}
         </button>
         )}
       </div>
@@ -185,6 +166,12 @@ export default function ReportPopup({
           }
         />
       )}
+      {showFlagSheet ? (
+        <FlagReportSheet
+          reportId={report.id}
+          onClose={() => setShowFlagSheet(false)}
+        />
+      ) : null}
 
       {/* SIGHTINGS */}
       {sightings.length > 0 && (

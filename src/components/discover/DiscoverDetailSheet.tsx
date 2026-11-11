@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import ReportDetailClient from "@/app/report/[id]/ReportDetailClient";
 import type { Report } from "@/src/lib/reports";
-import { flagReport } from "@/src/lib/flags";
 import { useCurrentUser } from "@/src/hooks/useCurrentUser";
 import { isOwner } from "@/src/lib/permissions";
 import { useTranslation } from "@/src/i18n/I18nProvider";
@@ -30,7 +29,12 @@ export default function DiscoverDetailSheet({
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key !== "Escape") return;
+      if (event.defaultPrevented) return;
+      if (document.querySelectorAll('[role="dialog"][aria-modal="true"]').length > 1) {
+        return;
+      }
+      onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -83,24 +87,6 @@ export default function DiscoverDetailSheet({
                 className="rounded-md bg-blue-700 px-3 py-2 text-sm font-medium text-white hover:bg-blue-600"
               >
                 I spotted this animal
-              </button>
-            ) : null}
-            {!reportIsOwner ? (
-              <button
-                type="button"
-                onClick={async () => {
-                  const reason = prompt("Why are you reporting this post?");
-                  if (!reason) return;
-                  const ok = await flagReport(report.id, reason);
-                  window.alert(
-                    ok
-                      ? "Report submitted. Thank you."
-                      : "Failed to submit report.",
-                  );
-                }}
-                className="rounded-md bg-red-800 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
-              >
-                Report this post
               </button>
             ) : null}
           </div>
