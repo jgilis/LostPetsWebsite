@@ -28,6 +28,11 @@ test("owner photo and pin edits go through the offsetting function, not a client
   assert.match(fn, /sanitizeJpeg/);
   assert.match(fn, /PHOTO_BUCKET = "report-photos"/);
   assert.match(fn, /getPublicUrl/);
+  assert.match(fn, /supabaseAuth/);
+  assert.match(
+    fn,
+    /Authorization: `Bearer \$\{serviceKey\}`/,
+  );
   assert.doesNotMatch(fn, /body\.type/);
   assert.doesNotMatch(fn, /patch\.status/);
   assert.match(fn, /report.status !== "active"/);

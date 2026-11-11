@@ -208,25 +208,33 @@ serve(async (req) => {
       }
     }
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
-
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const authHeader = req.headers.get("Authorization") ?? "";
     const jwt = authHeader.replace(/^Bearer\s+/i, "");
     if (!jwt) {
       return json(401, { success: false, error: "Authentication required" });
     }
 
+    // getUser(jwt) on the service-role client attaches the user session and
+    // then pin/photo writes run as the owner, which the trigger rejects.
+    const supabaseAuth = createClient(supabaseUrl, serviceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+      global: { headers: { Authorization: `Bearer ${jwt}` } },
+    });
     const {
       data: { user },
       error: userError,
-    } = await supabase.auth.getUser(jwt);
+    } = await supabaseAuth.auth.getUser(jwt);
 
     if (userError || !user) {
       return json(401, { success: false, error: "Authentication required" });
     }
+
+    const supabase = createClient(supabaseUrl, serviceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+      global: { headers: { Authorization: `Bearer ${serviceKey}` } },
+    });
 
     const { data: report, error: reportError } = await supabase
       .from("reports")
@@ -297,6 +305,7 @@ serve(async (req) => {
       .maybeSingle();
 
     if (error || !data) {
+      console.error("owner-update-report update:", error);
       if (photoPath) {
         await supabase.storage.from(PHOTO_BUCKET).remove([photoPath]);
       }
