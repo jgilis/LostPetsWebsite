@@ -24,7 +24,7 @@ test("Discover shows a compact public legend and keeps the admin legend separate
 
 test("legend sits on the map without covering zoom, nearby, or the report sheet", () => {
   assert.match(legend, /discover-map-legend/);
-  assert.match(map, /absolute top-2 right-2 z-\[510\]/);
+  assert.match(map, /absolute top-2 right-2 z-30/);
   assert.match(css, /\.discover-map-legend \{\s*margin-left:\s*auto/);
   assert.match(legend, /detailsRef/);
   assert.doesNotMatch(legend, /open=\{isDesktop \? true : mobileOpen\}/);

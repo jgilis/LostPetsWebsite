@@ -70,7 +70,6 @@ export function useWalkingMode() {
   const recoveryFailureCountRef = useRef(0);
   const nextRecoveryAllowedAtRef = useRef(0);
   const attemptGpsRecoveryRef = useRef<() => void>(() => {});
-  const stopWalkingModeRef = useRef<() => void>(() => {});
 
   const clearRecoveryBackoff = useCallback(() => {
     recoveryFailureCountRef.current = 0;
@@ -146,13 +145,13 @@ export function useWalkingMode() {
         },
         (error) => {
           if (session !== sessionRef.current) return;
-          clearWatch();
-          setLivePosition(null);
-          lastLocationAtRef.current = 0;
           if (isGeolocationPermissionDenied(error)) {
-            stopWalkingModeRef.current();
+            scheduleRecoveryBackoff();
             return;
           }
+          // TIMEOUT / UNAVAILABLE: Chrome keeps the watch alive. Clearing it
+          // is what made Android Walking Mode look dead after the first miss.
+          if (watchIdRef.current != null) return;
           scheduleRecoveryBackoff();
           if (!isRecoveryBackoffActive()) {
             attemptGpsRecoveryRef.current();
@@ -194,12 +193,7 @@ export function useWalkingMode() {
         applyPositionUpdate(position);
         startWatch(session);
       },
-      (error) => {
-        if (isGeolocationPermissionDenied(error)) {
-          releaseRecoveryLock();
-          stopWalkingModeRef.current();
-          return;
-        }
+      () => {
         scheduleRecoveryBackoff();
         releaseRecoveryLock();
       },
@@ -242,8 +236,6 @@ export function useWalkingMode() {
     resetSessionStats();
   }, [clearRecoveryBackoff, clearWatch, releaseRecoveryLock, resetSessionStats]);
 
-  stopWalkingModeRef.current = stopWalkingMode;
-
   const startWalkingMode = useCallback(() => {
     if (!isBrowserGeolocationAvailable()) return;
 
@@ -264,10 +256,23 @@ export function useWalkingMode() {
     });
     track("walking_mode_enabled");
 
-    // Start watch from the tap so Android keeps the user-gesture permission
-    // prompt. A timeout/unavailable error must not abort the session.
+    // Both calls stay in the tap's user-gesture window so Android shows the
+    // permission prompt. getCurrentPosition is the path that used to work;
+    // watch keeps updates coming. Neither timeout nor deny aborts the session.
     startWatch(session);
-  }, [clearRecoveryBackoff, startWatch]);
+    browserGetCurrentPosition(
+      (position) => {
+        if (session !== sessionRef.current) return;
+        clearRecoveryBackoff();
+        applyPositionUpdate(position);
+      },
+      () => {
+        if (session !== sessionRef.current) return;
+        if (watchIdRef.current == null) startWatch(session);
+      },
+      WALKING_GEO_OPTIONS,
+    );
+  }, [applyPositionUpdate, clearRecoveryBackoff, startWatch]);
 
   const hasActiveUserLocation =
     isWalkingModeEnabled &&

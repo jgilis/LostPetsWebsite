@@ -5,15 +5,17 @@
 
 export const WALKING_GEO_OPTIONS: PositionOptions = {
   enableHighAccuracy: true,
-  maximumAge: 10_000,
-  timeout: 15_000,
+  maximumAge: 60_000,
+  timeout: 25_000,
 };
 
-/** Continuous watch — prefer fresh fixes while walking mode is active. */
+/**
+ * Continuous watch. Do not set `timeout` — Android Chrome treats a watch
+ * timeout as a failure and can stop delivering fixes.
+ */
 export const WALKING_WATCH_OPTIONS: PositionOptions = {
   enableHighAccuracy: true,
-  maximumAge: 0,
-  timeout: 15_000,
+  maximumAge: 5_000,
 };
 
 export type GeolocationWatchId = number;

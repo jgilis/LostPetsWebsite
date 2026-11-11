@@ -371,8 +371,16 @@ body.discover-fullbleed footer {
 }
 
 .walking-map-host {
+  overscroll-behavior: none;
+}
+
+.walking-map-leaflet {
   isolation: isolate;
   overscroll-behavior: none;
+}
+
+.discover-map-tool-stack {
+  pointer-events: auto;
 }
 
 [inert] .leaflet-control-container,

@@ -12,18 +12,23 @@ const cleanup = readFileSync(
 );
 const css = readFileSync("app/globals.css", "utf8");
 const home = readFileSync("app/page.tsx", "utf8");
+const manifest = readFileSync("public/manifest.json", "utf8");
+const sw = readFileSync("public/sw.js", "utf8");
 const startWalkingMode = walking.slice(
   walking.indexOf("const startWalkingMode"),
   walking.indexOf("const hasActiveUserLocation"),
 );
 
-test("Walk starts watchPosition from the tap and does not abort on GPS timeout", () => {
+test("Walk starts GPS from the tap and keeps the watch after a timeout", () => {
   assert.match(startWalkingMode, /startWatch\(session\)/);
+  assert.match(startWalkingMode, /browserGetCurrentPosition/);
   assert.doesNotMatch(startWalkingMode, /recoveryInFlightRef\.current\) return/);
   assert.doesNotMatch(startWalkingMode, /stopWalkingMode/);
-  assert.doesNotMatch(startWalkingMode, /browserGetCurrentPosition/);
-  assert.match(geo, /isGeolocationPermissionDenied/);
-  assert.match(walking, /isGeolocationPermissionDenied\(error\)/);
+  assert.match(geo, /WALKING_WATCH_OPTIONS[\s\S]*maximumAge: 5_000,/);
+  assert.doesNotMatch(geo, /WALKING_WATCH_OPTIONS[\s\S]*timeout:/);
+  assert.match(walking, /Chrome keeps the watch alive/);
+  assert.match(map, /walking-map-leaflet/);
+  assert.match(map, /discover-map-tool-stack absolute top-2 right-2 z-30/);
 });
 
 test("Discover map stays mounted while reports refresh in the background", () => {
@@ -35,8 +40,17 @@ test("Discover map stays mounted while reports refresh in the background", () =>
 test("Android Discover does not pull-to-refresh or apply leftover auth returns on /", () => {
   assert.match(css, /overscroll-behavior:\s*none/);
   assert.match(css, /html:has\(body\.discover-fullbleed\)/);
-  assert.match(css, /\.walking-map-host \{[\s\S]*isolation:\s*isolate/);
+  assert.match(css, /\.walking-map-leaflet \{[\s\S]*isolation:\s*isolate/);
   assert.match(home, /overscroll-none/);
   assert.match(cleanup, /tab === "report" \|\| tab === "help"/);
   assert.doesNotMatch(cleanup, /tab == null/);
+});
+
+test("Android PWA icons are cache-busted PNGs, not the old SVG paw", () => {
+  assert.match(manifest, /icon-192\.png/);
+  assert.match(manifest, /icon-512\.png/);
+  assert.match(manifest, /icon-maskable-512\.png/);
+  assert.doesNotMatch(manifest, /icon\.svg/);
+  assert.match(sw, /lost-pets-shell-v3/);
+  assert.doesNotMatch(sw, /pathname\.startsWith\("\/icons\/"\)/);
 });

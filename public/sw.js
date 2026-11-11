@@ -1,10 +1,11 @@
-const CACHE_NAME = "lost-pets-shell-v1";
+const CACHE_NAME = "lost-pets-shell-v3";
 
 const PRECACHE_URLS = [
   "/offline.html",
   "/manifest.json",
-  "/icons/icon.svg",
-  "/icons/icon-maskable.svg",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+  "/icons/apple-touch-icon.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -34,7 +35,6 @@ function isSameOrigin(url) {
 function isStaticAsset(pathname) {
   return (
     pathname.startsWith("/_next/static/") ||
-    pathname.startsWith("/icons/") ||
     pathname.endsWith(".css") ||
     pathname.endsWith(".js") ||
     pathname.endsWith(".woff2")
@@ -100,8 +100,8 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: "/icons/icon.svg",
-      badge: "/icons/icon.svg",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
       data: { url: data.url || "/" },
     }),
   );

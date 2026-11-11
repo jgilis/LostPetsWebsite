@@ -484,7 +484,13 @@ export default function Map({
         className={`walking-map-host relative ${
           fillContainer ? "min-h-0 flex-1" : ""
         }`}
+        style={
+          fillContainer || isWalkingSearch
+            ? undefined
+            : { height: "60vh", width: "100%" }
+        }
       >
+      <div className="walking-map-leaflet absolute inset-0 z-0 overflow-hidden">
       <MapContainer
         center={[51.025, 4.477]} // Mechelen
         zoom={13}
@@ -498,14 +504,8 @@ export default function Map({
         worldCopyJump={false}
         preferCanvas={true}
         scrollWheelZoom={true}
-        className={
-          isWalkingSearch || fillContainer ? "walking-map-container" : undefined
-        }
-        style={
-          isWalkingSearch || fillContainer
-            ? { height: "100%", width: "100%" }
-            : { height: "60vh", width: "100%" }
-        }
+        className="walking-map-container"
+        style={{ height: "100%", width: "100%" }}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <MapRefBridge setMap={setMap} />
@@ -588,12 +588,13 @@ export default function Map({
           />
         ) : null}
       </MapContainer>
+      </div>
 
       {showWalkingLayers ? (
         <button
           type="button"
           onClick={handleRecenter}
-          className="walking-recenter-btn absolute right-3 z-[500] min-h-11 rounded-full bg-lp-paper px-3 py-2 text-xs font-medium text-lp-ink shadow ring-1 ring-lp-line hover:bg-lp-sage-soft"
+          className="walking-recenter-btn absolute right-3 z-30 min-h-11 rounded-full bg-lp-paper px-3 py-2 text-xs font-medium text-lp-ink shadow ring-1 ring-lp-line hover:bg-lp-sage-soft"
           aria-label="Recenter on your location"
         >
           Recenter
@@ -603,7 +604,7 @@ export default function Map({
       {isAdminScoped ? (
         <AdminMapLegend />
       ) : (
-        <div className="discover-map-tool-stack absolute top-2 right-2 z-[510] flex flex-col items-end gap-2">
+        <div className="discover-map-tool-stack absolute top-2 right-2 z-30 flex flex-col items-end gap-2">
           <div className="flex w-fit max-w-[min(11.75rem,calc(100%-3.5rem))] justify-end">
             <DiscoverMapLegend />
           </div>
@@ -613,9 +614,7 @@ export default function Map({
                 type="button"
                 className="discover-map-tool-btn"
                 aria-pressed={walkingMode.isWalkingModeEnabled}
-                onPointerDown={(event) => event.stopPropagation()}
-                onClick={(event) => {
-                  event.stopPropagation();
+                onClick={() => {
                   if (walkingMode.isWalkingModeEnabled) {
                     walkingMode.stopWalkingMode();
                   } else {
