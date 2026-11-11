@@ -48,7 +48,11 @@ export function parseReportDraft(
     return null;
   }
 
-  if (!isRecord(value) || !isReportType(String(value.type ?? ""))) {
+  if (!isRecord(value)) {
+    return null;
+  }
+  const type = value.type;
+  if (typeof type !== "string" || !isReportType(type)) {
     return null;
   }
   if (typeof value.savedAt !== "number" || !Number.isFinite(value.savedAt)) {
@@ -78,7 +82,7 @@ export function parseReportDraft(
       : null;
 
   return {
-    type: value.type,
+    type,
     animalType: typeof value.animalType === "string" ? value.animalType : "",
     animalName: typeof value.animalName === "string" ? value.animalName : "",
     description: typeof value.description === "string" ? value.description : "",
