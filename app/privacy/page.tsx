@@ -92,6 +92,11 @@ export default function PrivacyPolicy() {
           sighting is approved
         </li>
         <li>Limit spam on sightings and flags</li>
+        <li>
+          Show a possible nearby match of the same species when you submit a
+          report, so you can avoid a duplicate. Listings are never merged
+          automatically
+        </li>
       </ul>
 
       <h2 className="text-xl font-semibold">4. What others can see</h2>

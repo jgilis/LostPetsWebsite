@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAdmin } from "../../../src/hooks/useAdmin";
 import AdminHeader from "../../../src/components/admin/AdminHeader";
 import {
@@ -8,6 +9,7 @@ import {
   resolveSightingPhotoUrl,
   updateSightingStatus,
 } from "../../../src/lib/sightings";
+import { getDistanceMeters } from "../../../src/lib/geo/haversine";
 
 type ReportRef = {
   id: string;
@@ -28,6 +30,7 @@ type Sighting = {
   status: string;
   created_at: string;
   observed_at?: string | null;
+  moderated_at?: string | null;
   reports?: ReportRef | null;
 };
 
@@ -55,27 +58,6 @@ function AdminSightingPhoto({ photoUrl }: { photoUrl: string | null }) {
   );
 }
 
-function getDistanceMeters(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-) {
-  const R = 6371e3;
-  const φ1 = (lat1 * Math.PI) / 180;
-  const φ2 = (lat2 * Math.PI) / 180;
-  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-
-  const a =
-    Math.sin(Δφ / 2) ** 2 +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c;
-}
-
 const statusLabel: Record<string, string> = {
   pending: "Pending review",
   approved: "Approved",
@@ -92,8 +74,11 @@ const statusClass: Record<string, string> = {
 
 export default function AdminSightingsPage() {
   const { loading: adminLoading, isAdmin } = useAdmin();
+  const searchParams = useSearchParams();
+  const pendingOnly = searchParams.get("filter") !== "all";
   const [sightings, setSightings] = useState<Sighting[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -112,12 +97,21 @@ export default function AdminSightingsPage() {
     const result = await updateSightingStatus(id, status);
 
     if (!result) {
-      alert("Failed to update status");
+      setActionError("Could not update this sighting. Try again.");
       return;
     }
 
+    setActionError(null);
     setSightings((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, status } : s))
+      prev.map((s) =>
+        s.id === id
+          ? {
+              ...s,
+              status,
+              moderated_at: new Date().toISOString(),
+            }
+          : s,
+      ),
     );
   }
 
@@ -127,20 +121,37 @@ export default function AdminSightingsPage() {
 
   if (!isAdmin) return null;
 
+  const visibleSightings = useMemo(
+    () =>
+      pendingOnly
+        ? sightings.filter((sighting) => sighting.status === "pending")
+        : sightings,
+    [pendingOnly, sightings],
+  );
+
   if (loading) {
     return <p className="p-8 text-gray-400">Loading sightings...</p>;
   }
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-8">
-      <AdminHeader title="All Sightings" showBackLink />
+      <AdminHeader
+        title={pendingOnly ? "Sightings waiting" : "All Sightings"}
+        showBackLink
+      />
 
-      {sightings.length === 0 && (
-        <p className="text-gray-400">No sightings yet.</p>
+      {actionError ? (
+        <p className="mb-4 text-sm text-red-300">{actionError}</p>
+      ) : null}
+
+      {visibleSightings.length === 0 && (
+        <p className="text-gray-400">
+          {pendingOnly ? "No sightings waiting." : "No sightings yet."}
+        </p>
       )}
 
       <div className="flex flex-col gap-4">
-        {sightings.map((s) => (
+        {visibleSightings.map((s) => (
           <div
             key={s.id}
             className="rounded-lg border border-gray-700 bg-gray-900 p-4 text-gray-200"
@@ -175,6 +186,12 @@ export default function AdminSightingsPage() {
             {s.observed_at ? (
               <p className="mt-2 text-sm text-gray-400">
                 Seen: {new Date(s.observed_at).toLocaleString()}
+              </p>
+            ) : null}
+
+            {s.moderated_at ? (
+              <p className="mt-1 text-sm text-gray-500">
+                Reviewed: {new Date(s.moderated_at).toLocaleString()}
               </p>
             ) : null}
 

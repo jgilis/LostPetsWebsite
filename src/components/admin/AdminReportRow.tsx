@@ -36,6 +36,7 @@ type AdminReportRowProps = {
     lastFlagged: string;
   };
   showRestoreActions?: boolean;
+  duplicateIds?: string[];
 };
 
 const actionButtonClass =
@@ -46,6 +47,7 @@ export default function AdminReportRow({
   onStatusChange,
   flagExtras,
   showRestoreActions = false,
+  duplicateIds,
 }: AdminReportRowProps) {
   const { t } = useTranslation();
   const description = report.description?.trim() || t("adminNoDescription");
@@ -124,6 +126,15 @@ export default function AdminReportRow({
           <dd className="font-mono text-[11px] text-gray-500">{report.id}</dd>
         </div>
       </dl>
+
+      {duplicateIds && duplicateIds.length > 0 ? (
+        <p className="mt-3 rounded-md border border-amber-800/70 bg-amber-950/40 px-3 py-2 text-sm text-amber-100">
+          {t("adminDuplicateHint")}{" "}
+          <span className="font-mono text-xs text-amber-200/90">
+            {duplicateIds.join(", ")}
+          </span>
+        </p>
+      ) : null}
 
       {flagExtras && (
         <div className="mt-3 border-t border-gray-800 pt-3 text-sm">

@@ -1,6 +1,6 @@
 # Lost Pets Map — Product Plan
 
-**Status:** Working product direction. Phases 0–4 are done in this repository. Next is Phase 5 (admin, expiry, cleanup). Magic-link draft keep is deferred until after Phase 5. Phase 4 SQL and `send-push-on-notification` still need a production paste/deploy.  
+**Status:** Working product direction. Phases 0–5 are done in this repository. Phases 0–4 are live in production. Phase 5 SQL must be pasted before audit, reviewer stamps, expiry, and sighting-photo cleanup are live. Magic-link draft keep is next and stays deferred until asked.  
 **Scope:** Next version  
 **Primary area:** Mechelen, Belgium  
 **Languages:** English, Dutch and French
@@ -9,7 +9,7 @@
 
 | Need | Place |
 |---|---|
-| What to build next | This file, section 12 (Phase 5) |
+| What to build next | This file, section 12 (magic-link draft keep, after Phase 5 SQL) |
 | Activity behaviour | `PRODUCT_STRATEGY.md` sections 5, 7 and 14 |
 | Discover behaviour, layout, sheets | `PRODUCT_STRATEGY.md` sections 5, 6 and 14 |
 | What is true in production | This file, section 15 |
@@ -331,12 +331,12 @@ Work in small, reviewable phases. Complete and test each phase before starting t
 - Slice 4: 7-day reopen (SQL first)
 - Slice 5: flagging sheet (off `window.prompt`)
 
-**Phase 4 — Area subscriptions** (done in this repository; SQL and push deploy pending)
+**Phase 4 — Area subscriptions** (live in production)
 - Saved areas; alerts for new lost reports
 - In-app notification list + existing push pipeline
 - Deduplicate one notice per person per report, not per zone
 
-**Phase 5 — Admin, expiry, cleanup** (not started)
+**Phase 5 — Admin, expiry, cleanup** (done in this repository; SQL paste pending)
 - Review-queue polish (counts, pending sightings, review photos)
 - `moderation_actions` audit trail and `reviewed_by`
 - Expiry job, duplicate hints, storage cleanup on delete
@@ -468,37 +468,37 @@ The destination label is **Report** (EN Report / NL Melding / FR Signaler), not 
 - `window.prompt` is gone. A sheet lists spam / wrong animal / unsafe / other, plus an optional note, and still POSTs to `flag-report`. No account required. Owners do not see the control. The report owner is not notified.
 - The button copy stays “Report this post”. After a successful flag, the sheet heading is “Thank you for reporting this post.”
 
-Phase 3 is complete in this repository. Next is Phase 4.
+Phase 3 is complete in production.
 
 Magic-link draft keep is **not** a remaining Phase 3 slice. It waits until after Phase 5.
 
-### Phase 4 Area subscriptions — delivered in this repository
+### Phase 4 Area subscriptions — live in production
 
-Signed-in users save a few named zones and get an in-app notice when a **new lost report** is first published in one. Found reports, sightings, reunions, edits, reopen, flag, and resolve do not create area notices. Detail: `PRODUCT_STRATEGY.md` section 9. SQL must be pasted; `send-push-on-notification` must be redeployed. The existing INSERT webhook on `notification_events` is reused.
+Signed-in users save a few named zones and get an in-app notice when a **new lost report** is first published in one. Found reports, sightings, reunions, edits, reopen, flag, and resolve do not create area notices. Detail: `PRODUCT_STRATEGY.md` section 9. Production has the SQL, the GitHub/Vercel UI, and `send-push-on-notification` v11. The existing INSERT webhook on `notification_events` is reused.
 
-**Slice 1 — `area_subscriptions` table (SQL first, in this repository)**
+**Slice 1 — `area_subscriptions` table (live)**
 
 - Table: owner, label, center, radius (500 m / 1 km / 2 km), species filter (NULL = all), on/off. Cap five zones per user, enforced with an advisory lock, not only the UI.
 - Owner-only RLS. The browser does not insert `notification_events`.
 - Haversine in SQL, inclusive radius. No PostGIS.
 
-**Slice 2 — Save and manage zones (in this repository)**
+**Slice 2 — Save and manage zones (live)**
 
 - Account → Alert zones. Pin on a small map or one-shot “use where I am now”. Login required. Saving a zone does not require browser push.
 - On/off and delete. Disabling or deleting a zone stops future matches; it does not delete notices already created.
 
-**Slice 3 — Match new lost reports and show them in-app (in this repository)**
+**Slice 3 — Match new lost reports and show them in-app (live)**
 
 - `AFTER INSERT` on `reports` when type is lost and status is active. Covers `verify-captcha-v2` and legacy `verify-captcha`. Not UPDATE, so edits cannot notify again.
 - One row per person per report: `DISTINCT ON (user_id)` plus unique index on `(target_user_id, payload report id)` where type is `lost_report_in_area`. Zone id is not part of the key. `ON CONFLICT DO NOTHING` for retries.
 - Payload is report id, species, and coordinates rounded to 2 decimals (~1.1 km) so the in-app list can reverse-geocode a neighbourhood after the report is gone. No exact report pin, zone coordinates, or zone label. List link is `/?tab=discover&focus=`.
 - In-app list and unread count include `lost_report_in_area` as well as `sighting_approved`. Push is not required for the in-app row.
 
-**Slice 4 — Push on the existing pipeline (in this repository; deploy pending)**
+**Slice 4 — Push on the existing pipeline (live)**
 
 - `send-push-on-notification` also handles `lost_report_in_area`. Same webhook, same `push_subscriptions`. Title/body/url only; no coordinates.
 - If the person has no push subscription, or send fails, the in-app row remains.
-- Area alerts are not live until the SQL is pasted and this function is redeployed.
+- Production function is version 11. JWT verification stays off.
 
 **Keep**
 
@@ -510,12 +510,39 @@ Signed-in users save a few named zones and get an in-app notice when a **new los
 
 - Alert zone subscribers about sightings, found reports, or reunions.
 - Use anonymous auth, PostGIS, background GPS, quiet hours, or a native rewrite.
-- Start Phase 5 until asked (admin audit, expiry job, duplicate hints).
 - Fix `/sightings/[id]` exact-location visibility (separate debt).
+- Start magic-link draft keep until asked.
 
-### What to build next — Phase 5 Admin, expiry, cleanup
+### Phase 5 Admin, expiry, cleanup — delivered in this repository
 
-Not started. Counts and pending sightings in the review queue, photos on sighting review, `reviewed_by`, `moderation_actions`, expiry job, duplicate hint. Storage cleanup on delete already has a dashboard SQL paste from Phase 3.
+Detail: `PRODUCT_STRATEGY.md` section 12. SQL in `supabase/migrations/20261111170000_phase5_moderation_expiry_cleanup.sql` must be pasted. Do not run `supabase db push`.
+
+**Slice 1 — Admin home as a queue** (in this repository)
+
+- The first admin screen is counts, not “all reports”: sightings waiting, flagged reports, and active pins outside the Mechelen box.
+- Each count opens that filtered list. All reports, all sightings, and the moderation log remain available; they are not the landing page.
+- Same `is_admin` flag. No new role and no in-app user directory.
+
+**Slice 2 — Sighting review with the evidence** (in this repository)
+
+- The reviewer sees the photo, the note, when it was seen, and how far it is from the lost report, then Approves or Rejects. Pending is the default list.
+- Approve/reject stamps `reviewed_by` and `moderated_at` in `enforce_sighting_write`. A rejected sighting stays silent to the owner.
+
+**Slice 3 — A private paper trail** (SQL paste pending)
+
+- One `moderation_actions` log: who, which report or sighting, what they did (approve, reject, hide, restore, resolve), when.
+- Written by a `SECURITY DEFINER` trigger. Administrators can read `/admin/log`. It is not a public feed.
+
+**Slice 4 — Time, duplicates, leftover cleanup** (in this repository; expiry SQL paste pending)
+
+- `expire_due_listings()` sets overdue active reports and pending sightings to `expired`. Optional `pg_cron` after the extension is enabled. The public map already hides overdue rows in the client.
+- Duplicate hint: same species, about 300 m, last 48 hours, on the report form and admin report cards. Submit is not blocked. Not a merge tool.
+- Hard-delete of a report already cascades sightings; a new trigger removes `sighting-photos` objects, using the same `storage.allow_delete_query` pattern as report photos.
+- `/sightings/[id]` exact-location visibility is unchanged.
+
+### What to build next — Magic-link draft keep
+
+Deferred. Lost/found form fields should survive email login and return the person to the filled Report form. Attempted during Phase 3; not reliable enough in production. Do not start until asked. Do not bundle `/sightings/[id]` into this.
 
 ## 13. Explicitly out of scope
 
@@ -554,7 +581,7 @@ These should not silently become permanent technical or product assumptions:
 
 ## 15. Live baseline
 
-**As of 11 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phases 0–4 are done in this repository. **Next is Phase 5 (admin, expiry, cleanup).** Magic-link draft keep is deferred until after Phase 5. Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. **Phase 3:** Report is lost / found / spotted; pending sighting confirmation, observation time, and private sighting photo; owner photo/pin via `owner-update-report`; 7-day reopen; flagging sheet (thank-you after submit, not `window.prompt`). **Phase 4:** named alert zones and one in-app notice per person per new lost report (`lost_report_in_area`). Production still needs the Phase 4 SQL paste, a `send-push-on-notification` deploy, and a GitHub push. `/sightings/[id]` exact-location visibility is separate debt.
+**As of 11 November 2026.** Mechelen beta on Vercel from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`. Phases 0–4 are live in production. **Phase 5 is in this repository; paste `20261111170000_phase5_moderation_expiry_cleanup.sql` before audit, reviewer stamps, expiry, and sighting-photo cleanup are live.** Magic-link draft keep is next and stays deferred until asked. Home is Discover / Activity / Report. Discover is map-first on Android, map + list on desktop, with bounds-synced report cards, a detail sheet over the map, compact legend, Within 500 m on the report list, Walking Mode on phone only, and clickable found-dot DOM markers. **Phase 2:** Activity follows the Discover camera (map stays mounted; Mine ignores bounds), mixes approved sightings (coarse place only; no public sighting pin; no `/sightings/[id]`), mixes 14-day reunions from `resolved_at`, and tapping an event opens the report in Activity; View on Discover uses `/?focus=` and the detail sheet. **Phase 3:** Report is lost / found / spotted; pending sighting confirmation, observation time, and private sighting photo; owner photo/pin via `owner-update-report`; 7-day reopen; flagging sheet (thank-you after submit, not `window.prompt`). **Phase 4:** named alert zones and one in-app notice per person per new lost report (`lost_report_in_area`), with coarsened coordinates for the place line; push reuses `send-push-on-notification` v11. **Phase 5:** admin home is a queue (pending sightings, flagged reports, out-of-area); sighting review stamps `reviewed_by`/`moderated_at`; `moderation_actions` log; duplicate hint (300 m / 48 h); `expire_due_listings()` and sighting-photo cleanup on hard delete. `/sightings/[id]` exact-location visibility is separate debt.
 
 ### How production is updated
 
@@ -563,9 +590,9 @@ These should not silently become permanent technical or product assumptions:
 | Next.js app | Push to GitHub; Vercel deploys automatically | Live |
 | `smooth-processor` | `npx supabase functions deploy smooth-processor --project-ref dmubikdkyusadzqngapy --no-verify-jwt` | Deployed |
 | `verify-captcha-v2` | `npx supabase functions deploy verify-captcha-v2 --project-ref dmubikdkyusadzqngapy` | Live; does not write `edit_token` |
-| Database | SQL pasted in the production SQL Editor | Sighting/notification SQL, admin EXECUTE grant, Packages A–C SQL (owner SELECT and `edit_token` drop included). Do not run `supabase db push` |
+| Database | SQL pasted in the production SQL Editor | Sighting/notification SQL, admin EXECUTE grant, Packages A–C SQL (owner SELECT and `edit_token` drop included), Phase 4 `area_subscriptions` and lost-in-area notify. Phase 5 moderation/expiry/sighting-photo SQL not pasted yet. Do not run `supabase db push` |
 | `owner-update-report` | `npx supabase functions deploy owner-update-report --project-ref dmubikdkyusadzqngapy` | Deployed |
-| `send-push-on-notification` | `npx supabase functions deploy send-push-on-notification --project-ref dmubikdkyusadzqngapy --no-verify-jwt` | Live for `sighting_approved`. Redeploy pending for `lost_report_in_area` |
+| `send-push-on-notification` | `npx supabase functions deploy send-push-on-notification --project-ref dmubikdkyusadzqngapy --no-verify-jwt` | Live for `sighting_approved` and `lost_report_in_area` (v11) |
 | Other Edge Functions | CLI deploy when explicitly done | Unused `verify-captcha` was redeployed with Package C. `flag-report` was not redeployed in this round |
 
 There is no verified automatic Supabase–GitHub integration. Production does not have a trustworthy `schema_migrations` history for the full schema. The database cannot be rebuilt from this repository.

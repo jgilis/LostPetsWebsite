@@ -19,6 +19,8 @@ export  type AdminSightingRaw = {
   status: string;
   created_at: string;
   observed_at?: string | null;
+  moderated_at?: string | null;
+  reviewed_by?: string | null;
   reports: {
     id: string;
     latitude: number;
@@ -243,6 +245,8 @@ export async function getAdminSightings() {
       status,
       created_at,
       observed_at,
+      moderated_at,
+      reviewed_by,
       reports:lost_report_id (
         id,
         latitude,

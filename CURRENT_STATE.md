@@ -4,7 +4,7 @@
 
 **Live status (11 November 2026):** Vercel hosts the site and deploys from GitHub `jgilis/LostPetsWebsite`. Supabase project `dmubikdkyusadzqngapy`.
 
-**Phases 0–4 are done** in this repository. **Next: Phase 5 — admin, expiry, cleanup** (`PRODUCT_PLAN.md` section 12). Magic-link draft keep waits until after Phase 5. Do not start Phase 5 until the user asks. Phase 4 is not live until the SQL is pasted and `send-push-on-notification` is redeployed.
+**Phases 0–4 are live in production. Phase 5 is in this repository** (admin queue, sighting review stamps, moderation log, duplicate hint, expiry function, sighting-photo cleanup). **Next: paste Phase 5 SQL, then magic-link draft keep** (`PRODUCT_PLAN.md` section 12). Do not start magic-link draft keep until the user asks. Phase 5 SQL `20261111170000_phase5_moderation_expiry_cleanup.sql` is not live until pasted.
 
 Phase 1 Discover is the home:
 
@@ -18,10 +18,11 @@ Phase 1 Discover is the home:
 - **Owner photo + pin (Phase 3 slice 3, live):** on `/edit`, an active report can get a new photo and a moved pin. Name and description still edit on active and resolved. Photo/pin go through `owner-update-report` (server offset, re-encoded JPEG).
 - **7-day reopen (Phase 3 slice 4):** owners can put a recently reunited report back on the map within 7 days of `resolved_at`. SQL in `20261111140000_owner_seven_day_reopen.sql` must be pasted before the button persists. After 7 days they file a new report. Flagging is not this slice.
 - **Owner delete:** live `storage.protect_delete()` blocks direct `DELETE FROM storage.objects`, so a report with a photo could not be deleted. SQL in `20261111150000_report_photo_cleanup_allow_storage_delete.sql` must be pasted so cleanup can run. Owner copy no longer mentions admin hide.
-- **Flagging sheet (Phase 3 slice 5):** “Report this post” opens a sheet (spam / wrong animal / unsafe / other, optional note) instead of `window.prompt`. After submit, the heading is “Thank you for reporting this post.” Still calls `flag-report`. No login required. Owners do not see it. Needs a GitHub push to reach production.
-- **Area subscriptions (Phase 4, in this repository):** Account → Alert zones (up to five). A new **lost** report matching an enabled zone creates one in-app `lost_report_in_area` notice per person, even with push off. Unique on (user, report id), not zone id. SQL `20261111160000_area_subscriptions_and_lost_in_area_notify.sql` must be pasted. Push reuses `send-push-on-notification` (redeploy pending). Found, sightings, reunions, and edits do not notify.
-- **Magic-link draft (deferred until after Phase 5):** filling a lost/found report, then logging in, is meant to return to Report with the same fields. Not treated as current work.
-- `/sightings/[id]` exact-location visibility is separate debt, not Phase 4.
+- **Flagging sheet (Phase 3 slice 5, live):** “Report this post” opens a sheet (spam / wrong animal / unsafe / other, optional note) instead of `window.prompt`. After submit, the heading is “Thank you for reporting this post.” Still calls `flag-report`. No login required. Owners do not see it.
+- **Area subscriptions (Phase 4, live):** Account → Alert zones (up to five). A new **lost** report matching an enabled zone creates one in-app `lost_report_in_area` notice per person, even with push off. Unique on (user, report id), not zone id. Payload keeps a ~1.1 km grid for the place line. SQL, Vercel UI, and `send-push-on-notification` v11 are in production. Found, sightings, reunions, and edits do not notify.
+- **Admin queue (Phase 5, in this repository):** `/admin` shows counts for pending sightings, flagged reports, and out-of-area actives. All reports / all sightings / moderation log stay secondary. Sighting approve/reject will stamp `reviewed_by` and `moderated_at` after SQL. `/admin/log` reads `moderation_actions`. Duplicate hint (same species, ~300 m, 48 h) on the report form and admin cards. `expire_due_listings()` and sighting-photo cleanup need the SQL paste. `/sightings/[id]` was not changed.
+- **Magic-link draft (deferred):** filling a lost/found report, then logging in, is meant to return to Report with the same fields. Not treated as current work.
+- `/sightings/[id]` exact-location visibility is separate debt, not Phase 5.
 
 Live baseline: `PRODUCT_PLAN.md` section 15.
 

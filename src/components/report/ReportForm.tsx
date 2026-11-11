@@ -24,6 +24,8 @@ import {
   isReportType,
   MIN_DESCRIPTION_LENGTH,
 } from "../../lib/reportValidation";
+import { fetchPossibleDuplicateReports } from "../../lib/duplicateHint";
+import type { Report } from "../../lib/reports";
 
 interface ReportFormProps {
   initialType?: "lost" | "found";
@@ -64,6 +66,30 @@ export default function ReportForm({
   const { t } = useTranslation();
   const isLoggedIn = !!userId;
   const [draftReady, setDraftReady] = useState(false);
+  const [duplicateHints, setDuplicateHints] = useState<Report[]>([]);
+
+  useEffect(() => {
+    if (!isAnimalType(animalType)) {
+      setDuplicateHints([]);
+      return;
+    }
+
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      void fetchPossibleDuplicateReports({
+        animalType,
+        latitude,
+        longitude,
+      }).then((matches) => {
+        if (!cancelled) setDuplicateHints(matches);
+      });
+    }, 400);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [animalType, latitude, longitude]);
 
   const lastSubmitKey = "last_submit_time";
   const loginTask = isReportType(type) ? type : (initialType ?? "lost");
@@ -450,6 +476,22 @@ export default function ReportForm({
             <p className="text-xs italic text-gray-400">
               {t("reportLocationPrivacy")}
             </p>
+            {duplicateHints.length > 0 ? (
+              <div className="mt-3 rounded-md border border-amber-800/70 bg-amber-950/40 px-3 py-2 text-sm text-amber-100">
+                <p>{t("reportDuplicateHint")}</p>
+                <ul className="mt-1 list-inside list-disc text-amber-100/90">
+                  {duplicateHints.slice(0, 3).map((match) => (
+                    <li key={match.id}>
+                      {match.animal_type}
+                      {match.animal_name ? ` (${match.animal_name})` : ""}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-1 text-xs text-amber-200/80">
+                  {t("reportDuplicateHintContinue")}
+                </p>
+              </div>
+            ) : null}
           </div>
 
           {/* CAPTCHA */}
