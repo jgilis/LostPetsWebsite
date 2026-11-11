@@ -537,7 +537,7 @@ export default function Map({
               key={s.id}
               position={[s.lat, s.lng]}
               icon={
-                isCurrentSighting
+                isCurrentSighting && currentSightingIcon
                   ? currentSightingIcon
                   : sightingIcon
               }

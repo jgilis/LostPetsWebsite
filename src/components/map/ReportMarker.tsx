@@ -82,7 +82,7 @@ export default memo(function ReportMarker({
   
   const showExactSightings = canSeeExactSightings(
     userId,
-    isAdmin,
+    isAdmin ?? false,
     report.owner_user_id,
   );
   const handleSelect = useCallback(() => {
