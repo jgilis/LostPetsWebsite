@@ -1,8 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Lost Pets">
   <rect width="512" height="512" fill="#F4EDE2"/>
-  <circle cx="256" cy="188" r="52" fill="#5F8A68"/>
-  <circle cx="168" cy="276" r="40" fill="#5F8A68"/>
-  <circle cx="344" cy="276" r="40" fill="#5F8A68"/>
-  <circle cx="208" cy="360" r="36" fill="#5F8A68"/>
-  <circle cx="304" cy="360" r="36" fill="#5F8A68"/>
+
+  <path d="M128 214 L142 78 L236 176 Z" fill="#E8C39A"/>
+  <path d="M154 196 L164 112 L220 174 Z" fill="#C45C4A"/>
+  <path d="M384 214 L370 78 L276 176 Z" fill="#E8C39A"/>
+  <path d="M358 196 L348 112 L292 174 Z" fill="#C45C4A"/>
+
+  <ellipse cx="256" cy="278" rx="150" ry="140" fill="#F0D2B0"/>
+  <ellipse cx="256" cy="328" rx="78" ry="56" fill="#FFF6EA"/>
+
+  <path d="M256 304 L236 326 H276 Z" fill="#C45C4A"/>
+  <path d="M256 322 Q228 346 206 334" fill="none" stroke="#3D342C" stroke-width="8" stroke-linecap="round"/>
+  <path d="M256 322 Q284 346 306 334" fill="none" stroke="#3D342C" stroke-width="8" stroke-linecap="round"/>
+
+  <ellipse cx="188" cy="252" rx="20" ry="26" fill="#3D342C"/>
+  <circle cx="196" cy="242" r="7" fill="#FFFBF6"/>
+
+  <path d="M392 318 L470 410" stroke="#4A6F52" stroke-width="36" stroke-linecap="round"/>
+  <circle cx="332" cy="250" r="86" fill="#DCEDEA" fill-opacity="0.72" stroke="#5F8A68" stroke-width="26"/>
+  <ellipse cx="332" cy="252" rx="32" ry="40" fill="#3D342C"/>
+  <circle cx="344" cy="238" r="11" fill="#FFFBF6"/>
+
+  <path d="M126 268 H86 M132 286 H84 M140 304 H96" fill="none" stroke="#3D342C" stroke-width="7" stroke-linecap="round" opacity="0.55"/>
 </svg>

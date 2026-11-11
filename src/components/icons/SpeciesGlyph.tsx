@@ -1,4 +1,4 @@
-import { SPECIES_PATHS } from "./speciesGlyphs";
+import { SPECIES_MARKUP } from "./speciesGlyphs";
 import {
   speciesColor,
   type ThemeAnimalType,
@@ -12,7 +12,7 @@ type SpeciesGlyphProps = {
 };
 
 function asAnimal(animalType: string): ThemeAnimalType {
-  if (animalType in SPECIES_PATHS) return animalType as ThemeAnimalType;
+  if (animalType in SPECIES_MARKUP) return animalType as ThemeAnimalType;
   return "other";
 }
 
@@ -31,8 +31,7 @@ export default function SpeciesGlyph({
       className={className}
       fill={color ?? speciesColor(kind)}
       aria-hidden
-    >
-      <path d={SPECIES_PATHS[kind]} />
-    </svg>
+      dangerouslySetInnerHTML={{ __html: SPECIES_MARKUP[kind] }}
+    />
   );
 }

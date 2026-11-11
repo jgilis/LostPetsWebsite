@@ -6,12 +6,22 @@ export function DiscoverIcon({ className = "h-5 w-5" }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden>
       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M12 4.15 14.95 12 12 10.55 9.05 12Z" fill="currentColor" />
       <path
-        d="M12 5.5c1.8 2.2 2.8 4.3 2.8 6.5S13.8 16.3 12 18.5C10.2 16.3 9.2 14.2 9.2 12S10.2 7.7 12 5.5Z"
-        stroke="currentColor"
-        strokeWidth="1.7"
+        d="M12 19.85 9.05 12 12 13.45 14.95 12Z"
+        fill="currentColor"
+        opacity="0.38"
       />
-      <path d="M5.5 12h13" stroke="currentColor" strokeWidth="1.7" />
+      <circle cx="12" cy="12" r="1.85" fill="currentColor" />
+      <circle
+        cx="12"
+        cy="12"
+        r="1.85"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="0.6"
+        opacity="0.35"
+      />
     </svg>
   );
 }
@@ -38,8 +48,24 @@ export function ActivityIcon({ className = "h-5 w-5" }: IconProps) {
 
 export function ReportIcon({ className = "h-5 w-5" }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
-      <path d="M7.2 8.4c0-1.4 1-2.5 2.4-2.5s2.3 1.1 2.3 2.5c0 .3 0 .5-.1.7 1-.7 2.3-.7 3.3 0-.1-.2-.1-.4-.1-.7 0-1.4 1-2.5 2.4-2.5s2.4 1.1 2.4 2.5c0 1.2-.8 2.2-2 2.4.6 1 .6 2.3 0 3.3 1.2.2 2 1.2 2 2.4 0 1.4-1 2.5-2.4 2.5-1 0-1.9-.6-2.3-1.4-.7.4-1.4.6-2.2.6s-1.5-.2-2.2-.6c-.4.8-1.3 1.4-2.3 1.4-1.4 0-2.4-1.1-2.4-2.5 0-1.2.8-2.2 2-2.4-.6-1-.6-2.3 0-3.3-1.2-.2-2-1.2-2-2.4Z" />
+    <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden>
+      <path
+        d="M8 5.6h8A2.4 2.4 0 0 1 18.4 8v11A2.4 2.4 0 0 1 16 21.4H8A2.4 2.4 0 0 1 5.6 19V8A2.4 2.4 0 0 1 8 5.6Z"
+        stroke="currentColor"
+        strokeWidth="1.7"
+      />
+      <path
+        d="M9.2 5.6V4.7A1.7 1.7 0 0 1 10.9 3h2.2A1.7 1.7 0 0 1 14.8 4.7v.9"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+      <path
+        d="M12 11.2v6.2M8.9 14.3h6.2"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }

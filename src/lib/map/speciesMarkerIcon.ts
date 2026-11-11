@@ -19,7 +19,7 @@ export function createSpeciesMarkerIcon(
   const kind = asAnimal(animalType);
   const fill = SPECIES_COLORS[kind];
   const ring = reportType === "found" ? STATUS_COLORS.found : STATUS_COLORS.lost;
-  const glyph = speciesGlyphSvg(kind, "#fffbf5", 16);
+  const glyph = speciesGlyphSvg(kind, "#fffbf5", 18);
   const selectedClass = selected ? " is-selected" : "";
 
   if (reportType === "found") {
