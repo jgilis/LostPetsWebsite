@@ -1,9 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// Authenticated owner edits. Name/description may change on active or
-// resolved reports. Photo and pin only on active. Pin is offset here.
-// Do not accept type, status, or a client photo_url.
+// Authenticated owner photo and pin edits on active reports.
+// Identify the caller with the user JWT, then use the service role only
+// after ownership and active status are confirmed. The service-role key
+// stays in this function. Do not accept type, status, or a client photo_url.
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -208,38 +209,35 @@ serve(async (req) => {
       }
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    if (!supabaseUrl || !anonKey) {
+      return json(500, { success: false, error: "Could not save changes" });
+    }
     const authHeader = req.headers.get("Authorization") ?? "";
     const jwt = authHeader.replace(/^Bearer\s+/i, "");
     if (!jwt) {
       return json(401, { success: false, error: "Authentication required" });
     }
 
-    // getUser(jwt) on the service-role client attaches the user session and
-    // then pin/photo writes run as the owner, which the trigger rejects.
-    const supabaseAuth = createClient(supabaseUrl, serviceKey, {
+    const supabaseUser = createClient(supabaseUrl, anonKey, {
       auth: { persistSession: false, autoRefreshToken: false },
       global: { headers: { Authorization: `Bearer ${jwt}` } },
     });
     const {
       data: { user },
       error: userError,
-    } = await supabaseAuth.auth.getUser(jwt);
+    } = await supabaseUser.auth.getUser(jwt);
 
     if (userError || !user) {
       return json(401, { success: false, error: "Authentication required" });
     }
 
-    const supabase = createClient(supabaseUrl, serviceKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-      global: { headers: { Authorization: `Bearer ${serviceKey}` } },
-    });
-
-    const { data: report, error: reportError } = await supabase
+    const { data: report, error: reportError } = await supabaseUser
       .from("reports")
       .select("id, owner_user_id, status")
       .eq("id", reportId)
+      .eq("owner_user_id", user.id)
       .maybeSingle();
 
     if (reportError) {
@@ -250,16 +248,21 @@ serve(async (req) => {
       return json(404, { success: false, error: "Report not found" });
     }
 
-    if (report.status !== "active" && report.status !== "resolved") {
-      return json(400, { success: false, error: "Report cannot be edited" });
-    }
-
-    if ((hasPin || encodedPhoto) && report.status !== "active") {
+    if (report.status !== "active") {
       return json(400, {
         success: false,
         error: "Photo and location can only be changed while the report is active",
       });
     }
+
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    if (!serviceKey) {
+      return json(500, { success: false, error: "Could not save changes" });
+    }
+    const supabaseAdmin = createClient(supabaseUrl, serviceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+      global: { headers: { Authorization: `Bearer ${serviceKey}` } },
+    });
 
     const patch: Record<string, unknown> = {
       description,
@@ -275,7 +278,7 @@ serve(async (req) => {
     let photoPath: string | null = null;
     if (encodedPhoto) {
       photoPath = `${user.id}/${crypto.randomUUID()}.jpg`;
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabaseAdmin.storage
         .from(PHOTO_BUCKET)
         .upload(photoPath, encodedPhoto, {
           contentType: "image/jpeg",
@@ -287,18 +290,18 @@ serve(async (req) => {
         return json(500, { success: false, error: "Photo upload failed" });
       }
 
-      const { data: publicUrlData } = supabase.storage
+      const { data: publicUrlData } = supabaseAdmin.storage
         .from(PHOTO_BUCKET)
         .getPublicUrl(photoPath);
       patch.photo_url = publicUrlData.publicUrl ?? null;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("reports")
       .update(patch)
       .eq("id", reportId)
       .eq("owner_user_id", user.id)
-      .in("status", ["active", "resolved"])
+      .eq("status", "active")
       .select(
         "id, animal_name, description, latitude, longitude, photo_url, status",
       )
@@ -307,7 +310,7 @@ serve(async (req) => {
     if (error || !data) {
       console.error("owner-update-report update:", error);
       if (photoPath) {
-        await supabase.storage.from(PHOTO_BUCKET).remove([photoPath]);
+        await supabaseAdmin.storage.from(PHOTO_BUCKET).remove([photoPath]);
       }
       return json(500, { success: false, error: "Could not save changes" });
     }
