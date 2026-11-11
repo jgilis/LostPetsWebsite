@@ -21,6 +21,7 @@ const camera = readFileSync("src/lib/lostReportsInCamera.ts", "utf8");
 
 test("Report is a three-task chooser; spotted reuses the Discover sighting submit", () => {
   assert.match(home, /destination === "report"/);
+  assert.match(home, /md:pt-24/);
   assert.match(workspace, /reportChooserLost/);
   assert.match(workspace, /reportChooserFound/);
   assert.match(workspace, /reportChooserSeen/);

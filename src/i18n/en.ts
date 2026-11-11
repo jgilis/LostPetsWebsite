@@ -236,7 +236,7 @@ export const en = {
   flagSubmit: "Submit",
   flagSubmitting: "Submitting...",
   flagNeedReason: "Please choose a reason.",
-  flagSuccess: "Thanks. We'll take a look.",
+  flagSuccess: "Thank you for reporting this post.",
   flagFailed: "Could not submit this report. Please try again.",
 
   notificationsTitle: "Notifications",

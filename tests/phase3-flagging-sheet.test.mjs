@@ -53,6 +53,8 @@ test("flagging uses a reason sheet and still calls flag-report", () => {
   assert.doesNotMatch(discover, /alert\(/);
 
   assert.match(en, /flagPost: "Report this post"/);
+  assert.match(en, /flagSuccess: "Thank you for reporting this post."/);
+  assert.match(sheet, /submitted \? t\("flagSuccess"\) : t\("flagSheetTitle"\)/);
   assert.match(nl, /flagPost:/);
   assert.match(fr, /flagPost:/);
 });

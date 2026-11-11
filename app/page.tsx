@@ -139,7 +139,7 @@ function HomePageContent() {
           <div
             className={`absolute inset-0 z-[545] overflow-y-auto bg-gray-950 px-4 py-6 pb-16 md:pb-6 ${
               walking && !isDesktop ? "pt-[4.75rem]" : "pt-6"
-            } md:pt-12`}
+            } md:pt-24`}
           >
             <ReportWorkspace
               reports={discoverView.reports}

@@ -238,7 +238,7 @@ export const nl: Record<keyof typeof en, string> = {
   flagSubmit: "Versturen",
   flagSubmitting: "Versturen...",
   flagNeedReason: "Kies een reden.",
-  flagSuccess: "Bedankt. We kijken ernaar.",
+  flagSuccess: "Bedankt voor het melden van dit bericht.",
   flagFailed: "Melding kon niet worden verstuurd. Probeer opnieuw.",
 
   notificationsTitle: "Meldingen",

@@ -84,20 +84,17 @@ export default function FlagReportSheet({
         className="relative z-10 w-full max-w-lg rounded-t-xl border border-gray-800 bg-gray-950 p-6 text-white md:rounded-xl"
       >
         <h2 id={titleId} className="text-lg font-semibold">
-          {t("flagSheetTitle")}
+          {submitted ? t("flagSuccess") : t("flagSheetTitle")}
         </h2>
 
         {submitted ? (
-          <>
-            <p className="mt-3 text-sm text-gray-300">{t("flagSuccess")}</p>
-            <button
-              type="button"
-              onClick={onClose}
-              className="mt-6 inline-flex min-h-[44px] items-center rounded-md bg-white px-4 text-sm font-medium text-black hover:opacity-90"
-            >
-              {t("sightingClose")}
-            </button>
-          </>
+          <button
+            type="button"
+            onClick={onClose}
+            className="mt-6 inline-flex min-h-[44px] items-center rounded-md bg-white px-4 text-sm font-medium text-black hover:opacity-90"
+          >
+            {t("sightingClose")}
+          </button>
         ) : (
           <form onSubmit={(event) => void handleSubmit(event)} className="mt-4 space-y-4">
             <fieldset>

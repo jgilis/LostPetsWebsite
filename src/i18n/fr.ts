@@ -241,7 +241,7 @@ export const fr: Record<keyof typeof en, string> = {
   flagSubmit: "Envoyer",
   flagSubmitting: "Envoi...",
   flagNeedReason: "Veuillez choisir un motif.",
-  flagSuccess: "Merci. Nous allons regarder.",
+  flagSuccess: "Merci d'avoir signalé cette publication.",
   flagFailed: "Impossible d'envoyer ce signalement. Veuillez réessayer.",
 
   notificationsTitle: "Notifications",
