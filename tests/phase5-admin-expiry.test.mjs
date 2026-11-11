@@ -51,6 +51,8 @@ test("admin home is a queue of counts, not three equal links", () => {
   assert.match(home, /adminAllReports/);
   assert.match(home, /adminAllSightings/);
   assert.match(reportsPage, /out-of-area/);
+  assert.match(reportsPage, /<Suspense/);
+  assert.match(sightingsPage, /<Suspense/);
 });
 
 test("expiry job and sighting photo cleanup do not use PostGIS", () => {

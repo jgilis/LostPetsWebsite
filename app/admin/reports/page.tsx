@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAdmin } from "../../../src/hooks/useAdmin";
 import { useAdminReportsSync } from "../../../src/hooks/useAdminReportsSync";
@@ -13,7 +13,7 @@ import { isReportOutOfMechelen } from "../../../src/lib/mechelenBounds";
 import { findPossibleDuplicates } from "../../../src/lib/duplicateHint";
 import { useTranslation } from "@/src/i18n/I18nProvider";
 
-export default function AdminAllReportsPage() {
+function AdminAllReportsContent() {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
   const outOfAreaOnly = searchParams.get("filter") === "out-of-area";
@@ -118,5 +118,13 @@ export default function AdminAllReportsPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function AdminAllReportsPage() {
+  return (
+    <Suspense fallback={<p className="p-8 text-gray-400">Loading...</p>}>
+      <AdminAllReportsContent />
+    </Suspense>
   );
 }

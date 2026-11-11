@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAdmin } from "../../../src/hooks/useAdmin";
 import AdminHeader from "../../../src/components/admin/AdminHeader";
@@ -72,7 +72,7 @@ const statusClass: Record<string, string> = {
   removed: "text-gray-500",
 };
 
-export default function AdminSightingsPage() {
+function AdminSightingsContent() {
   const { loading: adminLoading, isAdmin } = useAdmin();
   const searchParams = useSearchParams();
   const pendingOnly = searchParams.get("filter") !== "all";
@@ -244,5 +244,13 @@ export default function AdminSightingsPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function AdminSightingsPage() {
+  return (
+    <Suspense fallback={<p className="p-8 text-gray-400">Loading...</p>}>
+      <AdminSightingsContent />
+    </Suspense>
   );
 }
